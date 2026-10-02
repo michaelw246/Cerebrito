@@ -272,7 +272,7 @@ function viewCountry() {
   ${i === cur ? levelCard() : i > cur ? `<section class="card"><p class="muted">Locked. ${i - cur} more level${i - cur > 1 ? "s" : ""} to go. Facts about ${esc(r.name)} appear here once you arrive.</p><button class="btn" data-a="playj">${ic("play")}Keep exploring</button></section>` : ""}
   <section class="card mapcard">${mapSVG(ct.id)}</section>
   ${mine.length ? `<div class="secrow"><div><h2 class="sec">${ic("mountain")}Your stops</h2><p>Places you went in real life.</p></div></div><div class="mine">${mine.map(n => `<div><b>${esc(n)}${STOP_INFO[n].alt ? ` · ${fmt(STOP_INFO[n].alt)} m` : ""}</b><p>${esc(STOP_INFO[n].fact)}</p></div>`).join("")}</div>` : ""}
-  ${facts.length ? `<div class="secrow"><div><h2 class="sec">${ic("bulb")}Quick facts</h2><p>From your knowledge decks.</p></div></div><div class="mine">${facts.map(f => `<div><b>${esc(f.q)}</b><p>${esc(f.a)}</p></div>`).join("")}</div>` : ""}`;
+  ${facts.length ? `<div class="secrow"><div><h2 class="sec">${ic("bulb")}Quick facts</h2><p>From your knowledge decks.</p></div></div><div class="mine">${facts.map(f => `<div><b>${esc(f.q)}</b><p><strong>${esc(f.a)}</strong>${f.why ? `. ${esc(f.why)}` : ""}</p></div>`).join("")}</div>` : ""}`;
 }
 function celebrate(beforeLvl, afterLvl) {
   if (afterLvl <= beforeLvl) return;
@@ -292,7 +292,7 @@ function stopSheet(i) {
   sheet(`<div class="eyebrow">${esc(r.country)} · level ${i + 1}${VISITED.has(r.c) ? " · you've been here" : ""}</div><h3>${flagOf(r.c)} ${esc(r.name)}</h3>
     <div class="facts"><div><small>Capital</small><b>${esc(r.cap)}</b></div></div>
     ${mine.length ? `<div class="eyebrow m" style="margin-top:12px">Your stops</div><div class="mine">${mine.map(n => `<div><b>${esc(n)}${STOP_INFO[n].alt ? ` · ${fmt(STOP_INFO[n].alt)} m` : ""}</b><p>${esc(STOP_INFO[n].fact)}</p></div>`).join("")}</div>` : ""}
-    ${facts.length ? `<div class="eyebrow m" style="margin-top:12px">Quick facts</div><div class="mine">${facts.map(f => `<div><b>${esc(f.q)}</b><p>${esc(f.a)}</p></div>`).join("")}</div>` : ""}
+    ${facts.length ? `<div class="eyebrow m" style="margin-top:12px">Quick facts</div><div class="mine">${facts.map(f => `<div><b>${esc(f.q)}</b><p><strong>${esc(f.a)}</strong>${f.why ? `. ${esc(f.why)}` : ""}</p></div>`).join("")}</div>` : ""}
     ${i === cur && state.lastDone !== today() ? `<button class="btn" data-a="go" data-close>${ic("play")}Start today's session</button>` : ""}`);
 }
 

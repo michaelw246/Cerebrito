@@ -35,7 +35,9 @@ document.addEventListener("click", e => {
   if (a === "exit") exitSession(); else if (a === "start") beginStep(); else if (a === "next") stepIntro(); else if (a === "finish") finishSession();
 });
 const curStop = () => stopFor(levelInfo(state.xp).lvl);
-function stopFact() { const r = ROUTE[curIdx()], f = countryFacts(r.c, 1)[0], mine = (MYSTOPS[r.c] || []).filter(n => STOP_INFO[n]); const txt = f ? `${f.q} ${f.a}.` : mine.length ? STOP_INFO[pick(mine)].fact : ""; return txt ? `<div class="dyk"><i>${ic("globe")}</i><p><b>${flagOf(r.c)} ${esc(r.name)}.</b> ${esc(txt)}</p></div>` : ""; }
+/* a knowledge-bank fact as prose: the question, then the answer in bold (plus its explanation if it has one) */
+const factHTML = f => `${esc(f.q)} <b class="fa">${esc(f.a)}.</b>${f.why ? ` ${esc(f.why)}` : ""}`;
+function stopFact() { const r = ROUTE[curIdx()], f = countryFacts(r.c, 1)[0], mine = (MYSTOPS[r.c] || []).filter(n => STOP_INFO[n]); const html = f ? factHTML(f) : mine.length ? esc(STOP_INFO[pick(mine)].fact) : ""; return html ? `<div class="dyk"><i>${ic("globe")}</i><p><b>${flagOf(r.c)} ${esc(r.name)}.</b> ${html}</p></div>` : ""; }
 
 function stepIntro() {
   if (P.idx >= P.steps.length) return finishSession();
@@ -64,7 +66,7 @@ function stepIntro() {
   }
   const himg = s.t === "game" ? IMG[PILLARS[s.eng].img] : s.t === "know" ? IMG[KNOW[s.kind].img] : s.kind === "rush" ? IMG.t_travel : null;
   const pzArt = () => s.kind === "hunt" ? `<div class="art huntart">${shuffle([...Array(16).keys()].map(n => n + 1)).map(n => `<span class="${n <= 3 ? "hit" : ""}">${n}</span>`).join("")}</div>`
-    : s.kind === "pairs" ? `<div class="art pairart">${["hola", "hello", "?", "gracias", "?", "?"].map((w, i) => `<span class="${w === "?" ? "" : i % 2 ? "en" : "es"}">${w === "?" ? ic("sparkle") : w}</span>`).join("")}</div>`
+    : s.kind === "pairs" ? `<div class="art pairart">${[["hola", "es"], ["hello", "en"], ["?"], ["?"], ["gracias", "es"], ["?"]].map(([w, c]) => `<span class="${c || ""}">${w === "?" ? ic("sparkle") : w}</span>`).join("")}</div>`
     : (s.kind === "palabra" || s.kind === "wordle" || s.kind === "bee") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : s.kind === "bee" ? "HONEY" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art">${worldSVG({ fills: s.kind === "pais" ? { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" } : {} })}</div>`;
   const top = himg ? `<div class="heroimg"><img src="${himg}" alt=""><span class="tl">${ic(icon)}${s.t === "game" ? esc(PILLARS[s.eng].es) : s.kind === "es" ? "Vocabulario" : s.kind === "rush" ? "Rápido" : "Recuerdos"}</span></div>`
     : `<div class="heroimg">${pzArt()}<span class="tl">${ic(icon)}${s.free ? "Free play" : "Daily puzzle"}</span></div>`;
@@ -347,8 +349,8 @@ function finishSession() {
   state.chest = { date: t, opened: false };
   const kind = p.kind; sessTitle(); state.plan = null; P = null;
   save();
-  const st = stopFor(after), info = { fact: (() => { const f = countryFacts(st.c, 1)[0]; return f ? `${f.q} ${f.a}.` : ""; })() };
-  const moved = after > before ? `<section class="card newstop">${`<span class="stamp">${flagOf(st.c)}</span>`}<div><div class="eyebrow">${ic("target", "xs")} New country reached</div><b>${esc(st.name)}</b><p class="muted" style="color:var(--ink2)">${esc(st.country)}, level ${st.i + 1}${unlocked.length ? `. Unlocked the ${esc(unlocked.map(u => u.name).join(" and "))} theme` : ""}</p></div></section>${info.fact ? `<div class="dyk" style="margin-top:0"><i>${ic("mountain")}</i><p><b>Did you know?</b> ${esc(info.fact)}</p></div>` : ""}` : "";
+  const st = stopFor(after), sf = countryFacts(st.c, 1)[0], info = { fact: sf ? factHTML(sf) : "" };
+  const moved = after > before ? `<section class="card newstop">${`<span class="stamp">${flagOf(st.c)}</span>`}<div><div class="eyebrow">${ic("target", "xs")} New country reached</div><b>${esc(st.name)}</b><p class="muted" style="color:var(--ink2)">${esc(st.country)}, level ${st.i + 1}${unlocked.length ? `. Unlocked the ${esc(unlocked.map(u => u.name).join(" and "))} theme` : ""}</p></div></section>${info.fact ? `<div class="dyk" style="margin-top:0"><i>${ic("mountain")}</i><p><b>Did you know?</b> ${info.fact}</p></div>` : ""}` : "";
   app.innerHTML = `<div class="play">${shead()}<section class="cleared"><div class="fig"><img src="${IMG.hero}" alt=""><span class="chip">${ic("check")}Sesión completada</span></div>
     <h1>${kind === "calib" ? `<span>Excelente!</span> Calibration day ${state.calib.day} done` : kind === "checkup" ? "<span>Listo!</span> Check-up complete" : "<span>Excelente trabajo!</span>"}</h1><p>${kind === "calib" && state.calib.day < 3 ? "One step closer to your full baseline." : "Every tree got a little water today."}</p></section>
     <div class="bigstats"><div class="card"><div class="t">Expedition XP<i>${ic("zap")}</i></div><b>+${stepXp + bonus}<small> XP</small></b><div class="sub">${bonus} XP streak bonus, +${stepCoins + 20} coins</div></div>

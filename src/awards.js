@@ -44,6 +44,7 @@ function checkAwards() {
 }
 function flushAwards() {
   if (!awardQueue.length || $(".awardpop")) return;
+  if ($(".lvlup") || $(".scrim") || $(".count")) { setTimeout(flushAwards, 1200); return; }   // wait for modals and countdowns
   const a = awardQueue.shift(), el = document.createElement("div");
   el.className = "awardpop"; el.setAttribute("role", "status");
   el.innerHTML = `<span class="abadge" style="--ac:${a.col}">${ic(a.icon)}</span><div><small>Award unlocked</small><b>${esc(a.name)}</b><span>${esc(a.desc)}</span></div>`;

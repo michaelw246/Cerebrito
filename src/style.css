@@ -1183,7 +1183,7 @@ body.has-gbar .kplay{padding-bottom:240px}
 .hcell.miss{animation:shake .35s;background:color-mix(in srgb,var(--bad) 25%,transparent)}
 .hnote{text-align:center;margin-top:12px}
 .art.huntart{display:grid;grid-template-columns:repeat(4,46px);gap:6px;place-content:center;background:linear-gradient(160deg,var(--pl),var(--au4))}
-.huntart span{height:46px;border-radius:12px;display:grid;place-items:center;font:800 19px var(--fh);background:rgba(255,255,255,.75);color:#181A2F}
+.huntart span{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font:800 19px var(--fh);background:rgba(255,255,255,.75);color:#181A2F}
 .huntart span.hit{background:var(--p);color:#fff}
 
 /* ================= Parejas ================= */
@@ -1205,10 +1205,32 @@ body.has-gbar .kplay{padding-bottom:240px}
 .pwords b{display:block;font-family:var(--fh);color:#B23A6A}
 .pwords span{font-size:13px;color:var(--ink2)}
 .art.pairart{display:grid;grid-template-columns:repeat(3,72px);gap:8px;place-content:center;background:linear-gradient(160deg,#FFE3EE,var(--pl))}
-.pairart span{height:86px;border-radius:14px;display:grid;place-items:center;font:700 14px var(--fh);background:linear-gradient(145deg,var(--p2),var(--p));color:#fff}
+.pairart span{width:72px;height:86px;border-radius:14px;display:grid;place-items:center;font:700 14px var(--fh);background:linear-gradient(145deg,var(--p2),var(--p));color:#fff}
 .pairart span .ic{width:24px;height:24px;opacity:.8}
 .pairart span.es{background:#fff;color:#B23A6A;border:2px solid #EE7FA6}
 .pairart span.en{background:#fff;color:var(--pd);border:2px solid var(--p2)}
 /* speed: high-level look-alike distractors */
 .shape.dia.near{background:var(--s2);opacity:.9}
 .shape.cir.near{background:color-mix(in srgb,var(--p) 75%,#fff)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .toast{background:rgba(243,241,255,.94);color:#181A2F}
+  :root:not([data-theme="light"]) .tile.x{background:#3B3D5E;color:#B9B5D0}
+  :root:not([data-theme="light"]) .kbdock .key.x{background:#2A2C4A;color:#6E6A88;opacity:1}
+}
+:root[data-skin="atacama"] .toast{background:rgba(243,241,255,.94);color:#181A2F}
+:root[data-skin="atacama"] .tile.x{background:#3B3D5E;color:#B9B5D0}
+/* desktop and tablets: more room for maps and boards, same single-column flow */
+@media (min-width:900px){
+  .app{max-width:600px;padding-left:24px;padding-right:24px}
+  .top{margin:0 -24px;padding-left:24px;padding-right:24px}
+  .tabs{width:560px}
+  .gbar{width:580px}
+  .gbar.kbdock{width:600px}
+  .sheet{max-width:600px}
+  .mapv svg.wmap{height:clamp(300px,50vh,460px)}
+  .mapcard.tall .mapv svg.wmap{height:clamp(340px,58vh,560px)}
+  .awards{grid-template-columns:repeat(4,1fr)}
+  .pgrid{grid-template-columns:repeat(4,1fr)}
+  body::before{opacity:1}
+}
+.dyk p b.fa{font-family:var(--fb);font-weight:800;color:var(--td)}
