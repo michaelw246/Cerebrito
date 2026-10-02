@@ -1,0 +1,7 @@
+[["intro","document.querySelector('[data-a=go]').click()",600],
+ ["game","document.querySelector('[data-s=start]').click()",4500],
+ ["","document.querySelector('.opt')&&document.querySelector('.opt').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))",700],
+ ["game2","",300],
+ ["result","window.__off=(window.__off||0)+90000",1200],
+ ["intro2","document.querySelector('[data-s=next]').click()",600]
+]

@@ -1,0 +1,9 @@
+[["","content.tr = normTr(window.__TR); content.trSample=false; groveFilter='lang'; view='train'; render();",500],
+ ["kgrove","",100],
+ ["","document.querySelector('[data-a=learn][data-c=\"Health & fitness\"]').click()",400],
+ ["kintro","",100],
+ ["","document.querySelector('[data-s=start]').click()",400],
+ ["kcard","",100],
+ ["","exitSession(); view='pass'; render(); scrollTo(0,1500)",500],
+ ["kpass","",100]
+]

@@ -1,0 +1,23 @@
+from facts5 import F, add
+add("AI & Tech", "Tech essentials", [
+ ("What's machine learning, in one line?", "Systems that learn patterns from data instead of following hand-written rules", "Robots that build machines", "Very fast calculators", "Programs that can't change"),
+ ("Neural networks are loosely inspired by…?", "Neurons in the brain", "Bee hives", "Computer chips", "Spider webs"),
+ ("The 2012 image-recognition breakthrough that kicked off the deep learning boom?", "AlexNet", "Deep Blue", "ELIZA", "Siri"),
+ ("What's an AI 'hallucination'?", "A confident answer that's false", "A visual glitch", "A virus", "A dream mode"),
+ ("Training vs inference: inference is when a model…?", "Is used to answer, after training", "Is being taught", "Is switched off", "Downloads data"),
+ ("Which company makes Claude?", "Anthropic", "OpenAI", "Google", "Meta"),
+ ("Anthropic was founded in 2021 by siblings…?", "Dario and Daniela Amodei", "Sam and Jack Altman", "Larry and Sergey", "Demis and Mustafa"),
+ ("OpenAI's CEO?", "Sam Altman", "Satya Nadella", "Demis Hassabis", "Jensen Huang"),
+ ("Nvidia's leather-jacketed CEO?", "Jensen Huang", "Lisa Su", "Tim Cook", "Pat Gelsinger"),
+ ("DeepMind was founded in London in 2010 and bought by which company in 2014?", "Google", "Microsoft", "Meta", "Amazon"),
+ ("The Taiwanese company that makes most of the world's most advanced chips?", "TSMC", "Intel", "Samsung", "Nvidia"),
+ ("Moore's law says the number of transistors on a chip doubles about every…?", "Two years", "Two months", "Ten years", "Week"),
+ ("Who's often called the first computer programmer?", "Ada Lovelace", "Alan Turing", "Charles Babbage", "Grace Hopper"),
+ ("Who invented the World Wide Web in 1989?", "Tim Berners-Lee", "Bill Gates", "Steve Jobs", "Vint Cerf"),
+ ("When did the first iPhone launch?", "2007", "2001", "2010", "1998"),
+ ("Alphabet's self-driving robotaxi company?", "Waymo", "Cruise", "Zoox", "Uber ATG"),
+ ("Quantum computers use units called…?", "Qubits", "Bytes", "Quarks", "Q-bits of RAM"),
+ ("The robot widely used for minimally invasive surgery?", "The da Vinci system", "Atlas", "Optimus", "ASIMO"),
+ ("The NASA rover that landed on Mars in 2021 carrying a small helicopter?", "Perseverance (with Ingenuity)", "Curiosity", "Spirit", "Sojourner"),
+ ("A model's 'parameters' are…?", "The learned weights inside it", "Its user settings", "Its training data", "Its hardware"),
+])

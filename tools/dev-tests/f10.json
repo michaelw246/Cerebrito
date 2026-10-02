@@ -1,0 +1,11 @@
+[["","content.tr = normTr(window.__TR); content.trSample=false; state.notice=null; view='map'; render();",400],
+ ["a_home","scrollTo(0,500)",200],
+ ["","document.querySelector('[data-tab=pass]').click()",400],["a_you","",100],
+ ["","document.querySelector('[data-tab=train]').click()",400],["a_mind","",100],
+ ["","document.querySelector('[data-a=part][data-k=memory]').click()",400],["a_part","",100],["a_part2","scrollTo(0,600)",200],
+ ["","document.querySelector('[data-tab=journey]').click()",500],["a_jour","",100],["a_jour2","scrollTo(0,520)",200],
+ ["","document.querySelector('.wmap .mk.c').dispatchEvent(new MouseEvent('click',{bubbles:true}))",400],["a_sheet","",100],
+ ["","document.querySelector('.scrim').remove(); document.querySelector('[data-a=cont][data-k=eu]').click()",400],["a_eu","scrollTo(0,500)",200],
+ ["","view='part'; partKey='speed'; render(); document.querySelector('[data-a=trainpart]').click()",400],
+ ["","document.querySelector('[data-a=trainpart]') ; document.querySelector('[data-s=exit]').click()",400],["a_back","",100]
+]

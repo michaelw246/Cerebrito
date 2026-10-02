@@ -1,0 +1,409 @@
+{
+  "baseline": null,
+  "bestStreak": 1,
+  "calib": {
+    "day": 1,
+    "est": {
+      "memory": 8,
+      "speed": 50
+    }
+  },
+  "checkedThrough": "2026-10-01",
+  "checkups": [],
+  "chest": {
+    "date": "2026-10-02",
+    "opened": true
+  },
+  "coins": 362,
+  "freezes": 0,
+  "haptics": true,
+  "hints": 0,
+  "howSeen": true,
+  "joined": "2026-10-02",
+  "lastDone": "2026-10-02",
+  "lastGames": [
+    "speed",
+    "memory"
+  ],
+  "maxLvl": 4,
+  "notice": null,
+  "owned": [
+    "andean"
+  ],
+  "plan": null,
+  "pz": {
+    "date": "2026-10-02",
+    "pais": {
+      "a": "CR",
+      "done": true,
+      "g": [
+        "TR",
+        "FR",
+        "US",
+        "CL",
+        "JP",
+        "IN",
+        "EG",
+        "ET"
+      ],
+      "won": false
+    },
+    "palabra": {
+      "a": 23,
+      "done": false,
+      "g": [
+        "LUEGO",
+        "PUEDO",
+        "PLAYA"
+      ],
+      "rev": [
+        0,
+        3
+      ],
+      "won": false
+    }
+  },
+  "pzs": {
+    "pais": {
+      "dist": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "played": 1,
+      "streak": 0,
+      "won": 0
+    },
+    "palabra": {
+      "dist": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "played": 0,
+      "streak": 0,
+      "won": 0
+    }
+  },
+  "rushBest": 315,
+  "sessions": 1,
+  "skills": {
+    "attention": {
+      "best": 11855,
+      "hist": [
+        {
+          "d": "2026-10-02",
+          "m": "train",
+          "s": 11855,
+          "v": "flanker"
+        }
+      ],
+      "lastV": "flanker",
+      "lvl": 19.205882352941178
+    },
+    "flex": {
+      "best": 535,
+      "hist": [
+        {
+          "d": "2026-10-02",
+          "m": "train",
+          "s": 535,
+          "v": "shapes"
+        }
+      ],
+      "lastV": "shapes",
+      "lvl": 4.2727272727272725
+    },
+    "memory": {
+      "best": 770,
+      "hist": [
+        {
+          "d": "2026-10-02",
+          "m": "assess",
+          "s": 770,
+          "v": "all"
+        }
+      ],
+      "lastV": null,
+      "lvl": 8
+    },
+    "numeracy": {
+      "best": 20,
+      "hist": [
+        {
+          "d": "2026-10-02",
+          "m": "train",
+          "s": 20,
+          "v": "estimate"
+        },
+        {
+          "d": "2026-10-02",
+          "m": "train",
+          "s": 20,
+          "v": "fx"
+        }
+      ],
+      "lastV": "fx",
+      "lvl": 1
+    },
+    "reasoning": {
+      "best": 145,
+      "hist": [
+        {
+          "d": "2026-10-02",
+          "m": "train",
+          "s": 145,
+          "v": "oddnum"
+        }
+      ],
+      "lastV": "oddnum",
+      "lvl": 1.8
+    },
+    "spatial": {
+      "best": 220,
+      "hist": [
+        {
+          "d": "2026-10-02",
+          "m": "train",
+          "s": 220,
+          "v": "rotate"
+        }
+      ],
+      "lastV": "rotate",
+      "lvl": 2.6666666666666665
+    },
+    "speed": {
+      "best": 21890,
+      "hist": [
+        {
+          "d": "2026-10-02",
+          "m": "assess",
+          "s": 21890,
+          "v": "position"
+        }
+      ],
+      "lastV": null,
+      "lvl": 50
+    }
+  },
+  "skin": "andean",
+  "sound": true,
+  "srs": {
+    "es": {
+      "es:ayer": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:barato": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:cansado": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:caro": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:cerca": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:de nada": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:derecha": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:despacio": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:el pasaje": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:gracias": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:hola": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:izquierda": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:lejos": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:mañana": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:no": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:perdón": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:por favor": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "es:sí": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      }
+    },
+    "tr": {
+      "tr:12kk0g4": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:12xwbpu": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:1aug45z": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:1cfmj0p": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:1g7109s": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:1g89p07": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:1ives9f": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:1j3cp6i": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:37zash": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:4imr9o": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:5j7m3v": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:7znf9x": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:ou9mzp": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:wx9x7k": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      },
+      "tr:zvc50z": {
+        "b": 3,
+        "due": "2026-10-09",
+        "n": 1,
+        "ok": 1
+      }
+    }
+  },
+  "streak": 1,
+  "updatedAt": 1790898255043,
+  "v": 1,
+  "xp": 443
+}

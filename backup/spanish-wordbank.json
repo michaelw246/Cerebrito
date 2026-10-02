@@ -1,0 +1,1844 @@
+{
+  "items": [
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Yes",
+      "es": "Sí",
+      "pr": "see"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "No",
+      "es": "No",
+      "pr": "noh"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Please",
+      "es": "Por favor",
+      "pr": "por fah-VOR"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Thank you",
+      "es": "Gracias",
+      "pr": "GRAH-syahs"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "You're welcome",
+      "es": "De nada",
+      "pr": "deh NAH-dah"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Sorry / excuse me (informal)",
+      "es": "Perdón",
+      "pr": "pehr-DON"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Sorry (formal)",
+      "es": "Disculpe",
+      "pr": "dees-KOOL-peh"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Hello",
+      "es": "Hola",
+      "pr": "OH-lah"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Good morning",
+      "es": "Buenos días",
+      "pr": "BWEH-nos DEE-ahs"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Good afternoon / evening",
+      "es": "Buenas tardes",
+      "pr": "BWEH-nahs TAR-des"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Good night",
+      "es": "Buenas noches",
+      "pr": "BWEH-nahs NOH-ches"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Welcome",
+      "es": "Bienvenido/a",
+      "pr": "byen-veh-NEE-doh"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Have a good day",
+      "es": "Que tengas buen día",
+      "pr": "keh TEN-gahs bwen DEE-ah"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "How are you?",
+      "es": "¿Cómo estás?",
+      "pr": "KOH-moh eh-STAS"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "What's your name?",
+      "es": "¿Cómo te llamás?",
+      "pr": "KOH-moh teh yah-MAS"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "My name is…",
+      "es": "Me llamo…",
+      "pr": "meh YAH-moh"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Nice to meet you",
+      "es": "Mucho gusto",
+      "pr": "MOO-cho GOOS-to"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "Where are you from?",
+      "es": "¿De dónde sos?",
+      "pr": "deh DON-deh sohs"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "I'm from…",
+      "es": "Soy de…",
+      "pr": "soy deh"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "How long have you lived here?",
+      "es": "¿Hace cuánto vivís acá?",
+      "pr": "AH-seh KWAN-to vee-VEES a-KA"
+    },
+    {
+      "cat": "Greetings \u0026 small talk",
+      "en": "How long have you been travelling?",
+      "es": "¿Hace cuánto estás viajando?",
+      "pr": "AH-seh KWAN-to es-TAS vee-ah-HAN-do"
+    },
+    {
+      "cat": "People",
+      "en": "Friend",
+      "es": "Amigo/a",
+      "pr": "ah-MEE-goh"
+    },
+    {
+      "cat": "People",
+      "en": "Girlfriend",
+      "es": "Novia",
+      "pr": "NOH-vyah"
+    },
+    {
+      "cat": "People",
+      "en": "Dude / mate",
+      "es": "Che",
+      "pr": "cheh"
+    },
+    {
+      "cat": "People",
+      "en": "Guy / bloke",
+      "es": "Tipo",
+      "pr": "TEE-poh"
+    },
+    {
+      "cat": "People",
+      "en": "Girl / woman (casual)",
+      "es": "Chica",
+      "pr": "CHEE-kah"
+    },
+    {
+      "cat": "People",
+      "en": "Love",
+      "es": "Amor",
+      "pr": "ah-MOR"
+    },
+    {
+      "cat": "People",
+      "en": "I love you",
+      "es": "Te amo",
+      "pr": "teh AH-moh"
+    },
+    {
+      "cat": "People",
+      "en": "Kiss",
+      "es": "Beso",
+      "pr": "BEH-so"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Happy",
+      "es": "Feliz",
+      "pr": "feh-LEES"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Grumpy",
+      "es": "Malhumorado",
+      "pr": "mal-oo-moh-RAH-doh"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Good",
+      "es": "Bueno",
+      "pr": "BWEH-no"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Better",
+      "es": "Mejor",
+      "pr": "meh-HOR"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Very good",
+      "es": "Muy bueno",
+      "pr": "mwee BWEH-no"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Great",
+      "es": "Genial",
+      "pr": "heh-NYAL"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Excellent",
+      "es": "Excelente",
+      "pr": "ek-seh-LEN-te"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Pretty / lovely",
+      "es": "Lindo/a",
+      "pr": "LEEN-doh"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Terrible",
+      "es": "Horrible",
+      "pr": "oh-REE-bleh"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "OK / fine",
+      "es": "Está bien",
+      "pr": "es-TAH byen"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Absolutely",
+      "es": "Absolutamente",
+      "pr": "ab-so-loo-ta-MEN-te"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "I have no idea",
+      "es": "No tengo idea",
+      "pr": "no TEN-go ee-DE-ah"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "Tired",
+      "es": "Cansado",
+      "pr": "can-SA-do"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "I like it",
+      "es": "Me gusta",
+      "pr": "me GOOS-ta"
+    },
+    {
+      "cat": "Feelings \u0026 reactions",
+      "en": "I don't like it",
+      "es": "No me gusta",
+      "pr": "no me GOOS-ta"
+    },
+    {
+      "cat": "Time",
+      "en": "Now",
+      "es": "Ahora",
+      "pr": "ah-OH-rah"
+    },
+    {
+      "cat": "Time",
+      "en": "Later",
+      "es": "Luego",
+      "pr": "LWEH-go"
+    },
+    {
+      "cat": "Time",
+      "en": "Always",
+      "es": "Siempre",
+      "pr": "SYEM-pre"
+    },
+    {
+      "cat": "Time",
+      "en": "Yesterday",
+      "es": "Ayer",
+      "pr": "ah-YER"
+    },
+    {
+      "cat": "Time",
+      "en": "Today",
+      "es": "Hoy",
+      "pr": "oy"
+    },
+    {
+      "cat": "Time",
+      "en": "Tomorrow",
+      "es": "Mañana",
+      "pr": "man-YAH-na"
+    },
+    {
+      "cat": "Time",
+      "en": "Day",
+      "es": "Día",
+      "pr": "DEE-ah"
+    },
+    {
+      "cat": "Time",
+      "en": "Week",
+      "es": "Semana",
+      "pr": "seh-MAH-na"
+    },
+    {
+      "cat": "Time",
+      "en": "Month",
+      "es": "Mes",
+      "pr": "mess"
+    },
+    {
+      "cat": "Time",
+      "en": "Hour",
+      "es": "Hora",
+      "pr": "OR-ah"
+    },
+    {
+      "cat": "Time",
+      "en": "Hours",
+      "es": "Horas",
+      "pr": "OR-ahs"
+    },
+    {
+      "cat": "Time",
+      "en": "Days",
+      "es": "Días",
+      "pr": "DEE-ahs"
+    },
+    {
+      "cat": "Time",
+      "en": "What time is it?",
+      "es": "¿Qué hora es?",
+      "pr": "keh OR-ah es"
+    },
+    {
+      "cat": "Time",
+      "en": "When?",
+      "es": "¿Cuándo?",
+      "pr": "KWAN-do"
+    },
+    {
+      "cat": "Time",
+      "en": "First",
+      "es": "Primero",
+      "pr": "pree-MEH-ro"
+    },
+    {
+      "cat": "Time",
+      "en": "Next",
+      "es": "Próximo",
+      "pr": "PROK-see-mo"
+    },
+    {
+      "cat": "Time",
+      "en": "Later today",
+      "es": "Más tarde",
+      "pr": "mas TAR-de"
+    },
+    {
+      "cat": "Basics",
+      "en": "All / everything",
+      "es": "Todo",
+      "pr": "TO-do"
+    },
+    {
+      "cat": "Basics",
+      "en": "With",
+      "es": "Con",
+      "pr": "kon"
+    },
+    {
+      "cat": "Basics",
+      "en": "Without",
+      "es": "Sin",
+      "pr": "seen"
+    },
+    {
+      "cat": "Basics",
+      "en": "He/she is",
+      "es": "Es",
+      "pr": "es"
+    },
+    {
+      "cat": "Basics",
+      "en": "Here",
+      "es": "Acá",
+      "pr": "a-KA"
+    },
+    {
+      "cat": "Basics",
+      "en": "There",
+      "es": "Allá",
+      "pr": "a-YA"
+    },
+    {
+      "cat": "Basics",
+      "en": "A little",
+      "es": "Un poco",
+      "pr": "oon PO-ko"
+    },
+    {
+      "cat": "Basics",
+      "en": "More",
+      "es": "Más",
+      "pr": "mas"
+    },
+    {
+      "cat": "Basics",
+      "en": "A lot",
+      "es": "Mucho",
+      "pr": "MOO-cho"
+    },
+    {
+      "cat": "Basics",
+      "en": "Enough",
+      "es": "Basta",
+      "pr": "BAS-ta"
+    },
+    {
+      "cat": "Basics",
+      "en": "Too much",
+      "es": "Demasiado",
+      "pr": "de-ma-SYA-do"
+    },
+    {
+      "cat": "Actions",
+      "en": "Wait / one moment",
+      "es": "Esperá",
+      "pr": "es-peh-RA"
+    },
+    {
+      "cat": "Actions",
+      "en": "Quickly",
+      "es": "Rápido",
+      "pr": "RA-pee-do"
+    },
+    {
+      "cat": "Actions",
+      "en": "Slowly",
+      "es": "Despacio",
+      "pr": "des-PA-syo"
+    },
+    {
+      "cat": "Actions",
+      "en": "Go",
+      "es": "Andá",
+      "pr": "an-DA"
+    },
+    {
+      "cat": "Actions",
+      "en": "Let's go",
+      "es": "Vamos",
+      "pr": "VA-mos"
+    },
+    {
+      "cat": "Actions",
+      "en": "Stop",
+      "es": "Pará",
+      "pr": "pa-RA"
+    },
+    {
+      "cat": "Actions",
+      "en": "Look",
+      "es": "Mirá",
+      "pr": "mee-RA"
+    },
+    {
+      "cat": "Actions",
+      "en": "Hold (it)",
+      "es": "Sostené",
+      "pr": "sos-te-NE"
+    },
+    {
+      "cat": "Actions",
+      "en": "To make / do",
+      "es": "Hacer",
+      "pr": "a-SER"
+    },
+    {
+      "cat": "Actions",
+      "en": "Work / I work",
+      "es": "Trabajo",
+      "pr": "tra-BA-ho"
+    },
+    {
+      "cat": "Actions",
+      "en": "I work here",
+      "es": "Trabajo acá",
+      "pr": "tra-BA-ho a-KA"
+    },
+    {
+      "cat": "Actions",
+      "en": "To travel",
+      "es": "Viajar",
+      "pr": "vee-ah-HAR"
+    },
+    {
+      "cat": "Actions",
+      "en": "To arrive",
+      "es": "Llegar",
+      "pr": "yeh-GAR"
+    },
+    {
+      "cat": "Actions",
+      "en": "I'll be back",
+      "es": "Volveré",
+      "pr": "vol-veh-RE"
+    },
+    {
+      "cat": "Actions",
+      "en": "To swim",
+      "es": "Nadar",
+      "pr": "na-DAR"
+    },
+    {
+      "cat": "Actions",
+      "en": "Help",
+      "es": "Ayuda",
+      "pr": "a-YOO-da"
+    },
+    {
+      "cat": "Actions",
+      "en": "Help me",
+      "es": "Ayudame",
+      "pr": "a-YOO-da-me"
+    },
+    {
+      "cat": "Actions",
+      "en": "To cut",
+      "es": "Cortar",
+      "pr": "cor-TAR"
+    },
+    {
+      "cat": "Actions",
+      "en": "Let me know",
+      "es": "Avisame",
+      "pr": "a-VEE-sa-me"
+    },
+    {
+      "cat": "Questions",
+      "en": "Where?",
+      "es": "¿Dónde?",
+      "pr": "DON-de"
+    },
+    {
+      "cat": "Questions",
+      "en": "Where is…?",
+      "es": "¿Dónde está…?",
+      "pr": "DON-de es-TA"
+    },
+    {
+      "cat": "Questions",
+      "en": "What is…?",
+      "es": "¿Qué es…?",
+      "pr": "keh es"
+    },
+    {
+      "cat": "Questions",
+      "en": "Do you know?",
+      "es": "¿Sabés?",
+      "pr": "sa-BES"
+    },
+    {
+      "cat": "Questions",
+      "en": "How many?",
+      "es": "¿Cuántos?",
+      "pr": "KWAN-tos"
+    },
+    {
+      "cat": "Questions",
+      "en": "I understand",
+      "es": "Entiendo",
+      "pr": "en-TYEN-do"
+    },
+    {
+      "cat": "Questions",
+      "en": "I don't understand",
+      "es": "No entiendo",
+      "pr": "no en-TYEN-do"
+    },
+    {
+      "cat": "Questions",
+      "en": "I need",
+      "es": "Necesito",
+      "pr": "neh-seh-SEE-to"
+    },
+    {
+      "cat": "Questions",
+      "en": "I want",
+      "es": "Quiero",
+      "pr": "KYER-o"
+    },
+    {
+      "cat": "Questions",
+      "en": "Can I?",
+      "es": "¿Puedo?",
+      "pr": "PWE-do"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "See you later",
+      "es": "Nos vemos",
+      "pr": "nos VE-mos"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Cheers",
+      "es": "Salud",
+      "pr": "sa-LOOD"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Bathroom",
+      "es": "Baño",
+      "pr": "BAN-yo"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Where is the bathroom?",
+      "es": "¿Dónde está el baño?",
+      "pr": "DON-de es-TA el BAN-yo"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Money",
+      "es": "Plata",
+      "pr": "PLA-ta"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Cash",
+      "es": "Efectivo",
+      "pr": "ef-ek-TEE-vo"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Card",
+      "es": "Tarjeta",
+      "pr": "tar-HE-ta"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Cheap",
+      "es": "Barato",
+      "pr": "ba-RA-to"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Expensive",
+      "es": "Caro",
+      "pr": "KA-ro"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Table",
+      "es": "Mesa",
+      "pr": "ME-sa"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Do you have a table for X people?",
+      "es": "¿Tenés una mesa para X personas?",
+      "pr": "te-NES oo-na ME-sa"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Can I see the menu?",
+      "es": "¿Me traés la carta?",
+      "pr": "meh tra-ES la KAR-ta"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "I'd like to order",
+      "es": "Quisiera pedir",
+      "pr": "kee-SYE-ra pe-DEER"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "The bill, please",
+      "es": "La cuenta, por favor",
+      "pr": "la KWEN-ta"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "How much does it cost?",
+      "es": "¿Cuánto cuesta?",
+      "pr": "KWAN-to KWES-ta"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "How long does it take?",
+      "es": "¿Cuánto tarda?",
+      "pr": "KWAN-to TAR-da"
+    },
+    {
+      "cat": "Out \u0026 about",
+      "en": "Sale / discount",
+      "es": "Oferta",
+      "pr": "o-FER-ta"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Food",
+      "es": "Comida",
+      "pr": "ko-MEE-da"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Bread",
+      "es": "Pan",
+      "pr": "pan"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Wine",
+      "es": "Vino",
+      "pr": "VEE-no"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Beer",
+      "es": "Cerveza",
+      "pr": "ser-VE-sa"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Coffee",
+      "es": "Café",
+      "pr": "ka-FE"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Milk",
+      "es": "Leche",
+      "pr": "LE-che"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Egg",
+      "es": "Huevo",
+      "pr": "WE-vo"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Chicken",
+      "es": "Pollo",
+      "pr": "PO-yo"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Fish",
+      "es": "Pescado",
+      "pr": "pes-KA-do"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Meat",
+      "es": "Carne",
+      "pr": "KAR-ne"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Salt",
+      "es": "Sal",
+      "pr": "sal"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Sugar",
+      "es": "Azúcar",
+      "pr": "a-SOO-kar"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Vegetable",
+      "es": "Verdura",
+      "pr": "ver-DOO-ra"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Fruit",
+      "es": "Fruta",
+      "pr": "FROO-ta"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Corn",
+      "es": "Maíz",
+      "pr": "ma-EES"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Ice cream",
+      "es": "Helado",
+      "pr": "e-LA-do"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Breakfast",
+      "es": "Desayuno",
+      "pr": "de-sa-YOO-no"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Lunch",
+      "es": "Almuerzo",
+      "pr": "al-MWER-so"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Dinner",
+      "es": "Cena",
+      "pr": "SE-na"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "BBQ / grill",
+      "es": "Parrilla",
+      "pr": "pa-REE-ya"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Tasty",
+      "es": "Rico",
+      "pr": "REE-ko"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "I'm hungry",
+      "es": "Tengo hambre",
+      "pr": "TEN-go AM-bre"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "I'm thirsty",
+      "es": "Tengo sed",
+      "pr": "TEN-go sed"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Water",
+      "es": "Agua",
+      "pr": "A-gwa"
+    },
+    {
+      "cat": "Food \u0026 drink",
+      "en": "Cup",
+      "es": "Taza",
+      "pr": "TA-sa"
+    },
+    {
+      "cat": "Mate",
+      "en": "Mate (the drink / gourd)",
+      "es": "Mate",
+      "pr": "MA-te"
+    },
+    {
+      "cat": "Mate",
+      "en": "Mate straw",
+      "es": "Bombilla",
+      "pr": "bom-BEE-ya"
+    },
+    {
+      "cat": "Mate",
+      "en": "Person pouring the mate",
+      "es": "Cebador",
+      "pr": "seh-ba-DOR"
+    },
+    {
+      "cat": "Mate",
+      "en": "Mate circle",
+      "es": "Ronda de mate",
+      "pr": "RON-da de MA-te"
+    },
+    {
+      "cat": "Mate",
+      "en": "Another mate?",
+      "es": "¿Otro mate?",
+      "pr": "O-tro MA-te"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Bed",
+      "es": "Cama",
+      "pr": "KA-ma"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Room",
+      "es": "Habitación",
+      "pr": "a-bee-ta-SYON"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Key",
+      "es": "Llave",
+      "pr": "YA-ve"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Street",
+      "es": "Calle",
+      "pr": "KA-ye"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Gym",
+      "es": "Gimnasio",
+      "pr": "heem-NA-syo"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Car",
+      "es": "Auto",
+      "pr": "OW-to"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Driver",
+      "es": "Conductor",
+      "pr": "con-DUK-tor"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Platform",
+      "es": "Plataforma",
+      "pr": "pla-ta-FOR-ma"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Entrance",
+      "es": "Entrada",
+      "pr": "en-TRA-da"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Exit",
+      "es": "Salida",
+      "pr": "sa-LEE-da"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Stone",
+      "es": "Piedra",
+      "pr": "PYE-dra"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Wall",
+      "es": "Pared",
+      "pr": "pa-RED"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Open",
+      "es": "Abierto",
+      "pr": "a-BYER-to"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Closed",
+      "es": "Cerrado",
+      "pr": "se-RA-do"
+    },
+    {
+      "cat": "Places \u0026 things",
+      "en": "Finished",
+      "es": "Terminado",
+      "pr": "ter-mee-NA-do"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Sun",
+      "es": "Sol",
+      "pr": "sol"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Sky",
+      "es": "Cielo",
+      "pr": "SYE-lo"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Shade",
+      "es": "Sombra",
+      "pr": "SOM-bra"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Heat",
+      "es": "Calor",
+      "pr": "ka-LOR"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Cold",
+      "es": "Frío",
+      "pr": "FREE-o"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Wind",
+      "es": "Viento",
+      "pr": "VYEN-to"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "It's windy",
+      "es": "Hay viento",
+      "pr": "eye VYEN-to"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "It's really hot",
+      "es": "Hace mucho calor",
+      "pr": "A-se MOO-cho ka-LOR"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "It's really cold",
+      "es": "Hace mucho frío",
+      "pr": "A-se MOO-cho FREE-o"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "White",
+      "es": "Blanco",
+      "pr": "BLAN-ko"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Big",
+      "es": "Grande",
+      "pr": "GRAN-de"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Small",
+      "es": "Pequeño",
+      "pr": "pe-KE-nyo"
+    },
+    {
+      "cat": "Weather \u0026 describing",
+      "en": "Long",
+      "es": "Largo",
+      "pr": "LAR-go"
+    },
+    {
+      "cat": "Animals",
+      "en": "Dog",
+      "es": "Perro",
+      "pr": "PE-ro"
+    },
+    {
+      "cat": "Animals",
+      "en": "Cat",
+      "es": "Gato",
+      "pr": "GA-to"
+    },
+    {
+      "cat": "Animals",
+      "en": "Sheep",
+      "es": "Oveja",
+      "pr": "o-VE-ha"
+    },
+    {
+      "cat": "Animals",
+      "en": "Donkey",
+      "es": "Burro",
+      "pr": "BOO-ro"
+    },
+    {
+      "cat": "Animals",
+      "en": "Wolf",
+      "es": "Lobo",
+      "pr": "LO-bo"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "Careful!",
+      "es": "¡Cuidado!",
+      "pr": "kwee-DA-do"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "Be careful",
+      "es": "Tené cuidado",
+      "pr": "te-NE kwee-DA-do"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "Damn! (strong)",
+      "es": "La puta madre",
+      "pr": "la POO-ta MA-dre"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "OK / come on / let's go",
+      "es": "Dale",
+      "pr": "DA-le"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "To chat / hang out",
+      "es": "Charlar",
+      "pr": "char-LAR"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "What are you doing today?",
+      "es": "¿Qué hacés hoy?",
+      "pr": "keh a-SES oy"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "I'm seeing friends",
+      "es": "Voy a ver amigos",
+      "pr": "voy a ver a-MEE-gos"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "I'm going to the…",
+      "es": "Voy al…",
+      "pr": "voy al"
+    },
+    {
+      "cat": "Everyday phrases",
+      "en": "Time for a shower",
+      "es": "Hora de bañarse",
+      "pr": "OR-a de ban-YAR-se"
+    },
+    {
+      "cat": "Football",
+      "en": "Football",
+      "es": "Fútbol",
+      "pr": "FOOT-bol"
+    },
+    {
+      "cat": "Football",
+      "en": "Goal!",
+      "es": "¡Gol!",
+      "pr": "gol"
+    },
+    {
+      "cat": "Football",
+      "en": "Fan / supporter",
+      "es": "Hincha",
+      "pr": "EEN-cha"
+    },
+    {
+      "cat": "Football",
+      "en": "Stadium",
+      "es": "Estadio",
+      "pr": "es-TA-dyo"
+    },
+    {
+      "cat": "Football",
+      "en": "Team",
+      "es": "Equipo",
+      "pr": "e-KEE-po"
+    },
+    {
+      "cat": "Football",
+      "en": "We're going to win!",
+      "es": "¡Vamos a ganar!",
+      "pr": "VA-mos a ga-NAR"
+    },
+    {
+      "cat": "Chat-up lines",
+      "en": "Are you heading south?",
+      "es": "¿Vas al sur?",
+      "pr": "vas al SOOR"
+    },
+    {
+      "cat": "Chat-up lines",
+      "en": "Can I marry you for an Argentine passport?",
+      "es": "¿Me puedo casar con vos para tener el pasaporte argentino?",
+      "pr": "meh PWE-do ka-SAR kon vos"
+    },
+    {
+      "cat": "Chat-up lines",
+      "en": "Are you always this beautiful?",
+      "es": "¿Siempre sos tan linda?",
+      "pr": "SYEM-pre sos tan LEEN-da"
+    },
+    {
+      "cat": "Chat-up lines",
+      "en": "Teach me Spanish, I'll buy the wine",
+      "es": "Si me enseñás español, yo compro el vino",
+      "pr": "see meh en-se-NYAS"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Really / very (re lindo)",
+      "es": "Re"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Cool / great",
+      "es": "Copado"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Good vibes / nice person",
+      "es": "Buena onda"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Bad vibes",
+      "es": "Mala onda"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "What's up?",
+      "es": "¿Qué onda?"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "All good",
+      "es": "Todo bien"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Awesome",
+      "es": "Bárbaro"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Mate / idiot (depends on tone)",
+      "es": "Boludo"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Job / work (slang)",
+      "es": "Laburo"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "To work (slang)",
+      "es": "Laburar"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Beer (slang)",
+      "es": "Birra"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Money (slang)",
+      "es": "Guita"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Mess / chaos",
+      "es": "Quilombo"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Bus (slang)",
+      "es": "Bondi"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "For real / seriously",
+      "es": "Posta"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Kid / young guy",
+      "es": "Pibe"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Guy / dude",
+      "es": "Chabón"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Laziness / can't be bothered",
+      "es": "Fiaca"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "To sweet-talk / chat someone up",
+      "es": "Chamuyar"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Pre-drinks",
+      "es": "La previa"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Party / a laugh",
+      "es": "Joda"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "No way / not a chance",
+      "es": "Ni en pedo"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "Well, look at that",
+      "es": "Mirá vos"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "You know? / see?",
+      "es": "¿Viste?"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "I've got your back",
+      "es": "Te banco"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "It's a rip-off",
+      "es": "Es un afano"
+    },
+    {
+      "cat": "New: Argentine slang",
+      "en": "To eat (slang)",
+      "es": "Morfar"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "One",
+      "es": "Uno"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Two",
+      "es": "Dos"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Three",
+      "es": "Tres"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Four",
+      "es": "Cuatro"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Five",
+      "es": "Cinco"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Six",
+      "es": "Seis"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Seven",
+      "es": "Siete"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Eight",
+      "es": "Ocho"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Nine",
+      "es": "Nueve"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Ten",
+      "es": "Diez"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Twenty",
+      "es": "Veinte"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Fifty",
+      "es": "Cincuenta"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "One hundred",
+      "es": "Cien"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "One thousand",
+      "es": "Mil"
+    },
+    {
+      "cat": "New: Numbers",
+      "en": "Half",
+      "es": "La mitad"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Left",
+      "es": "Izquierda"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Right",
+      "es": "Derecha"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Straight ahead",
+      "es": "Derecho"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Near",
+      "es": "Cerca"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Far",
+      "es": "Lejos"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "The corner",
+      "es": "La esquina"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "The (city) block",
+      "es": "La cuadra"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Turn right",
+      "es": "Doblá a la derecha"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "City bus",
+      "es": "El colectivo"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Long-distance bus",
+      "es": "El micro"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Bus station",
+      "es": "La terminal"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Subway (Buenos Aires)",
+      "es": "El subte"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "Ticket",
+      "es": "El pasaje"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "The stop",
+      "es": "La parada"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "The airport",
+      "es": "El aeropuerto"
+    },
+    {
+      "cat": "New: Getting around",
+      "en": "What time does it leave?",
+      "es": "¿A qué hora sale?"
+    },
+    {
+      "cat": "New: Staying somewhere",
+      "en": "Do you have room for tonight?",
+      "es": "¿Tenés lugar para esta noche?"
+    },
+    {
+      "cat": "New: Staying somewhere",
+      "en": "The booking",
+      "es": "La reserva"
+    },
+    {
+      "cat": "New: Staying somewhere",
+      "en": "Towel",
+      "es": "Toalla"
+    },
+    {
+      "cat": "New: Staying somewhere",
+      "en": "Sheets",
+      "es": "Sábanas"
+    },
+    {
+      "cat": "New: Staying somewhere",
+      "en": "The shower",
+      "es": "La ducha"
+    },
+    {
+      "cat": "New: Staying somewhere",
+      "en": "Is there wifi?",
+      "es": "¿Hay wifi?"
+    },
+    {
+      "cat": "New: Staying somewhere",
+      "en": "The password",
+      "es": "La contraseña"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To have",
+      "es": "Tener"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To go",
+      "es": "Ir"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To be able to / can",
+      "es": "Poder"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To know (a fact)",
+      "es": "Saber"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To know (a person or place)",
+      "es": "Conocer"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To want / to love",
+      "es": "Querer"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To speak",
+      "es": "Hablar"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To eat",
+      "es": "Comer"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To drink / to take",
+      "es": "Tomar"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To go out / to leave",
+      "es": "Salir"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To come back",
+      "es": "Volver"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To sleep",
+      "es": "Dormir"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To pay",
+      "es": "Pagar"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To look for",
+      "es": "Buscar"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To think",
+      "es": "Pensar"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To say",
+      "es": "Decir"
+    },
+    {
+      "cat": "New: Verbs",
+      "en": "To see / to watch",
+      "es": "Ver"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "But",
+      "es": "Pero"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Because",
+      "es": "Porque"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Why?",
+      "es": "¿Por qué?"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "So / then",
+      "es": "Entonces"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Also / too",
+      "es": "También"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Neither / not either",
+      "es": "Tampoco"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Still / yet",
+      "es": "Todavía"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Already",
+      "es": "Ya"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Never",
+      "es": "Nunca"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Something",
+      "es": "Algo"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Nothing",
+      "es": "Nada"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Someone",
+      "es": "Alguien"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Who?",
+      "es": "¿Quién?"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "Which?",
+      "es": "¿Cuál?"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "How?",
+      "es": "¿Cómo?"
+    },
+    {
+      "cat": "New: Linking words",
+      "en": "If",
+      "es": "Si"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "Can you speak more slowly?",
+      "es": "¿Podés hablar más despacio?"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "How do you say…?",
+      "es": "¿Cómo se dice…?"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "What does … mean?",
+      "es": "¿Qué significa…?"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "I'm learning Spanish",
+      "es": "Estoy aprendiendo español"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "I'm Australian",
+      "es": "Soy australiano"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "Can you recommend something?",
+      "es": "¿Me recomendás algo?"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "Do you take card?",
+      "es": "¿Aceptan tarjeta?"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "How much is it? (Argentina)",
+      "es": "¿Cuánto sale?"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "No ice",
+      "es": "Sin hielo"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "To take away",
+      "es": "Para llevar"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "No worries / it's fine",
+      "es": "No pasa nada"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "I have to go",
+      "es": "Tengo que irme"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "Can I get your number?",
+      "es": "¿Me pasás tu número?"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "I love it",
+      "es": "Me encanta"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "How lovely!",
+      "es": "¡Qué lindo!"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "That's great!",
+      "es": "¡Qué bueno!"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "It's really good",
+      "es": "Está buenísimo"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "I miss you",
+      "es": "Te extraño"
+    },
+    {
+      "cat": "New: Useful phrases",
+      "en": "Want to go for a drink?",
+      "es": "¿Querés ir a tomar algo?"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I went / I was (at)",
+      "es": "Fui"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I was (somewhere)",
+      "es": "Estuve"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I ate",
+      "es": "Comí"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I saw",
+      "es": "Vi"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I did / I made",
+      "es": "Hice"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I had",
+      "es": "Tuve"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I arrived",
+      "es": "Llegué"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "What did you do yesterday?",
+      "es": "¿Qué hiciste ayer?"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I really liked it",
+      "es": "Me gustó mucho"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "It was incredible",
+      "es": "Fue increíble"
+    },
+    {
+      "cat": "New: Past tense",
+      "en": "I was travelling around South America",
+      "es": "Estuve viajando por Sudamérica"
+    }
+  ]
+}

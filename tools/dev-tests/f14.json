@@ -1,0 +1,7 @@
+[["","content.tr = normTr(window.__TR); state.notice=null; view='journey'; render();",500],["j1","scrollTo(0,520)",200],["j2","scrollTo(0,950)",200],
+ ["","document.querySelector('.lvtop').click()",400],["j3","",100],
+ ["","celebrate(2,3)",900],["j4","",100],
+ ["","document.querySelector('.lvlup').remove(); celebrate(10,11)",900],["j5","",100],
+ ["","document.querySelector('.lvlup').remove(); view='map'; render(); document.querySelector('[data-a=go]').click(); P.steps.forEach(s=>console.log(JSON.stringify(s).slice(0,80)))",400],["j6","",100],
+ ["","exitSession(); view='train'; render();",300],["j7","scrollTo(0,900)",200]
+]

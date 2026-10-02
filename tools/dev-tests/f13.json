@@ -1,0 +1,3 @@
+[["","content.tr = normTr(window.__TR); view='puzzles'; render(); document.querySelector('[data-a=pzf][data-k=maptap]').click(); document.querySelector('[data-s=start]').click()",500],
+ ["","const s=document.querySelector('.tapmap'); console.log('W', s.getBoundingClientRect().width, getComputedStyle(s).width, getComputedStyle(s).maxWidth)",100],
+ ["","exitSession(); document.querySelector('[data-a=pzf][data-k=travle]').click(); document.querySelector('[data-s=start]').click()",500],["q_travle","",100]]

@@ -1,0 +1,13 @@
+[["","content.tr = normTr(window.__TR); content.trSample=false; state.notice=null; view='map'; render();",400],
+ ["h1","",100],
+ ["h2","scrollTo(0,800)",200],
+ ["","view='train'; render();",300],["mind","",100],
+ ["","view='recall'; render();",300],["rec","",100],["rec2","scrollTo(0,700)",200],
+ ["","document.querySelector('[data-tab=journey]').click()",700],["jour","",100],
+ ["","document.querySelector('.rushcard') ; view='recall'; render(); document.querySelector('.rushcard').click()",300],
+ ["","document.querySelector('[data-s=start]').click()",2600],["rush","",100],
+ ["","exitSession(); view='recall'; render(); document.querySelector('[data-a=puzzle][data-k=palabra]').click()",300],
+ ["","document.querySelector('[data-s=start]').click()",400],
+ ["","document.querySelector('#giveup').click()",300],["pal1","",100],
+ ["","document.querySelector('#giveup').click()",500],["pal2","",100]
+]

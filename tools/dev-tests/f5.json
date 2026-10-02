@@ -1,0 +1,9 @@
+[["","eval(document.__trjs||''); content.tr = normTr(window.__TR); content.trSample=false; view='train'; render();",500],
+ ["trgrove","window.scrollTo(0,1400)",300],
+ ["","document.querySelector('[data-a=learn][data-k=tr]').click()",400],
+ ["trintro","",100],
+ ["","document.querySelector('[data-s=start]').click()",400],
+ ["trcard","",100],
+ ["","document.querySelector('.opt').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))",400],
+ ["trfb","",100]
+]

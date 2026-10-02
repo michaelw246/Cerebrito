@@ -1,0 +1,12 @@
+[["","content.tr = normTr(window.__TR); content.trSample=false; state.notice=null; view='puzzles'; render();",400],["p_list","",100],
+ ["","document.querySelector('[data-a=pzf][data-k=wordle]').click()",300],["","document.querySelector('[data-s=start]').click()",300],
+ ["","for (const k of 'CRANE') document.querySelector('.key[data-k='+k+']').click(); document.querySelector('.key[data-k=ENTER]').click()",900],["p_wordle","",100],
+ ["","exitSession(); document.querySelector('[data-a=pzf][data-k=pais]').click(); document.querySelector('[data-s=start]').click()",400],
+ ["","document.querySelector('[data-c=BR]').click(); document.querySelector('#submit').click(); document.querySelector('[data-c=FR]').click(); document.querySelector('#submit').click()",400],["p_globle","",100],
+ ["","exitSession(); document.querySelector('[data-a=pzf][data-k=worldle]').click(); document.querySelector('[data-s=start]').click()",500],["p_worldle","",100],
+ ["","exitSession(); document.querySelector('[data-a=pzf][data-k=travle]').click(); document.querySelector('[data-s=start]').click()",500],["p_travle","",100],
+ ["","document.querySelector('#cgrid .cbtn').click(); document.querySelector('#submit').click()",400],["p_travle2","",100],
+ ["","exitSession(); document.querySelector('[data-a=pzf][data-k=maptap]').click(); document.querySelector('[data-s=start]').click()",500],["p_map","",100],
+ ["","const s=document.querySelector('.tapmap'); const r=s.getBoundingClientRect(); s.dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:r.left+r.width*0.3,clientY:r.top+r.height*0.4}))",500],["p_map2","",100],
+ ["","exitSession(); document.querySelector('[data-a=pzf][data-k=bee]').click(); document.querySelector('[data-s=start]').click()",500],["p_bee","",100]
+]

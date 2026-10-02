@@ -1,0 +1,13 @@
+[["","document.querySelector('[data-a=go]').click()",300],
+ ["","state.plan.results=[{t:'game',xp:35,coins:12},{t:'know',xp:24,coins:8}]; state.xp=255; P.idx=P.steps.length; finishSession()",800],
+ ["done1","",100],
+ ["done2","scrollTo(0,650)",300],
+ ["","document.querySelector('[data-a=chest]').click()",700],
+ ["done3","",100],
+ ["","document.querySelector('[data-a=tab][data-t=map]').click()",600],
+ ["mapdone","",100],
+ ["","state.coins=900; state.owned.push('atacama'); state.skin='atacama'; applySkin(); view='map'; render()",600],
+ ["dark","",100],
+ ["","state.skin='cartagena'; state.owned.push('cartagena'); applySkin(); view='train'; render()",600],
+ ["cart","",100]
+]
