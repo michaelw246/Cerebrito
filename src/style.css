@@ -1048,3 +1048,18 @@ details.found .fprev{color:var(--ink3);overflow:hidden;text-overflow:ellipsis;wh
 body.has-gbar .toast{bottom:calc(var(--kb,0px) + 112px + env(safe-area-inset-bottom,0px))}
 .chip small{font-size:11px;font-weight:700;opacity:.7;margin-left:2px;padding-left:6px;border-left:1px solid currentColor}
 .giveup{white-space:nowrap}
+
+/* brain games: keep the action in the lower, thumb-friendly half */
+.stage{justify-content:center;min-height:calc(100dvh - 250px)}
+.stage>.hint{order:-1}
+.opt .two span{font-weight:800}
+.opt.right .two span,.opt.wrong .two span{color:#fff!important}
+.nbk{display:flex;flex-direction:column;align-items:center;gap:10px}
+.nbstrip{display:flex;gap:6px;height:10px}
+.nbstrip i{width:22px;height:6px;border-radius:4px;background:var(--c3)}
+.nbstrip i.tgt{background:var(--p)}
+.nbcard{width:150px;height:150px;border-radius:34px;display:grid;place-items:center;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh);animation:pop .25s ease-out}
+.nbcard span{font:800 84px/1 var(--fh);background:linear-gradient(135deg,var(--p),var(--s));-webkit-background-clip:text;background-clip:text;color:transparent}
+.nbk small{font-weight:700;color:var(--ink3);font-size:12.5px}
+.opts.nbopts .opt{font-size:19px;min-height:64px}
+.opts.nbopts .opt .ic{width:20px;height:20px}

@@ -83,7 +83,7 @@ function runGame(step) {
   const eng = ENGINES[step.eng], v = eng.variants[step.variant], practice = step.mode === "practice";
   const assess = step.mode === "assess" || step.mode === "recheck";
   const dur = step.mode === "recheck" ? 45000 : assess ? 75000 : 60000;
-  let d = assess ? 2 : Math.max(1, Math.round(state.skills[step.eng].lvl || 2));
+  let d = assess ? 2 : clamp(Math.round(state.skills[step.eng].lvl || 2), 1, DMAX);
   const trial = v.make();
   app.innerHTML = `<div class="play">${shead()}<div class="hud"><div class="timer">${ic("clock")}<div class="gauge"><i id="clk"></i></div><b id="secs">${dur / 1000}</b></div><span class="combo off" id="combo">x1 combo</span></div>
   <div class="scorecard"><span class="coin img"><img src="${IMG[PILLARS[step.eng].img]}" alt=""></span><div><small>Score</small><b id="score">0</b></div><span class="chip v">${esc(v.name)}</span></div>
@@ -111,8 +111,8 @@ function runGame(step) {
       if (r.combo >= 3) { comboEl.classList.remove("off"); comboEl.innerHTML = `x${mult} combo ${ic("flame")}`; comboEl.classList.remove("pop"); void comboEl.offsetWidth; comboEl.classList.add("pop"); }
       if (r.combo % 5 === 0) { const rc = comboEl.getBoundingClientRect(); burst(rc.left + rc.width / 2, rc.top + 10, 14); }
     } else { r.combo = 0; comboEl.classList.add("off"); }
-    if (!r.firstErr) { if (ok) d += 2; else { r.firstErr = true; d = Math.max(1, d - 1); } }
-    else if (ok) { if (++r.up >= 2) { d++; r.up = 0; } }
+    if (!r.firstErr) { if (ok) d = Math.min(DMAX, d + 2); else { r.firstErr = true; d = Math.max(1, d - 1); } }
+    else if (ok) { if (++r.up >= 2) { d = Math.min(DMAX, d + 1); r.up = 0; } }
     else { d = Math.max(1, d - 1); r.up = 0; }
     setTimeout(next, ok ? 280 : 650);
   }

@@ -22,6 +22,8 @@ const COUNTRIES = ["Colombia", "Argentina", "Chile", "Bolivia", "Peru", "Brazil"
 
 
 
+/* Difficulty runs 1..DMAX. Every trial generator reaches its hardest settings by ~22, so levels above that would only inflate scores. */
+const DMAX = 25;
 const SKILLS = ["speed", "memory", "attention", "flex", "numeracy", "reasoning", "spatial"];
 const SKILL_NAMES = { speed: "Speed", memory: "Memory", attention: "Focus", flex: "Flexibility", numeracy: "Numbers", reasoning: "Reasoning", spatial: "Spatial" };
 
@@ -75,6 +77,9 @@ function migrate() {
   if (!state.joined) { const ds = Object.values(state.skills).flatMap(k => k.hist.map(h => h.d)).sort(); state.joined = ds[0] || today(); }
   const f = freshState(); state.pzs = Object.assign(f.pzs, state.pzs || {});
   if (state.pz && state.pz.date !== today()) state.pz = {};
+  Object.values(state.skills).forEach(k => { if (k.lvl) k.lvl = Math.min(k.lvl, DMAX); });
+  Object.keys(state.calib.est || {}).forEach(k => state.calib.est[k] = Math.min(state.calib.est[k], DMAX));
+  if (state.baseline && state.baseline.est) Object.keys(state.baseline.est).forEach(k => state.baseline.est[k] = Math.min(state.baseline.est[k], DMAX));
 }
 migrate();
 try { const c = JSON.parse(localStorage.getItem(LSC)); if (c) { if (c.es && c.es.length) { content.es = c.es; content.esSample = false; } if (c.tr && c.tr.length) { content.tr = c.tr; content.trSample = false; } } } catch (e) {}
@@ -270,6 +275,32 @@ function memoryTrial(mode) {
   };
 }
 
+/* N-back: is this letter the same as the one N steps ago? The best-studied working-memory trainer.
+   Keeps its own history across trials; when N changes (difficulty moves) the stream restarts with a short warm-up. */
+function nbackTrial() {
+  const L = "BCDFGHJKLMNPRSTVXZ"; let hist = [], N = 0;
+  return (d, stage, done) => {
+    const n = d <= 5 ? 1 : d <= 14 ? 2 : 3, show = Math.max(700, 1500 - d * 30), limit = Math.max(1400, 3200 - d * 70);
+    const timers = [], T = (f, ms) => timers.push(setTimeout(f, ms)); let cleanup = null, over = false;
+    const nextLetter = () => { const back = hist.length >= n ? hist[hist.length - n] : null; if (back && Math.random() < 0.35) return back; let c; do c = pick(L.split("")); while (c === back); return c; };
+    const card = (c, sub) => `<div class="hint">${n === 1 ? "Same letter as the one just before?" : `Same letter as ${n} steps back?`}</div><div class="nbk"><div class="nbstrip">${hist.slice(-4).map((_, i, a) => `<i class="${i === a.length - n ? "tgt" : ""}"></i>`).join("")}</div><div class="nbcard"><span>${c}</span></div><small>${sub}</small></div>`;
+    const probe = () => {
+      if (over) return;
+      const c = nextLetter(), match = hist.length >= n && hist[hist.length - n] === c; hist.push(c); if (hist.length > 12) hist.shift();
+      cleanup = choice(stage, { top: card(c, `${n}-back`), options: ["match", "new"], correct: match ? 0 : 1, limit, cls: "nbopts",
+        render: o => o === "match" ? `${ic("check")}Match` : `${ic("x")}New` }, ok => { over = true; done(ok); });
+    };
+    if (n !== N) { hist = []; N = n; }
+    if (hist.length < n) {
+      // warm-up: show the first N letters to hold in mind
+      const need = n - hist.length;
+      for (let k = 0; k < need; k++) T(() => { if (over) return; const c = nextLetter(); hist.push(c); stage.innerHTML = card(c, k === 0 && n > 1 ? `Remember these ${n}` : "Remember it"); }, k * show);
+      T(probe, need * show);
+    } else probe();
+    return () => { over = true; timers.forEach(clearTimeout); if (cleanup) cleanup(); };
+  };
+}
+
 function speedTrial(mode) {
   return (d, stage, done) => {
     const timers = [], T = (f, ms) => timers.push(setTimeout(f, ms));
@@ -353,6 +384,7 @@ const FLEX = {
   shapes: { rules: [["Circle", "Square"], ["Orange", "Purple"]], names: ["Circle or square?", "Orange or purple?"],
     gen(rule) { const sh = rnd(0, 1), co = rnd(0, 1); return { html: `<span class="fshape ${sh ? "square" : "circle"}" style="background:${co ? "#6B4FBB" : "#F28C28"}"></span>`, side: rule === 0 ? sh : co }; } }
 };
+const FLEX_COL = ["#E8950C", "#2F7BEA"];
 function flexTrial(kind) {
   let prev = null;
   return (d, stage, done) => {
@@ -360,9 +392,10 @@ function flexTrial(kind) {
     const pSwitch = Math.min(0.55, 0.15 + d * 0.03);
     const rule = prev === null ? rnd(0, 1) : (Math.random() < pSwitch ? 1 - prev : prev); prev = rule;
     const s = F.gen(rule);
-    const col = rule === 0 ? "var(--a3)" : "var(--a1)";
+    const col = FLEX_COL[rule];
     const label = d <= 6 ? F.names[rule] : "Follow the frame colour";
-    const btn = side => `<span class="two"><span class="${rule === 0 || d > 3 ? "" : "dim"}">${F.rules[0][side]}</span><span class="${rule === 1 || d > 3 ? "" : "dim"}">${F.rules[1][side]}</span></span>`;
+    // each button shows both rules, colour-coded to their frame; early levels dim the inactive rule
+    const btn = side => `<span class="two"><span style="color:${FLEX_COL[0]}" class="${rule === 0 || d > 3 ? "" : "dim"}">${F.rules[0][side]}</span><span style="color:${FLEX_COL[1]}" class="${rule === 1 || d > 3 ? "" : "dim"}">${F.rules[1][side]}</span></span>`;
     return choice(stage, {
       top: `<div class="hint" style="color:${col};font-weight:700">${label}</div><div class="fcard" style="--rule:${col}">${s.html}</div>`,
       options: [0, 1], correct: s.side, limit: Math.max(900, 3200 - d * 100), render: btn
@@ -534,7 +567,8 @@ const ENGINES = {
     position: { name: "Flash", how: "A pink diamond flashes around the circle. Tap where it was.", make: () => speedTrial("position") },
     odd: { name: "Odd flash", how: "Eight shapes flash. Tap where the odd one was.", make: () => speedTrial("odd") },
     count: { name: "Quick count", how: "Dots flash for a moment. Tap how many.", make: () => speedTrial("count") } } },
-  memory: { assess: "all", train: ["order", "reverse"], variants: {
+  memory: { assess: "all", train: ["order", "reverse", "nback"], variants: {
+    nback: { name: "N-back", how: "Letters appear one by one. Tap Match when a letter is the same as the one N steps back, New when it isn't.", make: () => nbackTrial() },
     all: { name: "Grid recall", how: "Tiles light up together. Tap all of them.", make: () => memoryTrial("all") },
     order: { name: "Trail", how: "Tiles light up one by one. Tap them in the same order.", make: () => memoryTrial("order") },
     reverse: { name: "Rewind", how: "Tiles light up one by one. Tap them in reverse.", make: () => memoryTrial("reverse") } } },
@@ -543,9 +577,9 @@ const ENGINES = {
     inkes: { name: "Tinta", how: "Same as Ink, but the words are in Spanish. Tap the ink colour.", make: () => stroopTrial("es") },
     flanker: { name: "Arrows", how: "Tap the way the middle arrow points. Ignore the rest.", make: () => flankerTrial() } } },
   flex: { assess: "numbers", train: ["letters", "shapes"], variants: {
-    numbers: { name: "Switch", how: "Teal frame: odd or even. Pink frame: lower or higher than 5.", make: () => flexTrial("numbers") },
-    letters: { name: "Letter switch", how: "Teal frame: vowel or consonant. Pink frame: A–M or N–Z.", make: () => flexTrial("letters") },
-    shapes: { name: "Shape switch", how: "Teal frame: circle or square. Pink frame: orange or purple.", make: () => flexTrial("shapes") } } },
+    numbers: { name: "Switch", how: "Amber frame: odd or even. Blue frame: lower or higher than 5. The frame can switch any time.", make: () => flexTrial("numbers") },
+    letters: { name: "Letter switch", how: "Amber frame: vowel or consonant. Blue frame: A–M or N–Z. The frame can switch any time.", make: () => flexTrial("letters") },
+    shapes: { name: "Shape switch", how: "Amber frame: circle or square. Blue frame: orange or purple. The frame can switch any time.", make: () => flexTrial("shapes") } } },
   numeracy: { assess: "arith", train: ["percent", "fx", "estimate"], variants: {
     arith: { name: "Quick maths", how: "Pick the right answer before the bar runs out.", make: () => numTrial(genArith) },
     percent: { name: "Percentages", how: "Percentages, discounts and interest. Pick the answer.", make: () => numTrial(genPercent) },
