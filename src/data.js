@@ -188,6 +188,7 @@ const IC = {
   calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 10.2L6 3h4l2 5 2-5h4l-2.5 7.2M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z"/>',
   chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  sound: '<path d="M4 9.5v5h3.5L12 19V5L7.5 9.5z"/><path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11"/>',
   eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'
 };
 const ic = (n, cls = "") => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
@@ -197,6 +198,7 @@ const CATS = [
   { id: "Countries", icon: "globe", col: "#16A57A", sub: "Capitals, food, beers, places you went" },
   { id: "History", icon: "trophy", col: "#B0643A", sub: "Egypt, Rome, Incas, Aztecs, the wars" },
   { id: "Notable people", icon: "star", col: "#6D4AF0", sub: "Alexander, Napoleon, Turing, Nimsdai, Musk" },
+  { id: "Mind & memory", icon: "brain", col: "#9B7BF0", sub: "How learning, memory, sleep and focus work" },
   { id: "Health & fitness", icon: "flame", col: "#FD6A49", sub: "Huberman, sleep, training, nutrition" },
   { id: "Mountains & nature", icon: "mountain", col: "#3F7FD8", sub: "8,000ers, Andes, Amazon, big cats" },
   { id: "AI & tech", icon: "zap", col: "#22BDB0", sub: "AI, robots, chips and the people behind them" }

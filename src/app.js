@@ -338,7 +338,7 @@ function viewPass() {
   </section>
   <section class="card kpanel" style="padding:8px 16px">${catRows(false)}</section>
   <details class="set"><summary>${ic("cards")}Library</summary><div class="inner">
-    <p class="muted">Spanish: ${content.es.length} cards${content.esSample ? " (sample list)" : ""}. Knowledge: ${content.tr.length} questions${content.trSample ? " (sample list for now)" : ""}. New cards come in a few a day, and anything you miss comes back tomorrow.</p>
+    <p class="muted">Spanish: ${content.es.length} cards. Knowledge: ${fmt(content.tr.length)} questions. New cards arrive a few a day; reviews come back just before you'd forget them.</p>
     <textarea id="esIn" placeholder="Spanish, one per line: spanish - english&#10;# Category lines are optional"></textarea>
     <div class="row"><button class="btn small ghost" data-a="imp" data-k="es" data-m="add">Add words</button><button class="btn small ghost" data-a="imp" data-k="es" data-m="replace">Replace list</button></div>
     <textarea id="trIn" placeholder="# Country&#10;Place | Question | Answer | wrong 1; wrong 2; wrong 3"></textarea>
@@ -407,12 +407,10 @@ function parseTr(text) {
 async function importContent(kind, mode) {
   const ta = $(kind === "es" ? "#esIn" : "#trIn"); const items = kind === "es" ? parseEs(ta.value) : parseTr(ta.value);
   if (!items.length) { toast(kind === "es" ? "No words found. Use one per line: spanish - english" : "No facts found. Use: Place | Question | Answer"); return; }
-  const sampleKey = kind === "es" ? "esSample" : "trSample";
-  let list = mode === "replace" || content[sampleKey] ? items : content[kind].concat(items);
+  let list = mode === "replace" ? items : content[kind].concat(items);
   const seen = new Set(); list = list.filter(x => !seen.has(x.id) && seen.add(x.id));
-  content[kind] = list; content[sampleKey] = false;
-  try { localStorage.setItem(LSC, JSON.stringify({ es: content.esSample ? null : content.es, tr: content.trSample ? null : content.tr })); } catch (e) {}
-  if (db) { try { await db.doc(kind === "es" ? "content/spanish" : "content/travel").set({ items: list, updatedAt: Date.now() }); } catch (e) {} }
+  content[kind] = list; content[kind + "At"] = Date.now(); cacheContent();
+  if (db) { try { await db.doc(kind === "es" ? "content/spanish" : "content/travel").set({ items: list.map(({ id, ...x }) => x), updatedAt: content[kind + "At"] }); } catch (e) {} }
   toast(`${items.length} ${kind === "es" ? "words" : "facts"} loaded`);
   render();
 }

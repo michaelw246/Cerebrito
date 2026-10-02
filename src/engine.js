@@ -18,7 +18,6 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------- world ---------- */
 const STOPS = ROUTE;
-const COUNTRIES = ["Colombia", "Argentina", "Chile", "Bolivia", "Peru", "Brazil", "Ecuador", "Uruguay", "Paraguay"];
 
 
 
@@ -27,32 +26,11 @@ const DMAX = 25;
 const SKILLS = ["speed", "memory", "attention", "flex", "numeracy", "reasoning", "spatial"];
 const SKILL_NAMES = { speed: "Speed", memory: "Memory", attention: "Focus", flex: "Flexibility", numeracy: "Numbers", reasoning: "Reasoning", spatial: "Spatial" };
 
-/* ---------- sample content (replaced by your own lists) ---------- */
-const SAMPLE_ES = [
-  ["hola", "hello", "Basics"], ["gracias", "thank you", "Basics"], ["por favor", "please", "Basics"], ["la cuenta", "the bill", "Food"],
-  ["el desayuno", "breakfast", "Food"], ["la playa", "the beach", "Nature"], ["la montaña", "the mountain", "Nature"], ["el río", "the river", "Nature"],
-  ["la selva", "the jungle", "Nature"], ["el mercado", "the market", "Places"], ["barato", "cheap", "Describing"], ["caro", "expensive", "Describing"],
-  ["cerca", "near", "Directions"], ["lejos", "far", "Directions"], ["izquierda", "left", "Directions"], ["derecha", "right", "Directions"],
-  ["mañana", "tomorrow", "Time"], ["ayer", "yesterday", "Time"], ["despacio", "slowly", "Describing"], ["la llave", "the key", "Travel"],
-  ["el pasaje", "the ticket", "Travel"], ["la mochila", "the backpack", "Travel"], ["el baño", "the bathroom", "Places"], ["cansado", "tired", "Describing"]
-].map(([es, en, cat]) => ({ id: "es:" + es, es, en, cat }));
-const SAMPLE_TR = [
-  ["Tayrona", "Colombia", "Which country is Tayrona National Park in?", "Colombia"],
-  ["Minca", "Colombia", "Which country is Minca in?", "Colombia"],
-  ["Cartagena", "Colombia", "Which city on Colombia's Caribbean coast is known for its old walled city?", "Cartagena", ["Santa Marta", "Barranquilla", "Medellín"]],
-  ["Buenos Aires", "Argentina", "Which Buenos Aires club plays at La Bombonera?", "Boca Juniors", ["River Plate", "Racing Club", "San Lorenzo"]],
-  ["Buenos Aires", "Argentina", "What's the metal straw you drink mate through called?", "Bombilla", ["Guampa", "Termo", "Yerbera"]],
-  ["Bariloche", "Argentina", "Which country is Bariloche in?", "Argentina"],
-  ["El Calafate", "Argentina", "Which country is El Calafate in?", "Argentina"],
-  ["Torres del Paine", "Chile", "Which country is Torres del Paine in?", "Chile"],
-  ["Huayna Potosí", "Bolivia", "How high is the summit of Huayna Potosí?", "6,088 m", ["5,364 m", "5,120 m", "6,961 m"]],
-  ["Uyuni", "Bolivia", "The Salar de Uyuni is the world's largest what?", "Salt flat", ["Crater lake", "Sand desert", "Glacier"]],
-  ["Rurrenabaque", "Bolivia", "Which country is Rurrenabaque in?", "Bolivia"],
-  ["Machu Picchu", "Peru", "Which civilisation built Machu Picchu?", "Inca", ["Maya", "Aztec", "Moche"]],
-  ["Huacachina", "Peru", "Which country is Huacachina in?", "Peru"]
-].map(([place, country, q, a, wrong]) => ({ id: "tr:" + hash(q), place, country, q, a, wrong: wrong || [] }));
-
-let content = { es: SAMPLE_ES, tr: SAMPLE_TR, esSample: true, trSample: true };
+/* ---------- content: bundled banks, kept in sync with the artifact db ---------- */
+/* Both banks ship inside the build. A copy in localStorage or the db replaces them only when it's newer
+   (your own imports are stamped with the time you made them; the bundled bank with its compile date). */
+const BUNDLE = { es: __BANK_ES__, tr: __BANK_TR__ };
+let content = { es: [], tr: [], esAt: 0, trAt: 0, esSample: false, trSample: false };
 
 /* ---------- state ---------- */
 const LS = "ruta.state.v1", LSC = "ruta.content.v1";
@@ -82,7 +60,13 @@ function migrate() {
   if (state.baseline && state.baseline.est) Object.keys(state.baseline.est).forEach(k => state.baseline.est[k] = Math.min(state.baseline.est[k], DMAX));
 }
 migrate();
-try { const c = JSON.parse(localStorage.getItem(LSC)); if (c) { if (c.es && c.es.length) { content.es = c.es; content.esSample = false; } if (c.tr && c.tr.length) { content.tr = c.tr; content.trSample = false; } } } catch (e) {}
+function useBank(kind, items, at) { content[kind] = kind === "es" ? normEs(items) : normTr(items); content[kind + "At"] = at || 0; }
+useBank("es", BUNDLE.es.items, BUNDLE.es.updatedAt); useBank("tr", BUNDLE.tr.items, BUNDLE.tr.updatedAt);
+try {
+  const c = JSON.parse(localStorage.getItem(LSC));
+  if (c) ["es", "tr"].forEach(k => { if (Array.isArray(c[k]) && c[k].length && (c[k + "At"] || 0) > content[k + "At"]) { content[k] = k === "es" ? normEs(c[k]) : normTr(c[k]); content[k + "At"] = c[k + "At"]; } });
+} catch (e) {}
+function cacheContent() { try { localStorage.setItem(LSC, JSON.stringify({ es: content.es, esAt: content.esAt, tr: content.tr, trAt: content.trAt })); } catch (e) {} }
 
 let db = null, uid = null, cloudTimer = null, cloudBusy = false, cloudPending = false;
 function save() {
@@ -103,10 +87,14 @@ async function initCloud() {
     const [d, u] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
     if (!d) return;
     db = d;
-    const [es, tr] = await Promise.all([db.doc("content/spanish").get(), db.doc("content/travel").get()]);
-    const esI = es.exists && es.data().items, trI = tr.exists && tr.data().items;
-    if (Array.isArray(esI) && esI.length) { content.es = normEs(esI); content.esSample = false; }
-    if (Array.isArray(trI) && trI.length) { content.tr = normTr(trI); content.trSample = false; }
+    const docs = { es: "content/spanish", tr: "content/travel" };
+    await Promise.all(Object.entries(docs).map(async ([k, path]) => {
+      const snap = await db.doc(path).get(), d = snap.exists ? snap.data() : null, items = d && d.items, at = (d && d.updatedAt) || 0;
+      if (Array.isArray(items) && items.length && at > content[k + "At"]) { useBank(k, items, at); cacheContent(); }
+      else if (!d || at < content[k + "At"]) {   // db is missing or older than what we have: bring it up to date
+        try { await db.doc(path).set({ items: content[k].map(({ id, ...x }) => x), updatedAt: content[k + "At"] }); } catch (e) {}
+      }
+    }));
     if (u) uid = await u.id();
     if (uid) {
       const snap = await db.doc(`data/users/${uid}/state`).get();
@@ -122,10 +110,10 @@ async function initCloud() {
   } catch (e) {}
 }
 function normEs(items) {
-  return items.filter(x => x && x.es && x.en).map(x => ({ id: "es:" + String(x.es).trim().toLowerCase(), es: String(x.es).trim(), en: String(x.en).trim(), cat: x.cat || "General" }));
+  return items.filter(x => x && x.es && x.en).map(x => ({ id: "es:" + String(x.es).trim().toLowerCase(), es: String(x.es).trim(), en: String(x.en).trim(), cat: x.cat || "General", ...(x.pr ? { pr: String(x.pr) } : {}) }));
 }
 function normTr(items) {
-  return items.filter(x => x && x.q && x.a).map(x => ({ id: "tr:" + hash(x.q), cat: x.cat || "Countries", place: x.place || "", country: x.country || "", q: String(x.q), a: String(x.a), wrong: Array.isArray(x.wrong) ? x.wrong.map(String) : [] }));
+  return items.filter(x => x && x.q && x.a).map(x => ({ id: "tr:" + hash(x.q), cat: x.cat || "Countries", place: x.place || "", country: x.country || "", q: String(x.q), a: String(x.a), wrong: Array.isArray(x.wrong) ? x.wrong.map(String) : [], ...(x.why ? { why: String(x.why) } : {}) }));
 }
 
 /* ---------- progression ---------- */
@@ -602,19 +590,15 @@ const ENGINES = {
    guess is not a memory. Intervals then expand by the ease factor; a lapse resets to 1 day and makes the card a little harder. */
 const INT = [0, 1, 3, 7, 14, 30, 60];
 const boxOf = iv => iv >= 60 ? 6 : iv >= 30 ? 5 : iv >= 14 ? 4 : iv >= 7 ? 3 : iv >= 3 ? 2 : 1;
-function grade(kind, id, q) {
+function sched(prev, q, t) {
   if (q === true) q = 3; else if (q === false || !q) q = 1;
-  const t = today(); let r = state.srs[kind][id];
-  if (!r) {
-    const iv = q >= 4 ? 3 : 1;
-    r = state.srs[kind][id] = { b: boxOf(iv), iv, e: q >= 4 ? 2.6 : q === 2 ? 2.3 : 2.5, due: addDays(t, iv), n: 1, ok: q >= 2 ? 1 : 0, lp: 0, last: t };
-    return r;
-  }
+  if (!prev) { const iv = q >= 4 ? 3 : 1; return { b: boxOf(iv), iv, e: q >= 4 ? 2.6 : q === 2 ? 2.3 : 2.5, due: addDays(t, iv), n: 1, ok: q >= 2 ? 1 : 0, lp: q === 1 ? 1 : 0, last: t }; }
+  const r = { ...prev };
   if (!r.iv) { r.iv = INT[r.b] || 1; r.e = 2.5; r.lp = 0; }
-  r.n++;
+  r.n = (r.n || 0) + 1;
   if (q === 1) { r.lp = (r.lp || 0) + 1; r.e = Math.max(1.3, r.e - 0.2); r.iv = 1; }
   else {
-    r.ok++;
+    r.ok = (r.ok || 0) + 1;
     const late = r.due ? Math.max(0, daysBetween(r.due, t)) : 0;          // remembered despite being overdue: count the real gap
     const base = r.iv + late * (q === 2 ? 0.25 : 0.5);
     const next = q === 2 ? base * 1.2 : q === 3 ? base * r.e : base * r.e * 1.35;
@@ -624,6 +608,8 @@ function grade(kind, id, q) {
   r.b = boxOf(r.iv); r.due = addDays(t, r.iv); r.last = t;
   return r;
 }
+function grade(kind, id, q) { return (state.srs[kind][id] = sched(state.srs[kind][id], q, today())); }
+const ivLabel = d => d <= 1 ? "1 day" : d < 14 ? `${d} days` : d < 60 ? `${Math.round(d / 7)} wks` : d < 365 ? `${Math.round(d / 30)} mo` : "1 yr";
 function queueFor(kind, maxNew, maxRev) {
   const items = content[kind], srs = state.srs[kind], t = today();
   // most overdue first, relative to the card's own interval (a 1-day card 3 days late is more at risk than a 60-day card 3 days late)

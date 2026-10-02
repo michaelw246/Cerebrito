@@ -51,7 +51,7 @@ function stepIntro() {
   } else if (s.t === "know") {
     const srs = state.srs[s.kind], nNew = s.ids.filter(id => !srs[id]).length, nRev = s.ids.length - nNew;
     t1 = s.kind === "es" ? "Palabras" : P.kind === "practice" && P.label !== "Knowledge" ? P.label : "World"; t2 = s.kind === "es" ? "del día" : "knowledge";
-    how = s.kind === "es" ? "Tap the right translation. Words you miss come back tomorrow, words you nail get spaced further apart." : `A mix from ${[...new Set(s.ids.map(id => (content.tr.find(x => x.id === id) || {}).cat).filter(Boolean))].join(", ") || "your categories"}. Miss one and it comes back tomorrow.`;
+    how = (s.kind === "es" ? "New words start as multiple choice. Words you know come back as recall: say it in your head, reveal, and rate yourself honestly." : `A mix from ${[...new Set(s.ids.map(id => (content.tr.find(x => x.id === id) || {}).cat).filter(Boolean))].join(", ") || "your categories"}. Familiar cards switch to recall: think of the answer before you reveal it.`) + " Anything you miss comes back at the end of the round.";
     chips = `<span class="chip m">${ic("cards")}${s.ids.length} cards</span><span class="chip y">${ic(s.kind === "es" ? "word" : "globe")}${s.kind === "es" ? "Vocabulario" : "Cultura"}</span>`;
     duo = `<div><i>${ic("clock")}</i><span><small>To review</small><b>${nRev}</b></span></div><div><i class="g">${ic("sparkle")}</i><span><small>New today</small><b class="g">${nNew}</b></span></div>`;
   } else {
@@ -172,63 +172,130 @@ function ghostFor(eng) {
 }
 
 /* ---------- knowledge cards ---------- */
+/* How a card is asked depends on how well you know it:
+   - first meeting: fair multiple choice (even a wrong guess primes learning), then the explanation
+   - early reviews: multiple choice or true/false, in either direction for Spanish
+   - established cards: free recall. Think of the answer, reveal, then grade yourself.
+     Recall is harder than recognition, and that effort is exactly what makes memories last.
+   Missed cards come back once at the end of the round, so you leave having got them right. */
+const SPEAK_LANGS = ["es-AR", "es-419", "es-US", "es-MX", "es-ES", "es"];
+function speakEs(text) {
+  try {
+    const ss = window.speechSynthesis; if (!ss) return;
+    const vs = ss.getVoices(), v = SPEAK_LANGS.map(l => vs.find(x => x.lang.replace("_", "-").toLowerCase().startsWith(l.toLowerCase()))).find(Boolean);
+    const u = new SpeechSynthesisUtterance(text); u.lang = v ? v.lang : "es-AR"; if (v) u.voice = v; u.rate = .92;
+    ss.cancel(); ss.speak(u);
+  } catch (e) {}
+}
+const canSpeak = () => !!window.speechSynthesis;
+function cardMode(kind, it, r) {
+  if (!r) return "mc";
+  const iv = r.iv || INT[r.b] || 1, longAns = kind === "tr" && it.a.length > 34;
+  if (iv >= 3 || (longAns && r.n >= 1)) return Math.random() < (longAns ? .9 : .7) ? "recall" : "mc";
+  return kind === "tr" && Math.random() < 0.3 ? "tf" : "mc";
+}
 function runKnow(step) {
   const kind = step.kind, items = Object.fromEntries(content[kind].map(it => [it.id, it]));
-  const ids = step.ids.filter(id => items[id]);
-  let i = 0, right = 0;
-  currentAbort = () => {};
+  const queue = step.ids.filter(id => items[id]).map(id => ({ id, retry: false })), total = queue.length;
+  let i = 0, right = 0, firstTry = 0, done = 0, keyH = null, autoT = 0;
+  const dock = dockBar("kdock"); dock.el.hidden = true;
+  const cleanup = () => { clearTimeout(autoT); if (keyH) document.removeEventListener("keydown", keyH); dock.destroy(); try { speechSynthesis.cancel(); } catch (e) {} };
+  currentAbort = () => { cleanup(); currentAbort = null; };
+  const onKeys = f => { if (keyH) document.removeEventListener("keydown", keyH); keyH = e => { if (e.metaKey || e.ctrlKey || e.altKey) return; f(e); }; document.addEventListener("keydown", keyH); };
   const show = () => {
-    if (i >= ids.length) return end();
-    const it = items[ids[i]], r = state.srs[kind][it.id], isNew = !r;
-    let prompt, sub, ans, wrongs, tf = false;
+    clearTimeout(autoT);
+    if (i >= queue.length) return end();
+    const slot = queue[i], it = items[slot.id], r = state.srs[kind][it.id], isNew = !r;
+    const mode = slot.retry ? "mc" : cardMode(kind, it, r);
+    let prompt, sub, ans, wrongs, prLine = "", speakTxt = "", answerSide = "";
     if (kind === "es") {
-      const flip = !isNew && r.b >= 2 && Math.random() < 0.5;
-      const pool = content.es.filter(x => x.id !== it.id);
-      const same = shuffle(pool.filter(x => x.cat === it.cat)), rest = shuffle(pool.filter(x => x.cat !== it.cat));
-      const dist = same.concat(rest);
-      if (flip) { prompt = it.en; sub = "How do you say it in Spanish?"; ans = it.es; wrongs = dist.map(x => x.es); }
-      else { prompt = it.es; sub = "Choose the best translation"; ans = it.en; wrongs = dist.map(x => x.en); }
+      const produce = mode === "recall" ? Math.random() < .7 : !isNew && (r.b || 1) >= 2 && Math.random() < .5;
+      const pool = content.es.filter(x => x.id !== it.id), dist = shuffle(pool.filter(x => x.cat === it.cat)).concat(shuffle(pool.filter(x => x.cat !== it.cat)));
+      if (produce) { prompt = it.en; sub = mode === "recall" ? "Say it in Spanish" : "How do you say it in Spanish?"; ans = it.es; wrongs = dist.map(x => x.es); answerSide = "es"; }
+      else { prompt = it.es; sub = mode === "recall" ? "What does it mean?" : "Choose the best translation"; ans = it.en; wrongs = dist.map(x => x.en); speakTxt = it.es; if (it.pr) prLine = it.pr; }
     } else {
-      prompt = it.q; ans = it.a; sub = "Choose the answer";
+      prompt = it.q; ans = it.a; sub = mode === "recall" ? "Think of the answer" : "Choose the answer";
       let w = it.wrong.slice();
-      if (w.length < 3) { const extra = COUNTRIES.includes(it.a) ? COUNTRIES : content.tr.map(x => x.a); w = w.concat(shuffle(extra.filter(x => x !== it.a))); }
+      if (w.length < 3) { const same = content.tr.filter(x => x.cat === it.cat && x.a !== it.a).map(x => x.a); w = w.concat(shuffle(same)); }
       wrongs = shuffle(w.slice(0, Math.max(3, it.wrong.length)));
-      if (!isNew && r.b >= 2 && Math.random() < 0.3) { const truth = Math.random() < 0.5, shown = truth ? it.a : wrongs[0]; sub = `Answer: ${shown}. True or false?`; ans = truth ? "True" : "False"; tf = true; }
     }
-    const { options, correct } = tf ? { options: ["True", "False"], correct: ans === "True" ? 0 : 1 } : withOptions(ans, wrongs);
-    const tagL = isNew ? `<span class="chip m">${ic("sparkle")}New ${kind === "es" ? "word" : "fact"}</span>` : `<span class="chip">${ic("clock")}Review</span>`;
-    const tagR = kind === "es" ? `<span class="chip">${esc(it.cat.replace(/^New: /, ""))}</span>` : `<span class="chip">${esc(it.cat || "Knowledge")}</span>`;
-    const pr = kind === "es" && it.pr && prompt === it.es ? `<p class="sub">[${esc(it.pr)}]</p>` : "";
-    app.innerHTML = `<div class="play">${shead()}<div class="kprog"><span class="chip">${ic("cards")}Card ${i + 1} of ${ids.length}</span><div class="gauge"><i style="width:${i / ids.length * 100}%"></i></div></div>
-    <div class="stage" id="stage"></div><div class="fb" id="fb"></div></div>`;
+    let tfShown = null;
+    if (mode === "tf") { const truth = Math.random() < 0.5; tfShown = truth ? it.a : wrongs[0]; sub = "True or false?"; }
+    const tagL = slot.retry ? `<span class="chip o">${ic("bulb")}Try again</span>` : isNew ? `<span class="chip m">${ic("sparkle")}New ${kind === "es" ? "word" : "fact"}</span>` : `<span class="chip">${ic(mode === "recall" ? "brain" : "clock")}${mode === "recall" ? "Recall" : "Review"}</span>`;
+    const tagR = `<span class="chip">${esc(kind === "es" ? it.cat.replace(/^New: /, "") : it.cat || "Knowledge")}</span>`;
+    const spk = speakTxt && canSpeak() ? `<button class="iconbtn spk" id="spk" aria-label="Hear it">${ic("sound")}</button>` : "";
+    app.innerHTML = `<div class="play kplay">${shead()}<div class="kprog"><span class="chip">${ic("cards")}${Math.min(done + 1, queue.length)} of ${queue.length}</span><div class="gauge"><i style="width:${done / queue.length * 100}%"></i></div></div>
+    <div class="stage kstage" id="stage"></div></div>`;
     const stage = $("#stage");
-    const top = `<div class="kcardw"><div class="kcard"><div class="kt">${tagL}${tagR}</div>${kind === "tr" && it.place ? `<div class="eyebrow m" style="margin-bottom:4px">${esc(it.place)}</div>` : ""}<div class="prompt ${prompt.length > 60 ? "mid small" : prompt.length > 16 ? "mid" : ""}">${esc(prompt)}</div>${pr}</div></div><div class="kq"><b>${esc(sub)}</b><span class="chip w">${ic("grid")}Tap 1</span></div>`;
+    const card = `<div class="kcardw"><div class="kcard ${mode}"><div class="kt">${tagL}${tagR}</div>${kind === "tr" && it.place ? `<div class="eyebrow m kplace">${esc(it.place)}</div>` : ""}
+      <div class="prompt ${prompt.length > 60 ? "mid small" : prompt.length > 16 ? "mid" : ""}">${esc(prompt)}</div>${prLine ? `<p class="sub">[${esc(prLine)}]</p>` : ""}${spk}
+      ${tfShown !== null ? `<div class="tfans"><small>Answer</small><b>${esc(tfShown)}</b></div>` : ""}<div class="kreveal" id="krev"></div></div></div>`;
+    const why = it.why ? `<p class="why">${ic("bulb")}<span>${esc(it.why)}</span></p>` : "";
+    const finishCard = (q, ok) => {
+      if (!slot.retry) { grade(kind, it.id, q); if (ok) firstTry++; }
+      if (ok) right++;
+      if (!ok && !slot.retry) queue.push({ id: it.id, retry: true });
+      done++; save();
+    };
+    const next = () => { i++; show(); };
+    if (mode === "recall") {
+      stage.innerHTML = card + `<div class="kq"><b>${esc(sub)}</b><span class="muted">then reveal</span></div>`;
+      if (speakTxt) bindSpeak(speakTxt);
+      dock.el.hidden = false;
+      dock.set(`<button class="btn reveal" id="krv">${ic("eye")}Show answer</button>`);
+      const reveal = () => {
+        $("#krev").innerHTML = `<div class="kans"><small>Answer</small><b>${esc(ans)}</b>${kind === "es" && it.pr && answerSide === "es" ? `<p class="sub">[${esc(it.pr)}]</p>` : ""}${answerSide === "es" && canSpeak() ? `<button class="iconbtn spk" id="spk2" aria-label="Hear it">${ic("sound")}</button>` : ""}</div>${why}`;
+        $(".kcard").classList.add("open");
+        if (answerSide === "es") { const b = $("#spk2"); if (b) b.onclick = () => speakEs(it.es); speakEs(it.es); }
+        const rec = state.srs[kind][it.id], opts = [[1, "Forgot", "again"], [2, "Hard", "hard"], [3, "Got it", "good"], [4, "Easy", "easy"]];
+        dock.set(`<div class="grades">${opts.map(([q, l, c]) => `<button class="gbtn ${c}" data-q="${q}"><b>${l}</b><small>${q === 1 ? "Today" : ivLabel(sched(rec, q, today()).iv)}</small></button>`).join("")}</div>`);
+        const pickQ = q => { const ok = q >= 2; tone(ok); buzz(ok); finishCard(q, ok); next(); };
+        dock.el.querySelectorAll("[data-q]").forEach(b => b.onclick = () => pickQ(+b.dataset.q));
+        onKeys(e => { if (/^[1-4]$/.test(e.key)) pickQ(+e.key); });
+      };
+      $("#krv").onclick = reveal;
+      onKeys(e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); reveal(); } });
+      window.scrollTo(0, 0); return;
+    }
+    const tf = mode === "tf", correctTF = tf ? (tfShown === it.a ? 0 : 1) : -1;
+    const { options, correct } = tf ? { options: ["True", "False"], correct: correctTF } : withOptions(ans, wrongs);
+    stage.innerHTML = "";
+    dock.el.hidden = true;
     const L = "ABCD";
-    choice(stage, { top, options, correct, cls: "one letters", render: o => `<span class="L">${L[options.indexOf(o)]}</span><span>${esc(o)}</span>` }, ok => {
-      grade(kind, it.id, ok); if (ok) right++;
-      tone(ok); buzz(ok); save();
-      const fb = $("#fb");
-      i++;
-      if (ok) { fb.innerHTML = `<div class="fbbar ok">${ic("check")}${pick(["Excelente!", "Genial!", "Buenísimo!", "Qué bueno!", "Dale!"])} +3 XP</div>`; setTimeout(show, 850); }
-      else { fb.innerHTML = `<div class="fbbar no">${ic("bulb")}<span>It's <b>${esc(ans)}</b>. Back tomorrow.</span></div><button class="btn" id="cont">Continue${ic("arrow")}</button>`; $("#cont").onclick = show; }
+    const cleanupChoice = choice(stage, { top: card + `<div class="kq"><b>${esc(sub)}</b></div>`, options, correct, cls: tf ? "tf" : "one letters", render: o => tf ? esc(o) : `<span class="L">${L[options.indexOf(o)]}</span><span>${esc(o)}</span>` }, ok => {
+      onKeys(() => {});
+      finishCard(ok ? 3 : 1, ok);
+      tone(ok); buzz(ok);
+      const fb = ok ? `<div class="fbbar ok">${ic("check")}<span>${pick(["Excelente!", "Genial!", "Buenísimo!", "Qué bueno!", "Dale!"])}${slot.retry ? " Locked in for now." : ""}</span></div>` : `<div class="fbbar no">${ic("bulb")}<span>It's <b>${esc(tf ? `${correctTF === 0 ? "true" : "false"}: ${it.a}` : ans)}</b>. ${slot.retry ? "You'll see it again tomorrow." : "One more try at the end."}</span></div>`;
+      if (speakTxt || answerSide === "es") speakEs(it.es);
+      if (ok && !why) { dock.el.hidden = false; dock.set(fb); autoT = setTimeout(next, 900); return; }
+      dock.el.hidden = false; dock.set(`${fb}${why}<button class="btn" id="kcont">Continue${ic("arrow")}</button>`);
+      $("#kcont").onclick = next;
+      onKeys(e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); next(); } });
     });
+    if (speakTxt) bindSpeak(speakTxt);
+    onKeys(e => { const k = { 1: 0, 2: 1, 3: 2, 4: 3, a: 0, b: 1, c: 2, d: 3 }[e.key.toLowerCase()]; const bs = $$(".opt", stage); if (k !== undefined && bs[k]) bs[k].dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })); });
     window.scrollTo(0, 0);
   };
+  const bindSpeak = t => { const b = $("#spk"); if (b) b.onclick = () => speakEs(t); };
   const end = () => {
-    currentAbort = null;
-    const xp = P.kind === "practice" ? right * 2 : right * 3, coins = right;
+    cleanup(); currentAbort = null;
+    const xp = P.kind === "practice" ? firstTry * 2 : firstTry * 3, coins = firstTry;
     if (P.kind === "practice") state.xp += xp;
     addCoins(coins);
-    P.results.push({ t: "know", kind, right, total: ids.length, xp: P.kind === "practice" ? 0 : xp, coins }); P.idx++; if (P.kind === "practice") bumpMax(); save();
-    const st = knowStats(kind), acc = ids.length ? right / ids.length : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0;
+    P.results.push({ t: "know", kind, right: firstTry, total, xp: P.kind === "practice" ? 0 : xp, coins }); P.idx++; if (P.kind === "practice") bumpMax();
+    if (typeof checkAwards === "function") checkAwards();
+    save();
+    const st = knowStats(kind), acc = total ? firstTry / total : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0, missed = total - firstTry;
     app.innerHTML = `<div class="play">${shead()}
-    <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b>${right}<small> / ${ids.length}</small></b><div class="near">${ic(ids.length - right ? "bulb" : "trophy")}${ids.length - right ? `The ${ids.length - right} you missed come back tomorrow.` : "Clean sweep. Those just got pushed further out."}</div></section>
-    <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Locked in</div><b>${st.mastered} of ${content[kind].length}</b></div><span class="stars">${[0, 1, 2].map(k => ic("star", k < stars ? "on" : "")).join("")}</span></section>
-    <div class="two2"><div class="card tint"><div class="eyebrow">${ic("clock")}Learning</div><b class="o">${st.learning}</b><small>In rotation</small></div><div class="card tint"><div class="eyebrow">${ic("sparkle")}Not seen</div><b>${st.fresh}</b><small>Coming a few a day</small></div></div>
+    <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b>${firstTry}<small> / ${total}</small></b><div class="near">${ic(missed ? "bulb" : "trophy")}${missed ? `${missed} missed, then practised again. They're back tomorrow.` : "Clean sweep. Those just got pushed further out."}</div></section>
+    <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Locked in (2+ weeks)</div><b>${st.mastered} of ${content[kind].length}</b></div><span class="stars">${[0, 1, 2].map(k => ic("star", k < stars ? "on" : "")).join("")}</span></section>
+    <div class="two2"><div class="card tint"><div class="eyebrow">${ic("clock")}Learning</div><b class="o">${st.learning}</b><small>In rotation</small></div><div class="card tint"><div class="eyebrow">${ic("sparkle")}Not seen</div><b>${fmt(st.fresh)}</b><small>A few new each day</small></div></div>
     <div class="pills2"><span class="chip o">${ic("zap")}+${xp} XP</span><span class="chip y">${ic("sun")}+${coins} coins</span></div>
     ${nextBtn()}</div>`;
     window.scrollTo(0, 0);
   };
+  if (!queue.length) return end();
   show();
 }
 
