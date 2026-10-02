@@ -26,7 +26,8 @@ falls back to `localStorage`).
       onboard.js             animated first-run walkthrough (also replayable from Settings)
       style.css              "light glass" design system (themes via data-skin, dark mode via prefers-color-scheme)
     assets/
-      brand/                 the bonsai-brain logo: icon (square + rounded), transparent mark, glyph; SVG + PNG sizes
+      brand/                 the logo: the Memory bonsai-brain painting with its pot label removed, as square + rounded icons,
+                             favicon and apple-touch-icon (regenerate with tools/make_brand.py)
       images/                the nine bonsai-brain trees, mountaineer avatar + hero (source PNGs)
       data/                  valid.txt (Spanish guesses), geo.json (borders/centroids/Travle pairs), countries.json
                              (names, flags, regions, aliases), enwords.json (Wordle + Bee), worldpaths.json; source/ = Natural Earth 110m
@@ -37,7 +38,7 @@ falls back to `localStorage`).
       compile_bank.py        facts + revisions -> travel.json (interleaves the categories, stamps a version)
       travel.json            compiled bank (bundled into the build and synced to the artifact db at content/travel)
     tools/
-      make_logo.py render_brand.py    regenerate assets/brand (needs Playwright's Chromium for PNGs)
+      make_brand.py          regenerate assets/brand from assets/images/tree-memory.png
       make_world.py make_geo.py make_words.py make_countries.py    regenerate assets/data/*
       tests/smoke.py         full-app smoke test
       dev-tests/             older Playwright scratch scripts (hard-coded /tmp paths)

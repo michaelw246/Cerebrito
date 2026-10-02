@@ -18,7 +18,7 @@ imgs = {
     "avatar": uri(IMG + "avatar-source.png", 220, (290, 170, 770, 650)),   # face crop
     "hero": rect(IMG + "hero-mountaineer.png", 640),
     "logo": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((160, 160), Image.LANCZOS), 90),
-    "mark": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-mark-1024.png").convert("RGBA").resize((360, 360), Image.LANCZOS), 88),
+    "mark": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((560, 560), Image.LANCZOS), 86),
 }
 def png_uri(path, size):
     b = io.BytesIO(); Image.open(path).convert("RGBA").resize((size, size), Image.LANCZOS).save(b, "PNG", optimize=True)
