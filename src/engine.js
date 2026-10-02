@@ -590,6 +590,14 @@ function grade(kind, id, q) {
   r.b = boxOf(r.iv); r.due = addDays(t, r.iv); r.last = t;
   return r;
 }
+function queueFor(kind, maxNew, maxRev) {
+  const items = content[kind], srs = state.srs[kind], t = today();
+  // most overdue first, relative to the card's own interval (a 1-day card 3 days late is more at risk than a 60-day card 3 days late)
+  const risk = it => { const r = srs[it.id]; return daysBetween(r.due, t) / Math.max(1, r.iv || INT[r.b] || 1); };
+  const due = items.filter(it => srs[it.id] && srs[it.id].due <= t).sort((a, b) => risk(b) - risk(a)).slice(0, maxRev);
+  const fresh = items.filter(it => !srs[it.id]).slice(0, maxNew);
+  return shuffle(due.concat(fresh)).map(it => it.id);
+}
 function knowStats(kind, cat) {
   let m = 0, l = 0, n = 0; const srs = state.srs[kind];
   content[kind].forEach(it => { if (cat && it.cat !== cat) return; n++; const r = srs[it.id]; if (r) { if (r.b >= 4) m++; else l++; } });
