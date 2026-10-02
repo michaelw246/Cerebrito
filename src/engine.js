@@ -562,18 +562,33 @@ const ENGINES = {
 };
 
 /* ---------- knowledge (spaced repetition) ---------- */
+/* Scheduler: SM-2 style. Each card keeps an interval (iv, days) and an ease (e).
+   Quality q: 1 forgot, 2 hard, 3 good, 4 easy (true/false still accepted).
+   A brand-new card answered right comes back tomorrow, not in a week: one lucky multiple-choice
+   guess is not a memory. Intervals then expand by the ease factor; a lapse resets to 1 day and makes the card a little harder. */
 const INT = [0, 1, 3, 7, 14, 30, 60];
-function queueFor(kind, maxNew, maxRev) {
-  const items = content[kind], srs = state.srs[kind], t = today();
-  const due = items.filter(it => srs[it.id] && srs[it.id].due <= t).sort((a, b) => srs[a.id].due.localeCompare(srs[b.id].due)).slice(0, maxRev);
-  const fresh = items.filter(it => !srs[it.id]).slice(0, maxNew);
-  return shuffle(due.concat(fresh)).map(it => it.id);
-}
-function grade(kind, id, ok) {
-  const t = today(), r = state.srs[kind][id];
-  if (!r) { const b = ok ? 3 : 1; state.srs[kind][id] = { b, due: addDays(t, INT[b]), n: 1, ok: ok ? 1 : 0 }; return; }
-  r.n++; if (ok) { r.ok++; r.b = Math.min(6, r.b + 1); } else r.b = 1;
-  r.due = addDays(t, INT[r.b]);
+const boxOf = iv => iv >= 60 ? 6 : iv >= 30 ? 5 : iv >= 14 ? 4 : iv >= 7 ? 3 : iv >= 3 ? 2 : 1;
+function grade(kind, id, q) {
+  if (q === true) q = 3; else if (q === false || !q) q = 1;
+  const t = today(); let r = state.srs[kind][id];
+  if (!r) {
+    const iv = q >= 4 ? 3 : 1;
+    r = state.srs[kind][id] = { b: boxOf(iv), iv, e: q >= 4 ? 2.6 : q === 2 ? 2.3 : 2.5, due: addDays(t, iv), n: 1, ok: q >= 2 ? 1 : 0, lp: 0, last: t };
+    return r;
+  }
+  if (!r.iv) { r.iv = INT[r.b] || 1; r.e = 2.5; r.lp = 0; }
+  r.n++;
+  if (q === 1) { r.lp = (r.lp || 0) + 1; r.e = Math.max(1.3, r.e - 0.2); r.iv = 1; }
+  else {
+    r.ok++;
+    const late = r.due ? Math.max(0, daysBetween(r.due, t)) : 0;          // remembered despite being overdue: count the real gap
+    const base = r.iv + late * (q === 2 ? 0.25 : 0.5);
+    const next = q === 2 ? base * 1.2 : q === 3 ? base * r.e : base * r.e * 1.35;
+    r.iv = clamp(Math.round(Math.max(next, r.iv + 1)), 1, 365);
+    r.e = clamp(r.e + (q === 2 ? -0.15 : q === 4 ? 0.12 : 0), 1.3, 3.2);
+  }
+  r.b = boxOf(r.iv); r.due = addDays(t, r.iv); r.last = t;
+  return r;
 }
 function knowStats(kind, cat) {
   let m = 0, l = 0, n = 0; const srs = state.srs[kind];

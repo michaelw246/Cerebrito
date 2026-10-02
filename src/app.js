@@ -26,7 +26,7 @@ function themeArt(t, cls = "") {
 const APP_NAME = "Cerebrito";
 const TABN = { map: "Home", train: "Mind", part: "Mind", recall: "Long-term memory", journey: "Journey", country: "Journey", puzzles: "Puzzles", pass: "You", shop: "Shop" };
 function header() {
-  return `<header class="top"><div class="logo"><i>${ic("brain")}</i><span><b>${APP_NAME}</b><small>${TABN[view] || ""}</small></span></div>
+  return `<header class="top"><div class="logo"><img src="${IMG.logo}" alt="" width="36" height="36"><span><b>${APP_NAME}</b><small>${TABN[view] || ""}</small></span></div>
   <div class="pods"><span class="pod fl" title="Day streak">${ic("flame")}${state.streak}</span><button class="pod co" data-a="tab" data-t="shop" title="Coins, open the shop">${ic("sun")}${fmt(state.coins)}</button></div></header>`;
 }
 function sheet(html) {
