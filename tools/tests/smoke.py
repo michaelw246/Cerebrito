@@ -19,6 +19,7 @@ async def main():
         await ev("fresh", "localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(300)
         for t in ["map", "train", "recall", "journey", "puzzles", "pass", "shop", "stats", "awards"]:
             await ev(f"tab {t}", f"view='{t}';render()")
+        await ev("walkthrough", "showOnboarding();for(let i=0;i<4;i++)document.querySelector('[data-ob=next]').click();document.querySelector('[data-ob=skip]').click()", 500)
         await ev("part", "partKey='memory';view='part';render()")
         await ev("country", "countryIdx=3;view='country';render()")
         await ev("session", "openSession('auto');beginStep()", 400); await ev("exit", "exitSession()")

@@ -68,15 +68,10 @@ function stepInfo(s) {
 }
 function viewMap() {
   const notice = state.notice ? `<div class="notice">${esc(state.notice)}<button class="btn small ghost" data-a="dismiss">Got it</button></div>` : "";
-  const how = state.howSeen ? "" : `<section class="card how"><div class="eyebrow">How it works</div>
-    <ol><li><i>1</i><span><b>Do today's session.</b> 5 to 10 minutes, one tap to start.</span></li>
-    <li><i>2</i><span><b>It trains two things:</b> your <b>Mind</b> (brain games that grow your skill trees) and your <b>Recall</b> (Spanish, places and everything you've learned).</span></li>
-    <li><i>3</i><span><b>Come back daily</b> to keep your streak and move one stop further along your <b>Journey</b>.</span></li></ol>
-    <button class="btn small ghost" data-a="howok">Got it</button></section>`;
   const doneToday = state.lastDone === today(), h = new Date().getHours();
   const line = doneToday ? "Today's session is done. Keep going if you like." : state.streak > 0 && h >= 18 ? `Your ${state.streak}-day streak needs today's session. About ${estMins(planToday())} minutes.` : state.streak > 0 ? `Day ${state.streak + 1} of your streak is one session away.` : "Here's today's session. One tap to start.";
   return `${notice}<section class="greet"><h1>${greeting()}, Michael</h1><p class="${!doneToday && state.streak > 0 && h >= 18 ? "risk" : ""}">${esc(line)}</p>${weekStrip()}</section>
-  ${dailyCard()}${homeExtras()}${journeyCard()}${how}`;
+  ${dailyCard()}${homeExtras()}${journeyCard()}`;
 }
 /* quick ways to keep going once the session is done (or alongside it) */
 function homeExtras() {
@@ -364,6 +359,7 @@ function viewPass() {
   <details class="set"><summary>${ic("gear")}Settings</summary><div class="inner">
     <button class="tog" data-a="tog" data-k="sound" aria-pressed="${state.sound}">Sound effects<span class="sl"></span></button>
     <button class="tog" data-a="tog" data-k="haptics" aria-pressed="${state.haptics}">Vibration (Android)<span class="sl"></span></button>
+    <button class="btn small ghost" data-a="onb">${ic("play")}Replay the walkthrough</button>
     <button class="btn small ghost" data-a="reset">Reset all progress</button>
   </div></details>`;
 }
@@ -441,7 +437,7 @@ document.addEventListener("click", e => {
   else if (a === "go") openSession("auto");
   else if (a === "checkup") openSession("checkup");
   else if (a === "dismiss") { state.notice = null; save(); render(); }
-  else if (a === "howok") { state.howSeen = true; save(); render(); }
+  else if (a === "onb") showOnboarding();
   else if (a === "chest") openChest(b);
   else if (a === "stop") stopSheet(+b.dataset.i);
   else if (a === "country") { countryIdx = +b.dataset.i; view = "country"; render(); }

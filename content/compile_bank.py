@@ -6,6 +6,7 @@ from collections import OrderedDict, Counter
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, f"{HERE}/facts")
 from facts7 import F      # facts1 -> ... -> facts7 each import the previous list
 from revise import R, RQ, WHY
+from explain import X
 F = [r for r in F if not r[2].startswith("What does 'allillanchu?' mean")]   # Quechua: keep only añay + tupananchiskama
 HIST = {"Pyramids","Sphinx","Valley of the Kings","Karnak","Hatshepsut","Alexander & Ptolemies","Caesar & Cleopatra","Hawara Labyrinth","Colosseum","Gladiators","Aqueducts","Monuments of Rome","Pompeii & Vesuvius","Vatican","Incas","Pizarro & the conquest","Cusco & Sacred Valley","Machu Picchu","Aztecs & pyramids","Berlin Wall","Hitler & the Nazis","WWI","WWII","Samurai & katana","Alcatraz","China"}
 PEOPLE = {"Alexander the Great","Genghis Khan","Napoleon","Other great leaders","Alan Turing & Enigma","Pablo Escobar","Nimsdai","Elon Musk"}
@@ -30,7 +31,18 @@ def revise(r):
     if q in WHY: r[7] = WHY[q]
     if q in RQ: r[2] = RQ[q]
     return tuple(r)
+def card_id(q):   # same djb2 / base36 hash the app uses for card ids (engine.js: hash)
+    x = 5381
+    for c in q: x = ((x << 5) + x + ord(c)) & 0xFFFFFFFF
+    o = ""
+    while True:
+        o = "0123456789abcdefghijklmnopqrstuvwxyz"[x % 36] + o; x //= 36
+        if not x: return o
 F = [revise(r) for r in F]
+ids = {card_id(r[2]) for r in F}
+stale = sorted(set(X) - ids)
+assert not stale, f"explain.py has keys for questions that no longer exist (question edited?): {stale}"
+F = [r if r[7] else r[:7] + (X.get(card_id(r[2]), ""),) for r in F]
 qs = Counter(r[2] for r in F); assert not [q for q, c in qs.items() if c > 1], "duplicate question"
 assert not [r for r in F if r[3] in r[4:7]], "answer repeated among wrong options"
 by = OrderedDict((k, []) for k in ["Countries","History","Notable people","Mind & memory","Health & fitness","Mountains & nature","AI & tech"])

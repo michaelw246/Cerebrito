@@ -274,7 +274,8 @@ function runKnow(step) {
       tone(ok); buzz(ok);
       const fb = ok ? `<div class="fbbar ok">${ic("check")}<span>${pick(["Excelente!", "Genial!", "Buenísimo!", "Qué bueno!", "Dale!"])}${slot.retry ? " Locked in for now." : ""}</span></div>` : `<div class="fbbar no">${ic("bulb")}<span>It's <b>${esc(tf ? `${correctTF === 0 ? "true" : "false"}: ${it.a}` : ans)}</b>. ${slot.retry ? "You'll see it again tomorrow." : "One more try at the end."}</span></div>`;
       if (speakTxt || answerSide === "es") speakEs(it.es);
-      if (ok && !why) { dock.el.hidden = false; dock.set(fb); autoT = setTimeout(next, 900); return; }
+      // explanations matter most on first meeting and after a miss; a correct review of a familiar card keeps the pace up
+      if (ok && (!why || !isNew)) { dock.el.hidden = false; dock.set(fb); autoT = setTimeout(next, 900); return; }
       dock.el.hidden = false; dock.set(`${fb}${why}<button class="btn" id="kcont">Continue${ic("arrow")}</button>`);
       $("#kcont").onclick = next;
       onKeys(e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); next(); } });

@@ -23,19 +23,22 @@ falls back to `localStorage`).
       puzzles.js             Puzzles tab + Palabra, Wordle, Globle, Worldle, Travle, MapTap, Spelling Bee, Rapid recall,
                              Number Hunt, Parejas
       awards.js              awards, Stats page (activity heatmap, trends), week streak strip
+      onboard.js             animated first-run walkthrough (also replayable from Settings)
       style.css              "light glass" design system (themes via data-skin, dark mode via prefers-color-scheme)
     assets/
-      brand/                 the bonsai-brain logo: icon (square + rounded), transparent mark, glyph; SVG + PNG sizes
+      brand/                 the logo: the Memory bonsai-brain painting with its pot label removed, as square + rounded icons,
+                             favicon and apple-touch-icon (regenerate with tools/make_brand.py)
       images/                the nine bonsai-brain trees, mountaineer avatar + hero (source PNGs)
       data/                  valid.txt (Spanish guesses), geo.json (borders/centroids/Travle pairs), countries.json
                              (names, flags, regions, aliases), enwords.json (Wordle + Bee), worldpaths.json; source/ = Natural Earth 110m
     content/
       facts/facts1-7.py      the knowledge bank (question, answer, 3 wrong options[, why]), chained imports
       facts/revise.py        quality pass keyed by question text: fairer options, explanations, standalone rewordings
+      facts/explain.py       an explanation for every other card, keyed by card id (compile fails on stale keys)
       compile_bank.py        facts + revisions -> travel.json (interleaves the categories, stamps a version)
       travel.json            compiled bank (bundled into the build and synced to the artifact db at content/travel)
     tools/
-      make_logo.py render_brand.py    regenerate assets/brand (needs Playwright's Chromium for PNGs)
+      make_brand.py          regenerate assets/brand from assets/images/tree-memory.png
       make_world.py make_geo.py make_words.py make_countries.py    regenerate assets/data/*
       tests/smoke.py         full-app smoke test
       dev-tests/             older Playwright scratch scripts (hard-coded /tmp paths)

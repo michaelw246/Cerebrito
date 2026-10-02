@@ -18,7 +18,7 @@ imgs = {
     "avatar": uri(IMG + "avatar-source.png", 220, (290, 170, 770, 650)),   # face crop
     "hero": rect(IMG + "hero-mountaineer.png", 640),
     "logo": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((160, 160), Image.LANCZOS), 90),
-    "mark": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-mark-1024.png").convert("RGBA").resize((360, 360), Image.LANCZOS), 88),
+    "mark": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((560, 560), Image.LANCZOS), 86),
 }
 def png_uri(path, size):
     b = io.BytesIO(); Image.open(path).convert("RGBA").resize((size, size), Image.LANCZOS).save(b, "PNG", optimize=True)
@@ -39,8 +39,8 @@ data = (data.replace("__GEO__", open(DATA + "geo.json").read()).replace("__BEE__
 for k, v in imgs.items(): data = data.replace(f"__IMG_{k}__", v)
 eng = open(SRC + "engine.js").read().replace('"use strict";', "", 1).replace("__BANK_ES__", BANK_ES).replace("__BANK_TR__", BANK_TR)
 geo = open(SRC + "geo.js").read().replace("__COUNTRIES__", open(DATA + "countries.json").read())
-js = ('"use strict";\n' + data + "\n" + eng + "\n" + geo + "\n" + open(SRC + "app.js").read() + "\n" + open(SRC + "session.js").read() + "\n" + open(SRC + "puzzles.js").read() + "\n" + open(SRC + "awards.js").read()
-      + "\napplySkin(); processMissed(); render(); initCloud();\n")
+js = ('"use strict";\n' + data + "\n" + eng + "\n" + geo + "\n" + open(SRC + "app.js").read() + "\n" + open(SRC + "session.js").read() + "\n" + open(SRC + "puzzles.js").read() + "\n" + open(SRC + "awards.js").read() + "\n" + open(SRC + "onboard.js").read()
+      + "\napplySkin(); processMissed(); render(); initCloud().finally(maybeOnboard);\n")
 html=f'''<!doctype html>
 <html lang="en" data-skin="andean">
 <head>
