@@ -186,15 +186,14 @@ function viewRecall() {
   const es = knowStats("es"), tr = knowStats("tr");
   const locked = es.mastered + tr.mastered, learning = es.learning + tr.learning;
   const deck = (id, name, sub, visual, col, st, kind, cat) => `<article class="deck" style="--cc:${col}"><div class="dtop">${visual}<div class="dtx"><b>${esc(name)}</b><small>${esc(sub)}</small></div></div>
-    <div class="dnum"><span><b>${st.mastered}</b>/${st.total} locked in</span>${st.learning ? `<span>${st.learning} learning</span>` : ""}</div><div class="gauge thin"><i style="width:${Math.max(Math.round(st.mastered / Math.max(1, st.total) * 100), st.learning ? 3 : 0)}%"></i></div>
+    <div class="dnum"><span><b>${st.mastered}</b>/${st.total} locked in</span>${dueCount(kind, cat) ? `<span class="due">${dueCount(kind, cat)} due</span>` : st.learning ? `<span>${st.learning} learning</span>` : ""}</div><div class="gauge thin"><i style="width:${Math.max(Math.round(st.mastered / Math.max(1, st.total) * 100), st.learning ? 3 : 0)}%"></i></div>
     <div class="dbtns"><button data-a="learn" data-k="${kind}" ${cat ? `data-c="${esc(cat)}"` : ""} ${st.fresh ? "" : "disabled"}>${ic("sparkle")}Learn 5</button><button data-a="rush" ${cat ? `data-c="${esc(cat)}"` : `data-c="Spanish"`}>${ic("zap")}Rush</button></div></article>`;
   const esSt = { ...es, total: content.es.length };
   const decks = deck("es", "Spanish", "Your Argentine word bank", `<img src="${IMG.t_spanish}" alt="">`, "#EE7FA6", esSt, "es", null)
     + CATS.map(c => deck(c.id, c.id, c.sub, `<i>${ic(c.icon)}</i>`, c.col, knowStats("tr", c.id), "tr", c.id)).join("");
-  const pz = state.pz && state.pz.date === today() ? state.pz : {};
-  const pzc = (k, name, sub, icn) => { const g = pz[k], done = g && g.done; return `<button class="bite" data-a="puzzle" data-k="${k}" ${done ? "disabled" : ""}><i style="background:var(--pl);color:var(--p)">${ic(icn)}</i><span><b>${name}</b><small>${done ? (g.won ? "Solved today" : "Played today") : sub}</small></span></button>`; };
   return `<button class="backlink" data-a="tab" data-t="train">${ic("back")}Your brain</button><section class="card pagecard"><div class="eyebrow g">Memoria</div><h1>Long-term memory</h1><p>Spanish and everything you've seen, learned and been curious about. Cards come back right before you'd forget them, so they stick for good.</p>
     <div class="statrow"><span class="chip m">${ic("check")}${locked} locked in</span><span class="chip v">${ic("clock")}${learning} learning</span><span class="chip o">${ic("bulb")}${dueCount("es") + dueCount("tr")} due today</span></div></section>
+  ${dueCount("es") + dueCount("tr") ? `<button class="btn green" data-a="review">${ic("cards")}Review ${dueCount("es") + dueCount("tr")} due card${dueCount("es") + dueCount("tr") === 1 ? "" : "s"}</button>` : ""}
   <button class="card rushcard" data-a="rush"><span class="rz">${ic("zap")}</span><span><b>Rapid recall</b><small>60 seconds of rapid-fire questions on things you've learned${state.rushBest ? ` · best ${fmt(state.rushBest)}` : ""}</small></span>${ic("play")}</button>
   <div class="secrow"><div><h2 class="sec">${ic("cards")}Decks</h2><p>Your daily session already pulls from all of these. Use these to go further.</p></div></div>
   <div class="decks">${decks}</div>
@@ -445,7 +444,6 @@ document.addEventListener("click", e => {
   else if (a === "howok") { state.howSeen = true; save(); render(); }
   else if (a === "chest") openChest(b);
   else if (a === "stop") stopSheet(+b.dataset.i);
-  else if (a === "gf") { groveFilter = b.dataset.k; render(); }
   else if (a === "country") { countryIdx = +b.dataset.i; view = "country"; render(); }
   else if (a === "playj") playJourney();
   else if (a === "cont") { jCont = b.dataset.k; const y = scrollY; render(); scrollTo(0, y); }
