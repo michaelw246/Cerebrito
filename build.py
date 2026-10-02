@@ -17,18 +17,29 @@ def uri(path, size, crop=None, q=80):
 imgs = {
     "avatar": uri(IMG + "avatar-source.png", 220, (290, 170, 770, 650)),   # face crop
     "hero": rect(IMG + "hero-mountaineer.png", 640),
+    "logo": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((160, 160), Image.LANCZOS), 90),
+    "mark": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-mark-1024.png").convert("RGBA").resize((360, 360), Image.LANCZOS), 88),
 }
+def png_uri(path, size):
+    b = io.BytesIO(); Image.open(path).convert("RGBA").resize((size, size), Image.LANCZOS).save(b, "PNG", optimize=True)
+    return "data:image/png;base64," + base64.b64encode(b.getvalue()).decode()
+FAVICON = png_uri(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png", 64)
+TOUCH = png_uri(f"{ROOT}/assets/brand/cerebrito-icon-1024.png", 180)
 for k, f in [("t_memory", "memory"), ("t_speed", "speed"), ("t_flex", "flexibility"), ("t_numbers", "numbers"), ("t_focus", "focus"),
              ("t_logic", "logic"), ("t_spatial", "spatial"), ("t_spanish", "spanish"), ("t_travel", "travel")]:
     imgs[k] = uri(IMG + f"tree-{f}.png", 400, q=78)
 css = open(SRC + "style.css").read()
 data = open(SRC + "data.js").read().replace("__VALID__", open(DATA + "valid.txt").read())
+BANK_TR = open(f"{ROOT}/content/travel.json").read()
+_es = json.load(open(f"{ROOT}/backup/spanish-wordbank.json")); _es.setdefault("updatedAt", 1790899200000)
+BANK_ES = json.dumps(_es, ensure_ascii=False, separators=(",", ":"))
 _e = json.load(open(DATA + "enwords.json"))
 data = (data.replace("__GEO__", open(DATA + "geo.json").read()).replace("__BEE__", " ".join(_e["bee"])).replace("__BP__", json.dumps(_e["bp"]))
             .replace("__ANS5__", "".join(_e["ans5"])).replace("__V5__", "".join(_e["v5"])))
 for k, v in imgs.items(): data = data.replace(f"__IMG_{k}__", v)
-eng = open(SRC + "engine.js").read().replace('"use strict";', "", 1)
-js = ('"use strict";\n' + data + "\n" + eng + "\n" + open(SRC + "app.js").read() + "\n" + open(SRC + "session.js").read() + "\n" + open(SRC + "puzzles.js").read()
+eng = open(SRC + "engine.js").read().replace('"use strict";', "", 1).replace("__BANK_ES__", BANK_ES).replace("__BANK_TR__", BANK_TR)
+geo = open(SRC + "geo.js").read().replace("__COUNTRIES__", open(DATA + "countries.json").read())
+js = ('"use strict";\n' + data + "\n" + eng + "\n" + geo + "\n" + open(SRC + "app.js").read() + "\n" + open(SRC + "session.js").read() + "\n" + open(SRC + "puzzles.js").read() + "\n" + open(SRC + "awards.js").read()
       + "\napplySkin(); processMissed(); render(); initCloud();\n")
 html=f'''<!doctype html>
 <html lang="en" data-skin="andean">
@@ -36,6 +47,14 @@ html=f'''<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cerebrito</title>
+<meta name="theme-color" content="#FBF8FF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11122A" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cerebrito">
+<meta name="description" content="Daily brain training: adaptive games, spaced-repetition recall and geography puzzles.">
+<link rel="icon" type="image/png" href="{FAVICON}">
+<link rel="apple-touch-icon" href="{TOUCH}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500..800&family=Plus+Jakarta+Sans:wght@400..800&display=swap" rel="stylesheet">

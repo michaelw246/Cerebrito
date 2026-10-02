@@ -178,15 +178,27 @@ const IC = {
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   del: '<path d="M21 5H9l-6 7 6 7h12a1 1 0 001-1V6a1 1 0 00-1-1zM12 9l6 6M18 9l-6 6"/>',
   palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.3" fill="currentColor"/><circle cx="12" cy="7.5" r="1.3" fill="currentColor"/><circle cx="16" cy="10" r="1.3" fill="currentColor"/><path d="M12 21a3 3 0 010-6h2"/>',
-  word: '<path d="M4 7V5h16v2M9 19h6M12 5v14"/>'
+  word: '<path d="M4 7V5h16v2M9 19h6M12 5v14"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+  share: '<path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/>',
+  shuffle: '<path d="M16 4h4v4M4 20L20 4M20 16v4h-4M15 15l5 5M4 4l5 5"/>',
+  pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0112 2.5a7 7 0 017 7C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 10.2L6 3h4l2 5 2-5h4l-2.5 7.2M12 12.5l.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  sound: '<path d="M4 9.5v5h3.5L12 19V5L7.5 9.5z"/><path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11"/>',
+  eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'
 };
 const ic = (n, cls = "") => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
-const IMG = { avatar: "__IMG_avatar__", hero: "__IMG_hero__", t_memory: "__IMG_t_memory__", t_speed: "__IMG_t_speed__", t_flex: "__IMG_t_flex__", t_numbers: "__IMG_t_numbers__", t_focus: "__IMG_t_focus__", t_logic: "__IMG_t_logic__", t_spatial: "__IMG_t_spatial__", t_spanish: "__IMG_t_spanish__", t_travel: "__IMG_t_travel__" };
+const IMG = { logo: "__IMG_logo__", mark: "__IMG_mark__", avatar: "__IMG_avatar__", hero: "__IMG_hero__", t_memory: "__IMG_t_memory__", t_speed: "__IMG_t_speed__", t_flex: "__IMG_t_flex__", t_numbers: "__IMG_t_numbers__", t_focus: "__IMG_t_focus__", t_logic: "__IMG_t_logic__", t_spatial: "__IMG_t_spatial__", t_spanish: "__IMG_t_spanish__", t_travel: "__IMG_t_travel__" };
 
 const CATS = [
   { id: "Countries", icon: "globe", col: "#16A57A", sub: "Capitals, food, beers, places you went" },
   { id: "History", icon: "trophy", col: "#B0643A", sub: "Egypt, Rome, Incas, Aztecs, the wars" },
   { id: "Notable people", icon: "star", col: "#6D4AF0", sub: "Alexander, Napoleon, Turing, Nimsdai, Musk" },
+  { id: "Mind & memory", icon: "brain", col: "#9B7BF0", sub: "How learning, memory, sleep and focus work" },
   { id: "Health & fitness", icon: "flame", col: "#FD6A49", sub: "Huberman, sleep, training, nutrition" },
   { id: "Mountains & nature", icon: "mountain", col: "#3F7FD8", sub: "8,000ers, Andes, Amazon, big cats" },
   { id: "AI & tech", icon: "zap", col: "#22BDB0", sub: "AI, robots, chips and the people behind them" }

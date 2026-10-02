@@ -24,9 +24,9 @@ function themeArt(t, cls = "") {
   return `<svg class="${cls}" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${g}</svg>`;
 }
 const APP_NAME = "Cerebrito";
-const TABN = { map: "Home", train: "Mind", part: "Mind", recall: "Long-term memory", journey: "Journey", country: "Journey", puzzles: "Puzzles", pass: "You", shop: "Shop" };
+const TABN = { map: "Home", train: "Mind", part: "Mind", recall: "Long-term memory", journey: "Journey", country: "Journey", puzzles: "Puzzles", pass: "You", shop: "Shop", awards: "Awards", stats: "Stats" };
 function header() {
-  return `<header class="top"><div class="logo"><i>${ic("brain")}</i><span><b>${APP_NAME}</b><small>${TABN[view] || ""}</small></span></div>
+  return `<header class="top"><div class="logo"><img src="${IMG.logo}" alt="" width="36" height="36"><span><b>${APP_NAME}</b><small>${TABN[view] || ""}</small></span></div>
   <div class="pods"><span class="pod fl" title="Day streak">${ic("flame")}${state.streak}</span><button class="pod co" data-a="tab" data-t="shop" title="Coins, open the shop">${ic("sun")}${fmt(state.coins)}</button></div></header>`;
 }
 function sheet(html) {
@@ -49,8 +49,10 @@ const pillarWord = { speed: "Agility", memory: "Memory", attention: "Focus", fle
 function render() {
   if (view === "session") return;
   tabs.classList.remove("hidden");
-  $$("button", tabs).forEach(b => b.setAttribute("aria-current", b.dataset.tab === ({ shop: "pass", part: "train", recall: "train", country: "journey" }[view] || view) ? "page" : "false"));
-  app.innerHTML = header() + (view === "map" ? viewMap() : view === "train" ? viewTrain() : view === "recall" ? viewRecall() : view === "journey" ? viewJourney() : view === "country" ? viewCountry() : view === "puzzles" ? viewPuzzles() : view === "part" ? viewPart() : view === "pass" ? viewPass() : viewShop());
+  $$("button", tabs).forEach(b => b.setAttribute("aria-current", b.dataset.tab === ({ shop: "pass", awards: "pass", stats: "pass", part: "train", recall: "train", country: "journey" }[view] || view) ? "page" : "false"));
+  const V = { map: viewMap, train: viewTrain, recall: viewRecall, journey: viewJourney, country: viewCountry, puzzles: viewPuzzles, part: viewPart, pass: viewPass, shop: viewShop, awards: viewAwards, stats: viewStats };
+  app.innerHTML = header() + (V[view] || viewMap)();
+  setTimeout(flushAwards, 400);
   window.scrollTo(0, 0);
   if (view === "map") startCountdownTick();
 
@@ -71,8 +73,19 @@ function viewMap() {
     <li><i>2</i><span><b>It trains two things:</b> your <b>Mind</b> (brain games that grow your skill trees) and your <b>Recall</b> (Spanish, places and everything you've learned).</span></li>
     <li><i>3</i><span><b>Come back daily</b> to keep your streak and move one stop further along your <b>Journey</b>.</span></li></ol>
     <button class="btn small ghost" data-a="howok">Got it</button></section>`;
-  return `${notice}<section class="greet"><h1>${greeting()}, Michael</h1><p>${state.lastDone === today() ? "Today's session is done. Keep going if you like." : "Here's today's session. One tap to start."}</p></section>
-  ${dailyCard()}${journeyCard()}${how}`;
+  const doneToday = state.lastDone === today(), h = new Date().getHours();
+  const line = doneToday ? "Today's session is done. Keep going if you like." : state.streak > 0 && h >= 18 ? `Your ${state.streak}-day streak needs today's session. About ${estMins(planToday())} minutes.` : state.streak > 0 ? `Day ${state.streak + 1} of your streak is one session away.` : "Here's today's session. One tap to start.";
+  return `${notice}<section class="greet"><h1>${greeting()}, Michael</h1><p class="${!doneToday && state.streak > 0 && h >= 18 ? "risk" : ""}">${esc(line)}</p>${weekStrip()}</section>
+  ${dailyCard()}${homeExtras()}${journeyCard()}${how}`;
+}
+/* quick ways to keep going once the session is done (or alongside it) */
+function homeExtras() {
+  const due = dueCount("es") + dueCount("tr"), pz = state.pz && state.pz.date === today() ? state.pz : {}, left = PZ.filter(p => p.k !== "rush" && !(pz[p.k] && pz[p.k].done)), pd = puzzleOfDay(today());
+  const tiles = [];
+  if (due) tiles.push(`<button class="qtile" data-a="review"><i style="--qc:var(--t)">${ic("cards")}</i><b>${due} due</b><small>Reviews ready</small></button>`);
+  if (left.length && pd && pd !== "rush") tiles.push(`<button class="qtile" data-a="pzd" data-k="${pd}"><i style="--qc:${PZK[pd].col}">${ic(PZK[pd].icon)}</i><b>${PZK[pd].name}</b><small>${left.length} dailies left</small></button>`);
+  tiles.push(`<button class="qtile" data-a="tab" data-t="awards"><i style="--qc:var(--g)">${ic("medal")}</i><b>${AWARDS.filter(a => state.awards[a.id]).length}/${AWARDS.length}</b><small>Awards</small></button>`);
+  return `<div class="qtiles n${tiles.length}">${tiles.join("")}</div>`;
 }
 function dailyCard() {
   const t = today();
@@ -173,15 +186,14 @@ function viewRecall() {
   const es = knowStats("es"), tr = knowStats("tr");
   const locked = es.mastered + tr.mastered, learning = es.learning + tr.learning;
   const deck = (id, name, sub, visual, col, st, kind, cat) => `<article class="deck" style="--cc:${col}"><div class="dtop">${visual}<div class="dtx"><b>${esc(name)}</b><small>${esc(sub)}</small></div></div>
-    <div class="dnum"><span><b>${st.mastered}</b>/${st.total} locked in</span>${st.learning ? `<span>${st.learning} learning</span>` : ""}</div><div class="gauge thin"><i style="width:${Math.max(Math.round(st.mastered / Math.max(1, st.total) * 100), st.learning ? 3 : 0)}%"></i></div>
+    <div class="dnum"><span><b>${st.mastered}</b>/${st.total} locked in</span>${dueCount(kind, cat) ? `<span class="due">${dueCount(kind, cat)} due</span>` : st.learning ? `<span>${st.learning} learning</span>` : ""}</div><div class="gauge thin"><i style="width:${Math.max(Math.round(st.mastered / Math.max(1, st.total) * 100), st.learning ? 3 : 0)}%"></i></div>
     <div class="dbtns"><button data-a="learn" data-k="${kind}" ${cat ? `data-c="${esc(cat)}"` : ""} ${st.fresh ? "" : "disabled"}>${ic("sparkle")}Learn 5</button><button data-a="rush" ${cat ? `data-c="${esc(cat)}"` : `data-c="Spanish"`}>${ic("zap")}Rush</button></div></article>`;
   const esSt = { ...es, total: content.es.length };
   const decks = deck("es", "Spanish", "Your Argentine word bank", `<img src="${IMG.t_spanish}" alt="">`, "#EE7FA6", esSt, "es", null)
     + CATS.map(c => deck(c.id, c.id, c.sub, `<i>${ic(c.icon)}</i>`, c.col, knowStats("tr", c.id), "tr", c.id)).join("");
-  const pz = state.pz && state.pz.date === today() ? state.pz : {};
-  const pzc = (k, name, sub, icn) => { const g = pz[k], done = g && g.done; return `<button class="bite" data-a="puzzle" data-k="${k}" ${done ? "disabled" : ""}><i style="background:var(--pl);color:var(--p)">${ic(icn)}</i><span><b>${name}</b><small>${done ? (g.won ? "Solved today" : "Played today") : sub}</small></span></button>`; };
   return `<button class="backlink" data-a="tab" data-t="train">${ic("back")}Your brain</button><section class="card pagecard"><div class="eyebrow g">Memoria</div><h1>Long-term memory</h1><p>Spanish and everything you've seen, learned and been curious about. Cards come back right before you'd forget them, so they stick for good.</p>
     <div class="statrow"><span class="chip m">${ic("check")}${locked} locked in</span><span class="chip v">${ic("clock")}${learning} learning</span><span class="chip o">${ic("bulb")}${dueCount("es") + dueCount("tr")} due today</span></div></section>
+  ${dueCount("es") + dueCount("tr") ? `<button class="btn green" data-a="review">${ic("cards")}Review ${dueCount("es") + dueCount("tr")} due card${dueCount("es") + dueCount("tr") === 1 ? "" : "s"}</button>` : ""}
   <button class="card rushcard" data-a="rush"><span class="rz">${ic("zap")}</span><span><b>Rapid recall</b><small>60 seconds of rapid-fire questions on things you've learned${state.rushBest ? ` · best ${fmt(state.rushBest)}` : ""}</small></span>${ic("play")}</button>
   <div class="secrow"><div><h2 class="sec">${ic("cards")}Decks</h2><p>Your daily session already pulls from all of these. Use these to go further.</p></div></div>
   <div class="decks">${decks}</div>
@@ -259,7 +271,7 @@ function viewCountry() {
   ${i === cur ? levelCard() : i > cur ? `<section class="card"><p class="muted">Locked. ${i - cur} more level${i - cur > 1 ? "s" : ""} to go. Facts about ${esc(r.name)} appear here once you arrive.</p><button class="btn" data-a="playj">${ic("play")}Keep exploring</button></section>` : ""}
   <section class="card mapcard">${mapSVG(ct.id)}</section>
   ${mine.length ? `<div class="secrow"><div><h2 class="sec">${ic("mountain")}Your stops</h2><p>Places you went in real life.</p></div></div><div class="mine">${mine.map(n => `<div><b>${esc(n)}${STOP_INFO[n].alt ? ` · ${fmt(STOP_INFO[n].alt)} m` : ""}</b><p>${esc(STOP_INFO[n].fact)}</p></div>`).join("")}</div>` : ""}
-  ${facts.length ? `<div class="secrow"><div><h2 class="sec">${ic("bulb")}Quick facts</h2><p>From your knowledge decks.</p></div></div><div class="mine">${facts.map(f => `<div><b>${esc(f.q)}</b><p>${esc(f.a)}</p></div>`).join("")}</div>` : ""}`;
+  ${facts.length ? `<div class="secrow"><div><h2 class="sec">${ic("bulb")}Quick facts</h2><p>From your knowledge decks.</p></div></div><div class="mine">${facts.map(f => `<div><b>${esc(f.q)}</b><p><strong>${esc(f.a)}</strong>${f.why ? `. ${esc(f.why)}` : ""}</p></div>`).join("")}</div>` : ""}`;
 }
 function celebrate(beforeLvl, afterLvl) {
   if (afterLvl <= beforeLvl) return;
@@ -279,7 +291,7 @@ function stopSheet(i) {
   sheet(`<div class="eyebrow">${esc(r.country)} · level ${i + 1}${VISITED.has(r.c) ? " · you've been here" : ""}</div><h3>${flagOf(r.c)} ${esc(r.name)}</h3>
     <div class="facts"><div><small>Capital</small><b>${esc(r.cap)}</b></div></div>
     ${mine.length ? `<div class="eyebrow m" style="margin-top:12px">Your stops</div><div class="mine">${mine.map(n => `<div><b>${esc(n)}${STOP_INFO[n].alt ? ` · ${fmt(STOP_INFO[n].alt)} m` : ""}</b><p>${esc(STOP_INFO[n].fact)}</p></div>`).join("")}</div>` : ""}
-    ${facts.length ? `<div class="eyebrow m" style="margin-top:12px">Quick facts</div><div class="mine">${facts.map(f => `<div><b>${esc(f.q)}</b><p>${esc(f.a)}</p></div>`).join("")}</div>` : ""}
+    ${facts.length ? `<div class="eyebrow m" style="margin-top:12px">Quick facts</div><div class="mine">${facts.map(f => `<div><b>${esc(f.q)}</b><p><strong>${esc(f.a)}</strong>${f.why ? `. ${esc(f.why)}` : ""}</p></div>`).join("")}</div>` : ""}
     ${i === cur && state.lastDone !== today() ? `<button class="btn" data-a="go" data-close>${ic("play")}Start today's session</button>` : ""}`);
 }
 
@@ -316,13 +328,18 @@ function viewPass() {
   const cuBtn = !state.baseline ? `<button class="btn" disabled>${ic("brain")}Check-up after baseline</button>`
     : checkupDue() && state.lastDone !== today() ? `<button class="btn" data-a="checkup">${ic("brain")}Start brain re-calibration</button>`
     : `<button class="btn" disabled>${ic("brain")}Next check-up ${esc(new Date(parseKey(nextCU)).toLocaleDateString("en-AU", { day: "numeric", month: "short" }))}</button>`;
-  const pzw = state.pzs.palabra.won + state.pzs.pais.won, pzp = state.pzs.palabra.played + state.pzs.pais.played;
+  const pzw = pzSolvedTotal(), pzp = PZ.filter(p => p.k !== "rush").reduce((a, p) => a + ((state.pzs[p.k] || {}).played || 0), 0);
   const todayXp = (state.plan && state.plan.date === today() ? state.plan.results.reduce((a, r) => a + (r.xp || 0), 0) : 0);
   return `<section class="card pp"><span class="ribbon">${ic("trophy", "xs")}Lvl ${li.lvl} ${titleFor(li.lvl)}</span>
     <div class="bigava" style="background-image:url(${IMG.avatar})"><span>${ic("check")}</span></div>
     <h1>Michael</h1><p class="since">${ic("hiker")}Training since ${esc(new Date(parseKey(state.joined)).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }))}</p>
     <div class="stat3"><div><b>${ic("clock")}${state.sessions}</b><span>Days travelled</span></div><div><b>${ic("flame")}${state.streak}</b><span>Day streak</span></div><div><b>${ic("globe")}${countries}/${allC}</b><span>Countries</span></div></div></section>
-  <button class="card shopcard" data-a="tab" data-t="shop"><span class="pin" style="background:var(--gl);color:var(--gd)">${ic("store")}</span><span><b>Shop</b><small>${fmt(state.coins)} coins · ${state.freezes} streak freeze${state.freezes === 1 ? "" : "s"} · ${state.hints} hints</small></span>${ic("arrow")}</button>
+  <section class="card streakcard"><div class="sch"><span class="flame">${ic("flame")}</span><div><b>${state.streak} day${state.streak === 1 ? "" : "s"}</b><small>${state.streak ? (state.lastDone === today() ? "Streak safe for today" : "Do today's session to keep it") : "Start a streak today"} · best ${state.bestStreak}</small></div>${state.freezes ? `<span class="chip">${ic("snow")}${state.freezes}</span>` : ""}</div>${weekStrip()}</section>
+  <div class="hub">
+    <button class="card shopcard" data-a="tab" data-t="awards"><span class="pin" style="background:var(--gl);color:var(--gd)">${ic("medal")}</span><span><b>Awards</b><small>${AWARDS.filter(a => state.awards[a.id]).length} of ${AWARDS.length} earned</small></span>${ic("arrow")}</button>
+    <button class="card shopcard" data-a="tab" data-t="stats"><span class="pin">${ic("chart")}</span><span><b>Stats</b><small>${activeDays()} active day${activeDays() === 1 ? "" : "s"} · calendar and trends</small></span>${ic("arrow")}</button>
+    <button class="card shopcard" data-a="tab" data-t="shop"><span class="pin" style="background:var(--sl);color:var(--sd)">${ic("store")}</span><span><b>Shop</b><small>${fmt(state.coins)} coins · ${state.freezes} freeze${state.freezes === 1 ? "" : "s"} · ${state.hints} hints</small></span>${ic("arrow")}</button>
+  </div>
   <section class="card"><div class="radarhead"><span class="pin">${ic("brain")}</span><div><b>Cognitive radar</b><small>${head}</small></div></div>${radar}</section>
   ${cuBtn}
   <h2 class="sec" style="justify-content:space-between">Expedition journal</h2>
@@ -338,7 +355,7 @@ function viewPass() {
   </section>
   <section class="card kpanel" style="padding:8px 16px">${catRows(false)}</section>
   <details class="set"><summary>${ic("cards")}Library</summary><div class="inner">
-    <p class="muted">Spanish: ${content.es.length} cards${content.esSample ? " (sample list)" : ""}. Knowledge: ${content.tr.length} questions${content.trSample ? " (sample list for now)" : ""}. New cards come in a few a day, and anything you miss comes back tomorrow.</p>
+    <p class="muted">Spanish: ${content.es.length} cards. Knowledge: ${fmt(content.tr.length)} questions. New cards arrive a few a day; reviews come back just before you'd forget them.</p>
     <textarea id="esIn" placeholder="Spanish, one per line: spanish - english&#10;# Category lines are optional"></textarea>
     <div class="row"><button class="btn small ghost" data-a="imp" data-k="es" data-m="add">Add words</button><button class="btn small ghost" data-a="imp" data-k="es" data-m="replace">Replace list</button></div>
     <textarea id="trIn" placeholder="# Country&#10;Place | Question | Answer | wrong 1; wrong 2; wrong 3"></textarea>
@@ -407,12 +424,10 @@ function parseTr(text) {
 async function importContent(kind, mode) {
   const ta = $(kind === "es" ? "#esIn" : "#trIn"); const items = kind === "es" ? parseEs(ta.value) : parseTr(ta.value);
   if (!items.length) { toast(kind === "es" ? "No words found. Use one per line: spanish - english" : "No facts found. Use: Place | Question | Answer"); return; }
-  const sampleKey = kind === "es" ? "esSample" : "trSample";
-  let list = mode === "replace" || content[sampleKey] ? items : content[kind].concat(items);
+  let list = mode === "replace" ? items : content[kind].concat(items);
   const seen = new Set(); list = list.filter(x => !seen.has(x.id) && seen.add(x.id));
-  content[kind] = list; content[sampleKey] = false;
-  try { localStorage.setItem(LSC, JSON.stringify({ es: content.esSample ? null : content.es, tr: content.trSample ? null : content.tr })); } catch (e) {}
-  if (db) { try { await db.doc(kind === "es" ? "content/spanish" : "content/travel").set({ items: list, updatedAt: Date.now() }); } catch (e) {} }
+  content[kind] = list; content[kind + "At"] = Date.now(); cacheContent();
+  if (db) { try { await db.doc(kind === "es" ? "content/spanish" : "content/travel").set({ items: list.map(({ id, ...x }) => x), updatedAt: content[kind + "At"] }); } catch (e) {} }
   toast(`${items.length} ${kind === "es" ? "words" : "facts"} loaded`);
   render();
 }
@@ -429,13 +444,16 @@ document.addEventListener("click", e => {
   else if (a === "howok") { state.howSeen = true; save(); render(); }
   else if (a === "chest") openChest(b);
   else if (a === "stop") stopSheet(+b.dataset.i);
-  else if (a === "gf") { groveFilter = b.dataset.k; render(); }
   else if (a === "country") { countryIdx = +b.dataset.i; view = "country"; render(); }
   else if (a === "playj") playJourney();
   else if (a === "cont") { jCont = b.dataset.k; const y = scrollY; render(); scrollTo(0, y); }
   else if (a === "part") { partKey = b.dataset.k; view = "part"; render(); }
   else if (a === "trainpart") { const k = b.dataset.k; openPractice({ t: "game", eng: k, variant: pick(ENGINES[k].train), mode: "train" }, `${PILLARS[k].name} training`, "extra"); }
   else if (a === "extra") openExtra();
+  else if (a === "review") {
+    const steps = [["es", queueFor("es", 0, 15)], ["tr", queueFor("tr", 0, 15)]].filter(x => x[1].length).map(([kind, ids]) => ({ t: "know", kind, ids }));
+    if (steps.length) { P = { kind: "practice", label: "Reviews", lv0: levelInfo(state.xp).lvl, date: today(), idx: 0, results: [], steps }; enterSession(); stepIntro(); }
+  }
   else if (a === "learn") { const k = b.dataset.k, c = b.dataset.c; const ids = shuffle(content[k].filter(x => !state.srs[k][x.id] && (!c || x.cat === c)).map(x => x.id)).slice(0, 5); if (ids.length) openPractice({ t: "know", kind: k, ids }, k === "es" ? "Spanish" : c || "Knowledge"); }
   else if (a === "pzd") openPractice({ t: "puzzle", kind: b.dataset.k }, PZK[b.dataset.k].name);
   else if (a === "pzf") openPractice({ t: "puzzle", kind: b.dataset.k, free: true }, PZK[b.dataset.k].name);

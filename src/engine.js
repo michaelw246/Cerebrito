@@ -18,39 +18,19 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------- world ---------- */
 const STOPS = ROUTE;
-const COUNTRIES = ["Colombia", "Argentina", "Chile", "Bolivia", "Peru", "Brazil", "Ecuador", "Uruguay", "Paraguay"];
 
 
 
+/* Difficulty runs 1..DMAX. Every trial generator reaches its hardest settings by ~22, so levels above that would only inflate scores. */
+const DMAX = 25;
 const SKILLS = ["speed", "memory", "attention", "flex", "numeracy", "reasoning", "spatial"];
 const SKILL_NAMES = { speed: "Speed", memory: "Memory", attention: "Focus", flex: "Flexibility", numeracy: "Numbers", reasoning: "Reasoning", spatial: "Spatial" };
 
-/* ---------- sample content (replaced by your own lists) ---------- */
-const SAMPLE_ES = [
-  ["hola", "hello", "Basics"], ["gracias", "thank you", "Basics"], ["por favor", "please", "Basics"], ["la cuenta", "the bill", "Food"],
-  ["el desayuno", "breakfast", "Food"], ["la playa", "the beach", "Nature"], ["la montaña", "the mountain", "Nature"], ["el río", "the river", "Nature"],
-  ["la selva", "the jungle", "Nature"], ["el mercado", "the market", "Places"], ["barato", "cheap", "Describing"], ["caro", "expensive", "Describing"],
-  ["cerca", "near", "Directions"], ["lejos", "far", "Directions"], ["izquierda", "left", "Directions"], ["derecha", "right", "Directions"],
-  ["mañana", "tomorrow", "Time"], ["ayer", "yesterday", "Time"], ["despacio", "slowly", "Describing"], ["la llave", "the key", "Travel"],
-  ["el pasaje", "the ticket", "Travel"], ["la mochila", "the backpack", "Travel"], ["el baño", "the bathroom", "Places"], ["cansado", "tired", "Describing"]
-].map(([es, en, cat]) => ({ id: "es:" + es, es, en, cat }));
-const SAMPLE_TR = [
-  ["Tayrona", "Colombia", "Which country is Tayrona National Park in?", "Colombia"],
-  ["Minca", "Colombia", "Which country is Minca in?", "Colombia"],
-  ["Cartagena", "Colombia", "Which city on Colombia's Caribbean coast is known for its old walled city?", "Cartagena", ["Santa Marta", "Barranquilla", "Medellín"]],
-  ["Buenos Aires", "Argentina", "Which Buenos Aires club plays at La Bombonera?", "Boca Juniors", ["River Plate", "Racing Club", "San Lorenzo"]],
-  ["Buenos Aires", "Argentina", "What's the metal straw you drink mate through called?", "Bombilla", ["Guampa", "Termo", "Yerbera"]],
-  ["Bariloche", "Argentina", "Which country is Bariloche in?", "Argentina"],
-  ["El Calafate", "Argentina", "Which country is El Calafate in?", "Argentina"],
-  ["Torres del Paine", "Chile", "Which country is Torres del Paine in?", "Chile"],
-  ["Huayna Potosí", "Bolivia", "How high is the summit of Huayna Potosí?", "6,088 m", ["5,364 m", "5,120 m", "6,961 m"]],
-  ["Uyuni", "Bolivia", "The Salar de Uyuni is the world's largest what?", "Salt flat", ["Crater lake", "Sand desert", "Glacier"]],
-  ["Rurrenabaque", "Bolivia", "Which country is Rurrenabaque in?", "Bolivia"],
-  ["Machu Picchu", "Peru", "Which civilisation built Machu Picchu?", "Inca", ["Maya", "Aztec", "Moche"]],
-  ["Huacachina", "Peru", "Which country is Huacachina in?", "Peru"]
-].map(([place, country, q, a, wrong]) => ({ id: "tr:" + hash(q), place, country, q, a, wrong: wrong || [] }));
-
-let content = { es: SAMPLE_ES, tr: SAMPLE_TR, esSample: true, trSample: true };
+/* ---------- content: bundled banks, kept in sync with the artifact db ---------- */
+/* Both banks ship inside the build. A copy in localStorage or the db replaces them only when it's newer
+   (your own imports are stamped with the time you made them; the bundled bank with its compile date). */
+const BUNDLE = { es: __BANK_ES__, tr: __BANK_TR__ };
+let content = { es: [], tr: [], esAt: 0, trAt: 0, esSample: false, trSample: false };
 
 /* ---------- state ---------- */
 const LS = "ruta.state.v1", LSC = "ruta.content.v1";
@@ -63,6 +43,7 @@ function freshState() {
     calib: { day: 0, est: {} }, baseline: null, checkups: [],
     skills, srs: { es: {}, tr: {} }, chest: null, plan: null, lastGames: [],
     skin: "andean", sound: true, haptics: true, notice: null,
+    log: {}, awards: {}, rec: {},
     coins: 150, hints: 2, owned: ["andean"], joined: null, pz: {}, pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
   };
 }
@@ -75,9 +56,25 @@ function migrate() {
   if (!state.joined) { const ds = Object.values(state.skills).flatMap(k => k.hist.map(h => h.d)).sort(); state.joined = ds[0] || today(); }
   const f = freshState(); state.pzs = Object.assign(f.pzs, state.pzs || {});
   if (state.pz && state.pz.date !== today()) state.pz = {};
+  Object.values(state.skills).forEach(k => { if (k.lvl) k.lvl = Math.min(k.lvl, DMAX); });
+  if (!state.log || typeof state.log !== "object") state.log = {};
+  if (!state.awards) state.awards = {};
+  if (!state.rec) state.rec = {};
+  if (!Object.keys(state.log).length) {   // backfill the activity log from what older saves recorded
+    Object.values(state.skills).forEach(k => k.hist.forEach(h => { const L = state.log[h.d] || (state.log[h.d] = {}); L.g = (L.g || 0) + 1; }));
+    if (state.lastDone) { const L = state.log[state.lastDone] || (state.log[state.lastDone] = {}); L.s = 1; }
+  }
+  Object.keys(state.calib.est || {}).forEach(k => state.calib.est[k] = Math.min(state.calib.est[k], DMAX));
+  if (state.baseline && state.baseline.est) Object.keys(state.baseline.est).forEach(k => state.baseline.est[k] = Math.min(state.baseline.est[k], DMAX));
 }
 migrate();
-try { const c = JSON.parse(localStorage.getItem(LSC)); if (c) { if (c.es && c.es.length) { content.es = c.es; content.esSample = false; } if (c.tr && c.tr.length) { content.tr = c.tr; content.trSample = false; } } } catch (e) {}
+function useBank(kind, items, at) { content[kind] = kind === "es" ? normEs(items) : normTr(items); content[kind + "At"] = at || 0; }
+useBank("es", BUNDLE.es.items, BUNDLE.es.updatedAt); useBank("tr", BUNDLE.tr.items, BUNDLE.tr.updatedAt);
+try {
+  const c = JSON.parse(localStorage.getItem(LSC));
+  if (c) ["es", "tr"].forEach(k => { if (Array.isArray(c[k]) && c[k].length && (c[k + "At"] || 0) > content[k + "At"]) { content[k] = k === "es" ? normEs(c[k]) : normTr(c[k]); content[k + "At"] = c[k + "At"]; } });
+} catch (e) {}
+function cacheContent() { try { localStorage.setItem(LSC, JSON.stringify({ es: content.es, esAt: content.esAt, tr: content.tr, trAt: content.trAt })); } catch (e) {} }
 
 let db = null, uid = null, cloudTimer = null, cloudBusy = false, cloudPending = false;
 function save() {
@@ -98,10 +95,14 @@ async function initCloud() {
     const [d, u] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
     if (!d) return;
     db = d;
-    const [es, tr] = await Promise.all([db.doc("content/spanish").get(), db.doc("content/travel").get()]);
-    const esI = es.exists && es.data().items, trI = tr.exists && tr.data().items;
-    if (Array.isArray(esI) && esI.length) { content.es = normEs(esI); content.esSample = false; }
-    if (Array.isArray(trI) && trI.length) { content.tr = normTr(trI); content.trSample = false; }
+    const docs = { es: "content/spanish", tr: "content/travel" };
+    await Promise.all(Object.entries(docs).map(async ([k, path]) => {
+      const snap = await db.doc(path).get(), d = snap.exists ? snap.data() : null, items = d && d.items, at = (d && d.updatedAt) || 0;
+      if (Array.isArray(items) && items.length && at > content[k + "At"]) { useBank(k, items, at); cacheContent(); }
+      else if (!d || at < content[k + "At"]) {   // db is missing or older than what we have: bring it up to date
+        try { await db.doc(path).set({ items: content[k].map(({ id, ...x }) => x), updatedAt: content[k + "At"] }); } catch (e) {}
+      }
+    }));
     if (u) uid = await u.id();
     if (uid) {
       const snap = await db.doc(`data/users/${uid}/state`).get();
@@ -117,11 +118,18 @@ async function initCloud() {
   } catch (e) {}
 }
 function normEs(items) {
-  return items.filter(x => x && x.es && x.en).map(x => ({ id: "es:" + String(x.es).trim().toLowerCase(), es: String(x.es).trim(), en: String(x.en).trim(), cat: x.cat || "General" }));
+  return items.filter(x => x && x.es && x.en).map(x => ({ id: "es:" + String(x.es).trim().toLowerCase(), es: String(x.es).trim(), en: String(x.en).trim(), cat: x.cat || "General", ...(x.pr ? { pr: String(x.pr) } : {}) }));
 }
 function normTr(items) {
-  return items.filter(x => x && x.q && x.a).map(x => ({ id: "tr:" + hash(x.q), cat: x.cat || "Countries", place: x.place || "", country: x.country || "", q: String(x.q), a: String(x.a), wrong: Array.isArray(x.wrong) ? x.wrong.map(String) : [] }));
+  return items.filter(x => x && x.q && x.a).map(x => ({ id: "tr:" + hash(x.q), cat: x.cat || "Countries", place: x.place || "", country: x.country || "", q: String(x.q), a: String(x.a), wrong: Array.isArray(x.wrong) ? x.wrong.map(String) : [], ...(x.why ? { why: String(x.why) } : {}) }));
 }
+
+/* ---------- activity log + personal records ---------- */
+/* log[date] = { s: daily session done, f: streak freeze used, g: games, c: cards, p: puzzles, xp } */
+function logDay(f, d = today()) { const L = state.log[d] || (state.log[d] = {}); for (const [k, v] of Object.entries(f)) L[k] = k === "s" || k === "f" ? v : (L[k] || 0) + v; }
+const activeDays = () => Object.entries(state.log).filter(([, L]) => L.s || L.g || L.c || L.p).length;
+/* rec(key, value, "max"|"min") keeps personal bests; returns true when it's a new record */
+function rec(key, v, mode = "max") { const o = state.rec[key]; if (o === undefined || (mode === "max" ? v > o : v < o)) { state.rec[key] = v; return o !== undefined; } return false; }
 
 /* ---------- progression ---------- */
 function levelInfo(xp) {
@@ -143,17 +151,18 @@ function processMissed() {
   const missed = daysBetween(from, t) - 1;
   state.checkedThrough = addDays(t, -1);
   if (missed <= 0) return;
-  let used = 0, lost = 0, broke = false;
+  /* Missing a day costs the streak (unless a freeze covers it), never XP or levels:
+     punishing a lapse makes people less likely to come back, which is the opposite of the point. */
+  let used = 0, broke = false;
   for (let i = 0; i < missed; i++) {
-    if (state.freezes > 0 && !broke) { state.freezes--; used++; }
-    else { broke = true; lost += 60; }
+    if (state.freezes > 0 && !broke) { state.freezes--; used++; logDay({ f: 1 }, addDays(from, i + 1)); }
+    else broke = true;
   }
-  const before = levelInfo(state.xp).lvl;
-  if (broke) { state.streak = 0; state.xp = Math.max(0, state.xp - lost); }
-  const after = levelInfo(state.xp).lvl;
+  const lostStreak = state.streak;
+  if (broke) state.streak = 0;
   const bits = [`You missed ${missed} day${missed > 1 ? "s" : ""}.`];
-  if (used) bits.push(`${used} streak freeze${used > 1 ? "s" : ""} used.`);
-  if (broke) bits.push(`Streak reset and you lost ${lost} XP${after < before ? `, dropping back to ${stopFor(after).name}` : ""}.`);
+  if (used) bits.push(`${used} streak freeze${used > 1 ? "s" : ""} kept your streak alive.`);
+  if (broke) bits.push(lostStreak > 1 ? `Your ${lostStreak}-day streak reset. Today is day one of the next one.` : "Today's a fresh start.");
   state.notice = bits.join(" ");
   save();
 }
@@ -270,6 +279,32 @@ function memoryTrial(mode) {
   };
 }
 
+/* N-back: is this letter the same as the one N steps ago? The best-studied working-memory trainer.
+   Keeps its own history across trials; when N changes (difficulty moves) the stream restarts with a short warm-up. */
+function nbackTrial() {
+  const L = "BCDFGHJKLMNPRSTVXZ"; let hist = [], N = 0;
+  return (d, stage, done) => {
+    const n = d <= 5 ? 1 : d <= 14 ? 2 : 3, show = Math.max(700, 1500 - d * 30), limit = Math.max(1400, 3200 - d * 70);
+    const timers = [], T = (f, ms) => timers.push(setTimeout(f, ms)); let cleanup = null, over = false;
+    const nextLetter = () => { const back = hist.length >= n ? hist[hist.length - n] : null; if (back && Math.random() < 0.35) return back; let c; do c = pick(L.split("")); while (c === back); return c; };
+    const card = (c, sub) => `<div class="hint">${n === 1 ? "Same letter as the one just before?" : `Same letter as ${n} steps back?`}</div><div class="nbk"><div class="nbstrip">${hist.slice(-4).map((_, i, a) => `<i class="${i === a.length - n ? "tgt" : ""}"></i>`).join("")}</div><div class="nbcard"><span>${c}</span></div><small>${sub}</small></div>`;
+    const probe = () => {
+      if (over) return;
+      const c = nextLetter(), match = hist.length >= n && hist[hist.length - n] === c; hist.push(c); if (hist.length > 12) hist.shift();
+      cleanup = choice(stage, { top: card(c, `${n}-back`), options: ["match", "new"], correct: match ? 0 : 1, limit, cls: "nbopts",
+        render: o => o === "match" ? `${ic("check")}Match` : `${ic("x")}New` }, ok => { over = true; done(ok); });
+    };
+    if (n !== N) { hist = []; N = n; }
+    if (hist.length < n) {
+      // warm-up: show the first N letters to hold in mind
+      const need = n - hist.length;
+      for (let k = 0; k < need; k++) T(() => { if (over) return; const c = nextLetter(); hist.push(c); stage.innerHTML = card(c, k === 0 && n > 1 ? `Remember these ${n}` : "Remember it"); }, k * show);
+      T(probe, need * show);
+    } else probe();
+    return () => { over = true; timers.forEach(clearTimeout); if (cleanup) cleanup(); };
+  };
+}
+
 function speedTrial(mode) {
   return (d, stage, done) => {
     const timers = [], T = (f, ms) => timers.push(setTimeout(f, ms));
@@ -293,7 +328,8 @@ function speedTrial(mode) {
       }, 650 + dur);
       return () => { over = true; timers.forEach(t => t && clearTimeout(t)); if (timers.cleanupInner) timers.cleanupInner(); };
     }
-    const dur = mode === "odd" ? Math.max(90, 700 - d * 30) : Math.max(50, 620 - d * 28);
+    // keeps getting harder all the way to DMAX: shorter flashes, more distractors, then distractors that look like the target
+    const dur = mode === "odd" ? Math.max(70, 700 - d * 30) : Math.max(34, 620 - d * 27);
     const target = rnd(0, 7);
     stage.innerHTML = `<div class="hint">${mode === "odd" ? "Spot the odd one out" : "Watch for the pink diamond"}</div>${arenaHTML()}`;
     const slots = $$(".slot", stage);
@@ -302,11 +338,11 @@ function speedTrial(mode) {
     T(() => {
       $(".fix", stage).style.opacity = .25;
       if (mode === "odd") {
-        const oddCls = d <= 6 ? "sq" : d <= 12 ? "cir alt" : "cir big";
+        const oddCls = d <= 6 ? "sq" : d <= 12 ? "cir alt" : d <= 18 ? "cir big" : "cir near";
         slots.forEach((s, i) => s.innerHTML = `<span class="shape ${i === target ? oddCls : "cir"}"></span>`);
       } else {
         slots[target].innerHTML = '<span class="shape dia"></span>';
-        others.forEach(i => slots[i].innerHTML = `<span class="shape dia ${d > 9 ? "alt" : "hol"}"></span>`);
+        others.forEach(i => slots[i].innerHTML = `<span class="shape dia ${d > 17 ? "near" : d > 9 ? "alt" : "hol"}"></span>`);
       }
     }, 450);
     T(() => slots.forEach(s => { s.innerHTML = ""; s.classList.add("mask"); }), 450 + dur);
@@ -353,6 +389,7 @@ const FLEX = {
   shapes: { rules: [["Circle", "Square"], ["Orange", "Purple"]], names: ["Circle or square?", "Orange or purple?"],
     gen(rule) { const sh = rnd(0, 1), co = rnd(0, 1); return { html: `<span class="fshape ${sh ? "square" : "circle"}" style="background:${co ? "#6B4FBB" : "#F28C28"}"></span>`, side: rule === 0 ? sh : co }; } }
 };
+const FLEX_COL = ["#E8950C", "#2F7BEA"];
 function flexTrial(kind) {
   let prev = null;
   return (d, stage, done) => {
@@ -360,9 +397,10 @@ function flexTrial(kind) {
     const pSwitch = Math.min(0.55, 0.15 + d * 0.03);
     const rule = prev === null ? rnd(0, 1) : (Math.random() < pSwitch ? 1 - prev : prev); prev = rule;
     const s = F.gen(rule);
-    const col = rule === 0 ? "var(--a3)" : "var(--a1)";
+    const col = FLEX_COL[rule];
     const label = d <= 6 ? F.names[rule] : "Follow the frame colour";
-    const btn = side => `<span class="two"><span class="${rule === 0 || d > 3 ? "" : "dim"}">${F.rules[0][side]}</span><span class="${rule === 1 || d > 3 ? "" : "dim"}">${F.rules[1][side]}</span></span>`;
+    // each button shows both rules, colour-coded to their frame; early levels dim the inactive rule
+    const btn = side => `<span class="two"><span style="color:${FLEX_COL[0]}" class="${rule === 0 || d > 3 ? "" : "dim"}">${F.rules[0][side]}</span><span style="color:${FLEX_COL[1]}" class="${rule === 1 || d > 3 ? "" : "dim"}">${F.rules[1][side]}</span></span>`;
     return choice(stage, {
       top: `<div class="hint" style="color:${col};font-weight:700">${label}</div><div class="fcard" style="--rule:${col}">${s.html}</div>`,
       options: [0, 1], correct: s.side, limit: Math.max(900, 3200 - d * 100), render: btn
@@ -534,7 +572,8 @@ const ENGINES = {
     position: { name: "Flash", how: "A pink diamond flashes around the circle. Tap where it was.", make: () => speedTrial("position") },
     odd: { name: "Odd flash", how: "Eight shapes flash. Tap where the odd one was.", make: () => speedTrial("odd") },
     count: { name: "Quick count", how: "Dots flash for a moment. Tap how many.", make: () => speedTrial("count") } } },
-  memory: { assess: "all", train: ["order", "reverse"], variants: {
+  memory: { assess: "all", train: ["order", "reverse", "nback"], variants: {
+    nback: { name: "N-back", how: "Letters appear one by one. Tap Match when a letter is the same as the one N steps back, New when it isn't.", make: () => nbackTrial() },
     all: { name: "Grid recall", how: "Tiles light up together. Tap all of them.", make: () => memoryTrial("all") },
     order: { name: "Trail", how: "Tiles light up one by one. Tap them in the same order.", make: () => memoryTrial("order") },
     reverse: { name: "Rewind", how: "Tiles light up one by one. Tap them in reverse.", make: () => memoryTrial("reverse") } } },
@@ -543,9 +582,9 @@ const ENGINES = {
     inkes: { name: "Tinta", how: "Same as Ink, but the words are in Spanish. Tap the ink colour.", make: () => stroopTrial("es") },
     flanker: { name: "Arrows", how: "Tap the way the middle arrow points. Ignore the rest.", make: () => flankerTrial() } } },
   flex: { assess: "numbers", train: ["letters", "shapes"], variants: {
-    numbers: { name: "Switch", how: "Teal frame: odd or even. Pink frame: lower or higher than 5.", make: () => flexTrial("numbers") },
-    letters: { name: "Letter switch", how: "Teal frame: vowel or consonant. Pink frame: A–M or N–Z.", make: () => flexTrial("letters") },
-    shapes: { name: "Shape switch", how: "Teal frame: circle or square. Pink frame: orange or purple.", make: () => flexTrial("shapes") } } },
+    numbers: { name: "Switch", how: "Amber frame: odd or even. Blue frame: lower or higher than 5. The frame can switch any time.", make: () => flexTrial("numbers") },
+    letters: { name: "Letter switch", how: "Amber frame: vowel or consonant. Blue frame: A–M or N–Z. The frame can switch any time.", make: () => flexTrial("letters") },
+    shapes: { name: "Shape switch", how: "Amber frame: circle or square. Blue frame: orange or purple. The frame can switch any time.", make: () => flexTrial("shapes") } } },
   numeracy: { assess: "arith", train: ["percent", "fx", "estimate"], variants: {
     arith: { name: "Quick maths", how: "Pick the right answer before the bar runs out.", make: () => numTrial(genArith) },
     percent: { name: "Percentages", how: "Percentages, discounts and interest. Pick the answer.", make: () => numTrial(genPercent) },
@@ -562,18 +601,39 @@ const ENGINES = {
 };
 
 /* ---------- knowledge (spaced repetition) ---------- */
+/* Scheduler: SM-2 style. Each card keeps an interval (iv, days) and an ease (e).
+   Quality q: 1 forgot, 2 hard, 3 good, 4 easy (true/false still accepted).
+   A brand-new card answered right comes back tomorrow, not in a week: one lucky multiple-choice
+   guess is not a memory. Intervals then expand by the ease factor; a lapse resets to 1 day and makes the card a little harder. */
 const INT = [0, 1, 3, 7, 14, 30, 60];
+const boxOf = iv => iv >= 60 ? 6 : iv >= 30 ? 5 : iv >= 14 ? 4 : iv >= 7 ? 3 : iv >= 3 ? 2 : 1;
+function sched(prev, q, t) {
+  if (q === true) q = 3; else if (q === false || !q) q = 1;
+  if (!prev) { const iv = q >= 4 ? 3 : 1; return { b: boxOf(iv), iv, e: q >= 4 ? 2.6 : q === 2 ? 2.3 : 2.5, due: addDays(t, iv), n: 1, ok: q >= 2 ? 1 : 0, lp: q === 1 ? 1 : 0, last: t }; }
+  const r = { ...prev };
+  if (!r.iv) { r.iv = INT[r.b] || 1; r.e = 2.5; r.lp = 0; }
+  r.n = (r.n || 0) + 1;
+  if (q === 1) { r.lp = (r.lp || 0) + 1; r.e = Math.max(1.3, r.e - 0.2); r.iv = 1; }
+  else {
+    r.ok = (r.ok || 0) + 1;
+    const late = r.due ? Math.max(0, daysBetween(r.due, t)) : 0;          // remembered despite being overdue: count the real gap
+    const base = r.iv + late * (q === 2 ? 0.25 : 0.5);
+    const next = q === 2 ? base * 1.2 : q === 3 ? base * r.e : base * r.e * 1.35;
+    r.iv = clamp(Math.round(Math.max(next, r.iv + 1)), 1, 365);
+    r.e = clamp(r.e + (q === 2 ? -0.15 : q === 4 ? 0.12 : 0), 1.3, 3.2);
+  }
+  r.b = boxOf(r.iv); r.due = addDays(t, r.iv); r.last = t;
+  return r;
+}
+function grade(kind, id, q) { return (state.srs[kind][id] = sched(state.srs[kind][id], q, today())); }
+const ivLabel = d => d <= 1 ? "1 day" : d < 14 ? `${d} days` : d < 60 ? `${Math.round(d / 7)} wks` : d < 365 ? `${Math.round(d / 30)} mo` : "1 yr";
 function queueFor(kind, maxNew, maxRev) {
   const items = content[kind], srs = state.srs[kind], t = today();
-  const due = items.filter(it => srs[it.id] && srs[it.id].due <= t).sort((a, b) => srs[a.id].due.localeCompare(srs[b.id].due)).slice(0, maxRev);
+  // most overdue first, relative to the card's own interval (a 1-day card 3 days late is more at risk than a 60-day card 3 days late)
+  const risk = it => { const r = srs[it.id]; return daysBetween(r.due, t) / Math.max(1, r.iv || INT[r.b] || 1); };
+  const due = items.filter(it => srs[it.id] && srs[it.id].due <= t).sort((a, b) => risk(b) - risk(a)).slice(0, maxRev);
   const fresh = items.filter(it => !srs[it.id]).slice(0, maxNew);
   return shuffle(due.concat(fresh)).map(it => it.id);
-}
-function grade(kind, id, ok) {
-  const t = today(), r = state.srs[kind][id];
-  if (!r) { const b = ok ? 3 : 1; state.srs[kind][id] = { b, due: addDays(t, INT[b]), n: 1, ok: ok ? 1 : 0 }; return; }
-  r.n++; if (ok) { r.ok++; r.b = Math.min(6, r.b + 1); } else r.b = 1;
-  r.due = addDays(t, INT[r.b]);
 }
 function knowStats(kind, cat) {
   let m = 0, l = 0, n = 0; const srs = state.srs[kind];
