@@ -23,6 +23,7 @@ falls back to `localStorage`).
       puzzles.js             Puzzles tab + Palabra, Wordle, Globle, Worldle, Travle, MapTap, Spelling Bee, Rapid recall,
                              Number Hunt, Parejas
       awards.js              awards, Stats page (activity heatmap, trends), week streak strip
+      onboard.js             animated first-run walkthrough (also replayable from Settings)
       style.css              "light glass" design system (themes via data-skin, dark mode via prefers-color-scheme)
     assets/
       brand/                 the bonsai-brain logo: icon (square + rounded), transparent mark, glyph; SVG + PNG sizes
@@ -32,6 +33,7 @@ falls back to `localStorage`).
     content/
       facts/facts1-7.py      the knowledge bank (question, answer, 3 wrong options[, why]), chained imports
       facts/revise.py        quality pass keyed by question text: fairer options, explanations, standalone rewordings
+      facts/explain.py       an explanation for every other card, keyed by card id (compile fails on stale keys)
       compile_bank.py        facts + revisions -> travel.json (interleaves the categories, stamps a version)
       travel.json            compiled bank (bundled into the build and synced to the artifact db at content/travel)
     tools/
