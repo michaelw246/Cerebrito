@@ -17,7 +17,7 @@ async def main():
             except Exception as e: errs.append(f"{label}: {e}")
             await pg.wait_for_timeout(wait)
         await ev("fresh", "localStorage.clear()"); await pg.reload(); await pg.wait_for_timeout(300)
-        for t in ["map", "train", "recall", "journey", "puzzles", "pass", "shop", "stats"]:
+        for t in ["map", "train", "recall", "journey", "puzzles", "pass", "shop", "stats", "awards"]:
             await ev(f"tab {t}", f"view='{t}';render()")
         await ev("part", "partKey='memory';view='part';render()")
         await ev("country", "countryIdx=3;view='country';render()")
@@ -26,7 +26,7 @@ async def main():
             for v in vs:
                 await ev(f"{eng}/{v}", f"openPractice({{t:'game',eng:'{eng}',variant:'{v}',mode:'train'}},'t');beginStep()", 2400)
                 await ev(f"{eng}/{v} exit", "exitSession()")
-        for k in ["palabra", "wordle", "pais", "worldle", "travle", "maptap", "bee", "rush"]:
+        for k in ["palabra", "wordle", "pais", "worldle", "travle", "maptap", "bee", "rush", "hunt", "pairs"]:
             await ev(f"pz {k}", f"openPractice({{t:'puzzle',kind:'{k}',free:true}},'t');beginStep()", 400)
             await ev(f"pz {k} exit", "exitSession()")
         for kind in ["es", "tr"]:

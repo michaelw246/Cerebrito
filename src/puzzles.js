@@ -7,6 +7,8 @@ const PZ = [
   { k: "travle", name: "Travle", sub: "Link two countries over land", icon: "compass", col: "#6D4AF0" },
   { k: "maptap", name: "MapTap", sub: "Pin five places on the map", icon: "pin", col: "#FD6A49" },
   { k: "bee", name: "Spelling Bee", sub: "Make words from seven letters", icon: "sparkle", col: "#E9A92E" },
+  { k: "hunt", name: "Number Hunt", sub: "Tap 1 to 25 in order, fast", icon: "eye", col: "#5054D6" },
+  { k: "pairs", name: "Parejas", sub: "Match Spanish words to meanings", icon: "cards", col: "#EE7FA6" },
   { k: "rush", name: "Rapid recall", sub: "60 seconds on what you've learned", icon: "zap", col: "#22BDB0" }
 ];
 const PZK = Object.fromEntries(PZ.map(p => [p.k, p]));
@@ -18,7 +20,9 @@ const PZ_HOW = {
   travle: "Connect two countries by naming the countries in between. Each one has to share a land border with the next. Green is on a shortest route.",
   maptap: "Five places. Drop a pin where you think each one is, then lock it in. The closer you are, the more points. Pinch or use + to zoom for precision.",
   bee: "Make words of 4+ letters from the 7 in the hive. Every word must use the centre letter. Use all 7 for a pangram bonus.",
-  rush: "60 seconds of quick two-choice questions from things you've learned. Chain right answers for bonus points."
+  rush: "60 seconds of quick two-choice questions from things you've learned. Chain right answers for bonus points.",
+  hunt: "Find and tap the numbers 1 to 25 in order as fast as you can. Keep your eyes on the centre and let your side vision do the searching. Wrong taps cost a second.",
+  pairs: "Six Spanish words, six meanings, all face down. Flip two at a time to find the matches. Remember where things are to finish in as few flips as possible."
 };
 const pzSolvedTotal = () => Object.values(state.pzs || {}).reduce((a, s) => a + (s.won || 0), 0);
 const pzPlayedTotal = () => Object.values(state.pzs || {}).reduce((a, s) => a + (s.played || 0), 0);
@@ -35,7 +39,7 @@ function viewPuzzles() {
     <div class="pzprog"><div class="gauge"><i style="width:${Math.round(doneN / total * 100)}%"></i></div><span><b>${doneN}</b>/${total} dailies done</span></div></section><div class="pzlist">${cards}</div>`;
 }
 function puzzleOfDay(t) {
-  const pz = state.pz && state.pz.date === t ? state.pz : {}, order = ["palabra", "pais", "worldle", "maptap", "travle", "wordle", "bee", "rush"];
+  const pz = state.pz && state.pz.date === t ? state.pz : {}, order = ["palabra", "pais", "hunt", "worldle", "maptap", "pairs", "travle", "wordle", "bee", "rush"];
   const seenN = Object.keys(state.srs.tr).length + Object.keys(state.srs.es).length, start = daysBetween("2026-01-01", t) % order.length;
   for (let j = 0; j < order.length; j++) { const k = order[(start + j) % order.length]; if (k === "rush") { if (seenN >= 20) return k; continue; } if (!(pz[k] && pz[k].done)) return k; }
   return null;
@@ -56,6 +60,14 @@ function newPz(kind, seed) {
   if (kind === "travle") { const P = travlePairs(); const [a, b] = P[ri(P.length)]; return { A: a, B: b, g: [], v: 2 }; }
   if (kind === "maptap") { const idx = new Set(); while (idx.size < 5) idx.add(ri(PLACES.length)); return { places: [...idx], res: [] }; }
   if (kind === "bee") return { a: ri(EN.bp.length), found: [] };
+  if (kind === "hunt") { const n = [...Array(25).keys()].map(x => x + 1); for (let i = n.length - 1; i > 0; i--) { const j = ri(i + 1); [n[i], n[j]] = [n[j], n[i]]; } return { grid: n }; }
+  if (kind === "pairs") {
+    const ok = content.es.filter(x => x.es.length <= 14 && x.en.length <= 16 && !/[/(]/.test(x.en)), seen = ok.filter(x => state.srs.es[x.id]);
+    const pool = seen.length >= 4 ? seen : ok, pickN = (arr, n) => { const a = arr.slice(), out = []; while (out.length < n && a.length) out.push(a.splice(ri(a.length), 1)[0]); return out; };
+    const chosen = pickN(pool, Math.min(4, pool.length)); chosen.push(...pickN(ok.filter(x => !chosen.includes(x)), 6 - chosen.length));
+    const deck = chosen.flatMap(x => [{ id: x.id, s: "es" }, { id: x.id, s: "en" }]); for (let i = deck.length - 1; i > 0; i--) { const j = ri(i + 1); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    return { deck };
+  }
   return {};
 }
 /* older saves stored ISO codes / GEO pair indexes; restart those games in the new format rather than crash */
@@ -76,7 +88,11 @@ function puzzleDone(kind, S, won, tries, max) {
   if (P.kind === "practice") state.xp += xp;
   addCoins(coins);
   P.results.push({ t: "puzzle", kind, won, xp: P.kind === "practice" ? 0 : xp, coins }); P.idx++; if (P.kind === "practice") bumpMax();
-  if (typeof checkAwards === "function") checkAwards();
+  logDay({ p: 1 });
+  if (won && ["wordle", "palabra", "pais", "worldle"].includes(kind)) rec("pz_" + kind, tries, "min");
+  const pz = state.pz && state.pz.date === today() ? state.pz : {};
+  if (PZ.every(p => p.k === "rush" || (pz[p.k] && pz[p.k].done)) && state.rec.sweepDay !== today()) { state.rec.sweepDay = today(); state.rec.sweeps = (state.rec.sweeps || 0) + 1; }
+  checkAwards();
   save();
   return { coins, xp };
 }
@@ -399,7 +415,7 @@ function runMaptap(step) {
     if (p >= 90) { const r = map.svg.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 20); }
   };
   const end = () => {
-    pzEnd(); const total = S.res.reduce((a, r) => a + r.p, 0), won = total >= 250;
+    pzEnd(); const total = S.res.reduce((a, r) => a + r.p, 0), won = total >= 250; rec("maptap", total);
     const rw = puzzleDone("maptap", S, won, won ? 1 : 3, 3);
     const rows = S.places.map((pi, j) => `<div class="wrow"><span class="pn">${j + 1}</span><b>${esc(PLACES[pi].n)}</b><span class="km">${fmt(S.res[j].d)} km</span><span class="pr" style="--p:${S.res[j].p}%">${S.res[j].p}</span></div>`).join("");
     app.innerHTML = pzResult("maptap", won, `${total} / 500`, `<span class="bigflag">📍</span>`, total >= 400 ? "Human GPS" : won ? "Sharp sense of place" : "Keep tapping, it gets easier",
@@ -451,7 +467,7 @@ function runBee(step) {
     if (!w.includes(center)) return bad("Missing centre letter");
     if (S.found.includes(w)) return bad("Already found");
     if (!answers.includes(w)) return bad("Not in word list");
-    S.found.push(w); save(); tone(true); buzz(true); say(isPan(w) ? `Pangram! +${pts(w)}` : `${w.length >= 7 ? "Awesome!" : w.length >= 5 ? "Nice!" : "Good!"} +${pts(w)}`, true); drawScore();
+    S.found.push(w); if (isPan(w)) state.rec.pangrams = (state.rec.pangrams || 0) + 1; save(); tone(true); buzz(true); say(isPan(w) ? `Pangram! +${pts(w)}` : `${w.length >= 7 ? "Awesome!" : w.length >= 5 ? "Nice!" : "Good!"} +${pts(w)}`, true); drawScore();
     if (isPan(w)) burst(innerWidth / 2, 300, 24);
   };
   $("#hive").onclick = e => { const b = e.target.closest(".hex"); if (b) add(b.dataset.l); };
@@ -521,7 +537,7 @@ function runRush(step) {
     const coins = Math.min(25, 5 + r.right), xp = P.kind === "practice" ? 0 : 20 + r.right;
     addCoins(coins); P.results.push({ t: "puzzle", kind: "rush", xp, coins }); P.idx++;
     const s = state.pzs.rush || (state.pzs.rush = { played: 0, won: 0, streak: 0, dist: [] }); s.played++;
-    if (typeof checkAwards === "function") checkAwards();
+    logDay({ p: 1 }); checkAwards();
     save();
     const acc = r.n ? r.right / r.n : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0;
     app.innerHTML = `<div class="play">${shead()}<section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">Rapid recall</div><b>${fmt(r.score)} <small>pts</small></b>${r.score > prev && prev ? `<div class="near">${ic("trophy")}New best!</div>` : prev ? `<div class="near">${ic("flame")}Your best is ${fmt(state.rushBest)}</div>` : ""}</section>
@@ -529,4 +545,85 @@ function runRush(step) {
     <div class="pills2">${xp ? `<span class="chip o">${ic("zap")}+${xp} XP</span>` : ""}<span class="chip y">${ic("sun")}+${coins} coins</span><span class="chip v">${ic("flame")}Best combo x${r.maxCombo}</span></div>${P.kind === "practice" && P.steps.length === 1 ? `<button class="btn ghost" data-s="again">${ic("sparkle")}Play again</button>` : ""}${nextBtn()}</div>`;
     if (r.score > prev && prev) setTimeout(() => burst(innerWidth / 2, 180, 24), 100);
   }
+}
+
+/* ---------- Number Hunt (Schulte table) ---------- */
+/* A classic attention and visual-search drill: fix your gaze near the centre and find each number with
+   peripheral vision. Times fall quickly with practice, which makes it very satisfying to repeat. */
+function runHunt(step) {
+  const S = pzState("hunt", step);
+  if (S.done) { P.idx++; save(); return stepIntro(); }
+  let next = 1, t0 = 0, raf = 0, pen = 0, misses = 0, ended = false;
+  app.innerHTML = `<div class="play hplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("hunt", step)}<span class="eyebrow">${state.rec.hunt ? `Best ${state.rec.hunt.toFixed(1)}s` : "No best yet"}</span></div>
+    <div class="hhead"><div><small>Find</small><b id="hnext">1</b></div><div><small>Time</small><b id="htime">0.0</b></div></div></section>
+    <div class="hgrid5" id="hgrid">${S.grid.map(n => `<button class="hcell" data-n="${n}" aria-label="${n}" disabled>${n}</button>`).join("")}</div><p class="muted hnote">Keep your eyes near the centre</p></div>`;
+  const grid = $("#hgrid"), tEl = $("#htime"), nEl = $("#hnext");
+  const cd = document.createElement("div"); cd.className = "count"; document.body.appendChild(cd); const cdT = [];
+  [3, 2, 1].forEach((n, i) => cdT.push(setTimeout(() => { cd.innerHTML = `<span>${n}</span>`; }, i * 520)));
+  cdT.push(setTimeout(() => { cd.remove(); $$(".hcell").forEach(b => b.disabled = false); t0 = performance.now(); tick(); }, 1560));
+  const elapsed = () => (performance.now() - t0) / 1000 + pen;
+  const tick = () => { if (ended) return; tEl.textContent = elapsed().toFixed(1); raf = requestAnimationFrame(tick); };
+  pzCleanup(() => { ended = true; cancelAnimationFrame(raf); cdT.forEach(clearTimeout); cd.remove(); });
+  grid.addEventListener("pointerdown", e => {
+    const b = e.target.closest(".hcell"); if (!b || b.disabled || ended || !t0) return; e.preventDefault();
+    const n = +b.dataset.n;
+    if (n === next) {
+      b.classList.add("hit"); b.disabled = true; buzz(true); next++;
+      if (next > 25) return finish();
+      nEl.textContent = next; nEl.parentElement.classList.remove("pop"); void nEl.offsetWidth; nEl.parentElement.classList.add("pop");
+    } else if (n > next) { pen += 1; misses++; b.classList.remove("miss"); void b.offsetWidth; b.classList.add("miss"); buzz(false); tEl.parentElement.classList.add("pen"); setTimeout(() => tEl.parentElement.classList.remove("pen"), 400); }
+  });
+  const finish = () => {
+    ended = true; cancelAnimationFrame(raf); const secs = +elapsed().toFixed(1), prev = state.rec.hunt;
+    const best = rec("hunt", secs, "min"); pzEnd();
+    const won = secs < 60, rw = puzzleDone("hunt", S, won, 1, 1);
+    tone(true);
+    app.innerHTML = pzResult("hunt", won, `${secs.toFixed(1)} seconds`, `<span class="bigflag">🎯</span>`, `${misses ? `${misses} wrong tap${misses > 1 ? "s" : ""} (+${misses}s)` : "No wrong taps"}. ${best ? `New best, down from ${prev.toFixed(1)}s!` : prev && prev < secs ? `Your best is ${prev.toFixed(1)}s.` : "Under 30 seconds is sharp; under 20 is elite."}`,
+      "", rw, { share: `Cerebrito Number Hunt ${step.free ? "" : today() + " "}${secs.toFixed(1)}s${misses ? ` (${misses} miss)` : ""}` });
+    if (best || secs < 25) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);
+  };
+}
+
+/* ---------- Parejas (pairs memory) ---------- */
+/* Concentration with your own vocabulary: remembering where each card was trains visuospatial working
+   memory, and matching a word to its meaning is one more retrieval of it. */
+function runPairs(step) {
+  const S = pzState("pairs", step), items = Object.fromEntries(content.es.map(x => [x.id, x]));
+  if (S.done) { P.idx++; save(); return stepIntro(); }
+  const deck = S.deck.filter(c => items[c.id]);
+  if (!deck.length) { P.idx++; save(); return stepIntro(); }
+  let open = [], matched = new Set(), flips = 0, misses = 0, busy = false, t0 = performance.now();
+  app.innerHTML = `<div class="play pplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("pairs", step, "o")}<span class="eyebrow" id="pstat"></span></div><h2>Find the six pairs</h2><p class="muted"><span class="dot es"></span>Spanish <span class="dot en"></span>English</p></section>
+    <div class="pgrid" id="pgrid">${deck.map((c, i) => `<button class="pcard" data-i="${i}" aria-label="Card ${i + 1}"><span class="back">${ic("brain")}</span><span class="face ${c.s}">${esc(c.s === "es" ? items[c.id].es : items[c.id].en)}</span></button>`).join("")}</div></div>`;
+  const cards = $$(".pcard"), stat = () => { $("#pstat").textContent = `${matched.size} of ${deck.length / 2} · ${misses} miss${misses === 1 ? "" : "es"}`; };
+  let flipT = 0; pzCleanup(() => clearTimeout(flipT));
+  $("#pgrid").addEventListener("click", e => {
+    const b = e.target.closest(".pcard"); if (!b || busy) return; const i = +b.dataset.i;
+    if (matched.has(deck[i].id) || open.includes(i)) return;
+    b.classList.add("up"); open.push(i); flips++;
+    if (deck[i].s === "es") speakEs(items[deck[i].id].es);
+    if (open.length < 2) return;
+    const [a, c] = open;
+    if (deck[a].id === deck[c].id) {
+      matched.add(deck[a].id); open = []; tone(true); buzz(true);
+      [a, c].forEach(k => cards[k].classList.add("got")); stat();
+      if (matched.size === deck.length / 2) setTimeout(finish, 650);
+    } else {
+      misses++; busy = true; buzz(false); stat();
+      [a, c].forEach(k => cards[k].classList.add("no"));
+      flipT = setTimeout(() => { [a, c].forEach(k => cards[k].classList.remove("up", "no")); open = []; busy = false; }, 950);
+    }
+  });
+  stat();
+  const finish = () => {
+    pzEnd(); const secs = Math.round((performance.now() - t0) / 1000), perfect = misses <= 3;
+    if (perfect) state.rec.pairsPerfect = (state.rec.pairsPerfect || 0) + 1;
+    rec("pairs", misses, "min");
+    const rw = puzzleDone("pairs", S, true, Math.min(6, 1 + Math.floor(misses / 2)), 6);
+    const words = [...new Set(deck.map(c => c.id))].map(id => items[id]);
+    app.innerHTML = pzResult("pairs", true, misses ? `${misses} miss${misses > 1 ? "es" : ""}` : "Flawless", `<span class="bigflag">🃏</span>`, `All six pairs in ${flips} flips and ${secs} seconds.${perfect ? " A sharp memory." : ""}`,
+      `<section class="card"><div class="eyebrow m">Today's words</div><div class="pwords">${words.map(w => `<div><b>${esc(w.es)}</b><span>${esc(w.en)}</span></div>`).join("")}</div></section>`, rw,
+      { share: `Cerebrito Parejas ${step.free ? "" : today() + " "}${misses} misses, ${flips} flips` });
+    if (perfect) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);
+  };
 }

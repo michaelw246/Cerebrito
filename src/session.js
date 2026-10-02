@@ -13,7 +13,7 @@ function openExtra() {
   const games = shuffle(rank.slice(0, 4)).slice(0, 2).map(e => ({ t: "game", eng: e, variant: pick(ENGINES[e].train), mode: "train" }));
   const ks = knowSteps(4, 5, 8, 8), es = ks.find(k => k.kind === "es"), trs = ks.find(k => k.kind === "tr");
   const seenN = Object.keys(state.srs.tr).length + Object.keys(state.srs.es).length;
-  const pk = pick(["palabra", "wordle", "pais", "worldle", "travle", "maptap", seenN >= 10 ? "rush" : "bee"]);
+  const pk = pick(["palabra", "wordle", "pais", "worldle", "travle", "maptap", "hunt", "pairs", seenN >= 10 ? "rush" : "bee"]);
   P = { kind: "extra", label: "Bonus session", lv0: levelInfo(state.xp).lvl, date: today(), idx: 0, results: [], steps: [games[0], es, games[1], trs, { t: "puzzle", kind: pk, free: true }].filter(Boolean) };
   enterSession(); stepIntro();
 }
@@ -58,12 +58,14 @@ function stepIntro() {
     const pzd = PZK[s.kind] || PZK.pais, ps = state.pzs[s.kind];
     t1 = pzd.name; t2 = s.kind === "rush" ? "60 seconds" : s.free ? "free play" : "daily";
     how = PZ_HOW[s.kind] + (s.kind === "rush" && s.cat ? ` Questions from ${s.cat}.` : "");
-    chips = `<span class="chip m">${ic("clock")}${s.kind === "rush" ? "60 sec" : "~2–4 min"}</span><span class="chip y">${ic(pzd.icon)}Puzzle</span>`;
+    chips = `<span class="chip m">${ic("clock")}${s.kind === "rush" ? "60 sec" : s.kind === "hunt" ? "~30 sec" : s.kind === "pairs" ? "~1–2 min" : "~2–4 min"}</span><span class="chip y">${ic(pzd.icon)}Puzzle</span>`;
     duo = s.kind === "rush" ? `<div><i>${ic("trophy")}</i><span><small>Best score</small><b>${state.rushBest ? fmt(state.rushBest) : "None yet"}</b></span></div><div><i class="g">${ic("check")}</i><span><small>Locked in</small><b class="g">${knowStats("es").mastered + knowStats("tr").mastered}</b></span></div>`
       : `<div><i>${ic("trophy")}</i><span><small>Solved</small><b>${ps ? `${ps.won} / ${ps.played}` : "0 / 0"}</b></span></div><div><i class="g">${ic("flame")}</i><span><small>Win streak</small><b class="g">${ps ? ps.streak : 0}</b></span></div>`;
   }
   const himg = s.t === "game" ? IMG[PILLARS[s.eng].img] : s.t === "know" ? IMG[KNOW[s.kind].img] : s.kind === "rush" ? IMG.t_travel : null;
-  const pzArt = () => (s.kind === "palabra" || s.kind === "wordle" || s.kind === "bee") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : s.kind === "bee" ? "HONEY" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art">${worldSVG({ fills: s.kind === "pais" ? { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" } : {} })}</div>`;
+  const pzArt = () => s.kind === "hunt" ? `<div class="art huntart">${shuffle([...Array(16).keys()].map(n => n + 1)).map(n => `<span class="${n <= 3 ? "hit" : ""}">${n}</span>`).join("")}</div>`
+    : s.kind === "pairs" ? `<div class="art pairart">${["hola", "hello", "?", "gracias", "?", "?"].map((w, i) => `<span class="${w === "?" ? "" : i % 2 ? "en" : "es"}">${w === "?" ? ic("sparkle") : w}</span>`).join("")}</div>`
+    : (s.kind === "palabra" || s.kind === "wordle" || s.kind === "bee") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : s.kind === "bee" ? "HONEY" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art">${worldSVG({ fills: s.kind === "pais" ? { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" } : {} })}</div>`;
   const top = himg ? `<div class="heroimg"><img src="${himg}" alt=""><span class="tl">${ic(icon)}${s.t === "game" ? esc(PILLARS[s.eng].es) : s.kind === "es" ? "Vocabulario" : s.kind === "rush" ? "Rápido" : "Recuerdos"}</span></div>`
     : `<div class="heroimg">${pzArt()}<span class="tl">${ic(icon)}${s.free ? "Free play" : "Daily puzzle"}</span></div>`;
   app.innerHTML = `<div class="play">${shead()}${stepsBar()}
@@ -72,10 +74,10 @@ function stepIntro() {
     <div class="chiprow">${chips}</div><p class="how">${esc(how)}</p>
     <div class="duo">${duo}</div>
     <button class="btn" data-s="start" style="margin-top:20px">${ic("play")}Start</button>
-    <p class="foot">${ic("grid")}Tap only, no typing</p></section>${stopFact()}</div>`;
+    <p class="foot">${ic(s.t === "puzzle" && ["palabra", "wordle", "pais", "worldle", "travle", "bee"].includes(s.kind) ? "word" : "grid")}${s.t === "puzzle" && ["palabra", "wordle", "bee"].includes(s.kind) ? "Type or tap the letters" : s.t === "puzzle" && ["pais", "worldle", "travle"].includes(s.kind) ? "Type a country or tap the map" : "Tap only, no typing"}</p></section>${stopFact()}</div>`;
   window.scrollTo(0, 0);
 }
-function beginStep() { const s = P.steps[P.idx]; if (s.t === "game") runGame(s); else if (s.t === "know") runKnow(s); else ({ palabra: runWordle, wordle: runWordle, pais: runPais, worldle: runWorldle, travle: runTravle, maptap: runMaptap, bee: runBee, rush: runRush }[s.kind] || runPais)(s); }
+function beginStep() { const s = P.steps[P.idx]; if (s.t === "game") runGame(s); else if (s.t === "know") runKnow(s); else ({ palabra: runWordle, wordle: runWordle, pais: runPais, worldle: runWorldle, travle: runTravle, maptap: runMaptap, bee: runBee, rush: runRush, hunt: runHunt, pairs: runPairs }[s.kind] || runPais)(s); }
 function nextBtn(label) { const last = P.idx >= P.steps.length; return `<button class="btn green" data-s="${last ? "finish" : "next"}">${last ? (P.kind === "practice" || P.kind === "extra" ? "Collect & finish" : "Finish today's session") : label || "Next challenge"}${ic("play")}</button>`; }
 
 /* ---------- brain game ---------- */
@@ -139,11 +141,13 @@ function runGame(step) {
       sk.lastV = step.variant;
     }
     if (!practice) { sk.hist.push({ d: today(), s: r.score, v: step.variant, m: step.mode }); if (sk.hist.length > 150) sk.hist.shift(); }
+    logDay({ g: 1 }); rec("combo", r.maxCombo);
+    if (step.variant === "nback" && ts.length) { const top = Math.max(...ts.filter(t => t.ok).map(t => t.d), 0); rec("nback", top <= 5 ? 1 : top <= 14 ? 2 : 3); }
     sk.best = Math.max(sk.best, r.score);
     const xp = practice ? 0 : 20 + Math.round(acc * 20), coins = practice ? Math.min(15, 3 + Math.round(acc * 8)) : 5 + Math.round(acc * 10);
     addCoins(coins);
     P.results.push({ t: "game", eng: step.eng, score: r.score, est, acc, xp, coins }); P.idx++;
-    save();
+    checkAwards(); save();
     let near = "";
     if (r.score > prevBest && prevBest > 0) near = `New personal best in ${PILLARS[step.eng].name}!`;
     else if (prevBest > 0 && r.score === prevBest) near = "Matched your best exactly.";
@@ -284,7 +288,7 @@ function runKnow(step) {
     if (P.kind === "practice") state.xp += xp;
     addCoins(coins);
     P.results.push({ t: "know", kind, right: firstTry, total, xp: P.kind === "practice" ? 0 : xp, coins }); P.idx++; if (P.kind === "practice") bumpMax();
-    if (typeof checkAwards === "function") checkAwards();
+    logDay({ c: total }); checkAwards();
     save();
     const st = knowStats(kind), acc = total ? firstTry / total : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0, missed = total - firstTry;
     app.innerHTML = `<div class="play">${shead()}
@@ -306,7 +310,7 @@ function finishSession() {
   if (P.kind === "practice" || P.kind === "extra") {
     const lv0 = P.lv0 || levelInfo(state.xp).lvl;
     const c = P.results.reduce((a, r) => a + (r.coins || 0), 0), x = P.kind === "extra" ? P.results.reduce((a, r) => a + (r.xp || 0), 0) : 0;
-    if (x) state.xp += x; const un = bumpMax(); save();
+    if (x) state.xp += x; const un = bumpMax(); logDay({ xp: x }); checkAwards(); save();
     toast(`${x ? `+${x} XP, ` : ""}+${c} coins${un.length ? `. Unlocked ${un.map(u => u.name).join(", ")}` : ""}`); exitSession(); celebrate(lv0, levelInfo(state.xp).lvl); return;
   }
   const p = state.plan, t = today();
@@ -318,6 +322,7 @@ function finishSession() {
   state.bestStreak = Math.max(state.bestStreak, state.streak);
   const bonus = 20 + Math.min(state.streak, 10) * 2;
   state.xp += stepXp + bonus; state.sessions++; state.lastDone = t; state.checkedThrough = addDays(t, -1);
+  logDay({ s: 1, xp: stepXp + bonus });
   addCoins(20);
   let froze = false;
   if (state.streak > 0 && state.streak % 7 === 0 && state.freezes < 2) { state.freezes++; froze = true; }
@@ -338,6 +343,7 @@ function finishSession() {
   }
   const unlocked = bumpMax();
   const after = levelInfo(state.xp).lvl;
+  checkAwards();
   state.chest = { date: t, opened: false };
   const kind = p.kind; sessTitle(); state.plan = null; P = null;
   save();

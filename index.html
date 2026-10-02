@@ -1113,6 +1113,124 @@ body.has-gbar .kplay{padding-bottom:240px}
 .opts.tf{grid-template-columns:1fr 1fr}
 .opts.tf .opt{font-size:19px;min-height:60px}
 
+/* ================= retention: streaks, awards, stats ================= */
+.greet p.risk{color:var(--sd);font-weight:700}
+.wstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.wstrip div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.wstrip small{font-size:11px;font-weight:700;color:var(--ink3)}
+.wstrip i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--glass2);border:1.5px solid var(--c3);color:#fff}
+.wstrip i .ic{width:16px;height:16px;stroke-width:3}
+.wstrip .done i{background:linear-gradient(135deg,var(--s2),var(--s));border-color:transparent;box-shadow:0 6px 14px -6px var(--s)}
+.wstrip .frz i{background:#5FA8E8;border-color:transparent}
+.wstrip .today i{border:2px dashed var(--s);background:var(--sl)}
+.wstrip .today small{color:var(--sd)}
+.wstrip .miss i{opacity:.55}
+.qtiles{display:grid;gap:10px;margin-top:-4px}
+.qtiles.n1{grid-template-columns:1fr} .qtiles.n2{grid-template-columns:1fr 1fr} .qtiles.n3{grid-template-columns:1fr 1fr 1fr}
+.qtile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border-radius:22px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--shs);text-align:left;min-width:0}
+.qtile i{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;margin-bottom:6px;background:color-mix(in srgb,var(--qc) 16%,transparent);color:var(--qc)}
+.qtile i .ic{width:19px;height:19px}
+.qtile b{font-family:var(--fh);font-weight:700;font-size:15.5px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.qtile small{font-size:12px;color:var(--ink3);font-weight:600}
+.qtile:active{transform:scale(.97)}
+.streakcard .sch{display:flex;align-items:center;gap:12px}
+.streakcard .flame{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--s2),var(--s));color:#fff;box-shadow:0 10px 20px -8px var(--s)}
+.streakcard .flame .ic{width:24px;height:24px}
+.streakcard .sch>div{flex:1}
+.streakcard b{display:block;font-family:var(--fh);font-weight:800;font-size:22px;line-height:1.1}
+.streakcard small{font-size:12.5px;color:var(--ink3);font-weight:600}
+.hub{display:flex;flex-direction:column;gap:10px}
+.hub .card{margin:0}
+/* award toast */
+.awardpop{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:95;width:min(calc(100vw - 24px),420px);display:flex;align-items:center;gap:12px;padding:12px 16px 12px 12px;border-radius:22px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--edge);box-shadow:0 20px 44px -14px rgba(30,24,80,.4);animation:awin .55s cubic-bezier(.2,1.4,.4,1);cursor:pointer}
+.awardpop.out{transition:transform .3s,opacity .3s;transform:translate(-50%,-30px);opacity:0}
+@keyframes awin{from{transform:translate(-50%,-40px) scale(.9);opacity:0}}
+.awardpop small{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gd)}
+.awardpop b{display:block;font-family:var(--fh);font-weight:800;font-size:18px;line-height:1.15}
+.awardpop span:not(.abadge){font-size:13px;color:var(--ink2)}
+.abadge{width:52px;height:52px;flex:none;border-radius:50%;display:grid;place-items:center;color:#fff;background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--ac) 55%,#fff),var(--ac));box-shadow:0 0 0 4px color-mix(in srgb,var(--ac) 22%,transparent),0 10px 20px -8px var(--ac)}
+.abadge .ic{width:24px;height:24px;stroke-width:2.3}
+.awards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.award{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:14px 8px 12px;border-radius:22px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--shs)}
+.award .abadge{width:48px;height:48px;margin-bottom:4px}
+.award:not(.got) .abadge{background:var(--c2);color:var(--ink3);box-shadow:none}
+.award b{font-family:var(--fh);font-weight:700;font-size:13.5px;line-height:1.15}
+.award small{font-size:11px;color:var(--ink3);line-height:1.3;min-height:2.6em}
+.award em{font-style:normal;font-size:11px;font-weight:800;color:var(--ink3);display:flex;align-items:center;gap:3px}
+.award em .ic{width:12px;height:12px}
+.award.got em{color:var(--td)}
+.award .gauge{width:80%;margin-top:4px}
+.award .gauge i{background:var(--ac);box-shadow:none}
+/* stats */
+.hmap{margin-top:14px}
+.hmonths{display:grid;font-size:10.5px;font-weight:700;color:var(--ink3);margin-bottom:4px}
+.hmonths span{white-space:nowrap}
+.hgrid{display:grid;grid-template-rows:repeat(7,1fr);gap:3px}
+.hgrid i{aspect-ratio:1;border-radius:4px;background:var(--c2)}
+.hgrid i.l1{background:color-mix(in srgb,var(--p) 25%,var(--c2))} .hgrid i.l2{background:color-mix(in srgb,var(--p) 50%,var(--c2))}
+.hgrid i.l3{background:color-mix(in srgb,var(--p) 78%,var(--c2))} .hgrid i.l4{background:var(--pd)}
+.hgrid i.frz,.hkey i.frz{background:#7DB7EA}
+.hgrid i.fut{background:transparent}
+.hgrid i.today{outline:2px solid var(--s);outline-offset:1px}
+.hkey{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;font-weight:600;color:var(--ink3)}
+.hkey i{width:11px;height:11px;border-radius:3px;background:var(--c2)}
+.hkey i.l1{background:color-mix(in srgb,var(--p) 25%,var(--c2))} .hkey i.l2{background:color-mix(in srgb,var(--p) 50%,var(--c2))} .hkey i.l3{background:color-mix(in srgb,var(--p) 78%,var(--c2))} .hkey i.l4{background:var(--pd)}
+.hkey span:nth-of-type(2){margin-right:10px}
+.srows{padding:6px 14px}
+.srow{display:flex;align-items:center;gap:12px;width:100%;padding:9px 0;text-align:left}
+.srow+.srow{border-top:1px solid var(--line)}
+.srow img{width:40px;height:40px;border-radius:12px;object-fit:cover}
+.srow span{flex:1;min-width:0}
+.srow b{display:block;font-family:var(--fh);font-weight:700;font-size:15px}
+.srow small{font-size:12px;color:var(--tc);font-weight:700}
+.srow svg{width:96px;height:30px;flex:none}
+.srow polyline{fill:none;stroke:var(--tc);stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+
+/* ================= Number Hunt ================= */
+.hhead{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.hhead div{padding:8px 12px;border-radius:16px;background:var(--glass2);border:1px solid var(--edge)}
+.hhead small{display:block;font-size:11.5px;font-weight:700;color:var(--ink3)}
+.hhead b{font-family:var(--fh);font-weight:800;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.hhead div:first-child b{color:var(--p)}
+.hhead div.pop{animation:cpop .25s}
+.hhead div.pen b{color:var(--bad)}
+.hgrid5{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;width:min(100%,400px);margin:16px auto 0;padding:10px;border-radius:26px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh)}
+.hcell{aspect-ratio:1;border-radius:14px;display:grid;place-items:center;font-family:var(--fh);font-weight:800;font-size:clamp(20px,6.5vw,28px);background:var(--glass2);border:1px solid var(--line);box-shadow:0 1px 0 var(--line);color:var(--ink);transition:background .15s,color .15s,transform .08s;font-variant-numeric:tabular-nums}
+.hcell:active{transform:scale(.93)}
+.hcell.hit{background:color-mix(in srgb,var(--p) 14%,transparent);color:color-mix(in srgb,var(--p) 45%,transparent);border-color:transparent}
+.hcell.miss{animation:shake .35s;background:color-mix(in srgb,var(--bad) 25%,transparent)}
+.hnote{text-align:center;margin-top:12px}
+.art.huntart{display:grid;grid-template-columns:repeat(4,46px);gap:6px;place-content:center;background:linear-gradient(160deg,var(--pl),var(--au4))}
+.huntart span{height:46px;border-radius:12px;display:grid;place-items:center;font:800 19px var(--fh);background:rgba(255,255,255,.75);color:#181A2F}
+.huntart span.hit{background:var(--p);color:#fff}
+
+/* ================= Parejas ================= */
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 2px;vertical-align:0}
+.dot.es{background:#EE7FA6} .dot.dot.en{background:var(--p);margin-left:10px}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;perspective:900px}
+.pcard{position:relative;aspect-ratio:4/5;border-radius:20px;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.9,.3,1.1)}
+.pcard>span{position:absolute;inset:0;border-radius:20px;display:grid;place-items:center;padding:8px;backface-visibility:hidden;-webkit-backface-visibility:hidden;text-align:center}
+.pcard .back{background:linear-gradient(145deg,var(--p2),var(--p));color:rgba(255,255,255,.85);box-shadow:var(--shs)}
+.pcard .back .ic{width:30px;height:30px}
+.pcard .face{transform:rotateY(180deg);font-family:var(--fh);font-weight:700;font-size:clamp(14px,4.2vw,18px);line-height:1.15;background:var(--glass);border:2px solid var(--edge);box-shadow:var(--shs);word-break:break-word}
+.pcard .face.es{border-color:#EE7FA6;color:#B23A6A;background:color-mix(in srgb,#EE7FA6 12%,var(--glass))}
+.pcard .face.en{border-color:color-mix(in srgb,var(--p) 50%,transparent);color:var(--pd);background:color-mix(in srgb,var(--p) 8%,var(--glass))}
+.pcard.up{transform:rotateY(180deg)}
+.pcard.got .face{background:color-mix(in srgb,var(--t) 22%,var(--glass));border-color:var(--t);color:var(--td);animation:cpop .35s}
+.pcard.no .face{border-color:var(--bad)}
+.pwords{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.pwords div{padding:8px 12px;border-radius:14px;background:var(--glass2)}
+.pwords b{display:block;font-family:var(--fh);color:#B23A6A}
+.pwords span{font-size:13px;color:var(--ink2)}
+.art.pairart{display:grid;grid-template-columns:repeat(3,72px);gap:8px;place-content:center;background:linear-gradient(160deg,#FFE3EE,var(--pl))}
+.pairart span{height:86px;border-radius:14px;display:grid;place-items:center;font:700 14px var(--fh);background:linear-gradient(145deg,var(--p2),var(--p));color:#fff}
+.pairart span .ic{width:24px;height:24px;opacity:.8}
+.pairart span.es{background:#fff;color:#B23A6A;border:2px solid #EE7FA6}
+.pairart span.en{background:#fff;color:var(--pd);border:2px solid var(--p2)}
+/* speed: high-level look-alike distractors */
+.shape.dia.near{background:var(--s2);opacity:.9}
+.shape.cir.near{background:color-mix(in srgb,var(--p) 75%,#fff)}
+
 </style>
 </head>
 <body>
@@ -1439,6 +1557,7 @@ function freshState() {
     calib: { day: 0, est: {} }, baseline: null, checkups: [],
     skills, srs: { es: {}, tr: {} }, chest: null, plan: null, lastGames: [],
     skin: "andean", sound: true, haptics: true, notice: null,
+    log: {}, awards: {}, rec: {},
     coins: 150, hints: 2, owned: ["andean"], joined: null, pz: {}, pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
   };
 }
@@ -1452,6 +1571,13 @@ function migrate() {
   const f = freshState(); state.pzs = Object.assign(f.pzs, state.pzs || {});
   if (state.pz && state.pz.date !== today()) state.pz = {};
   Object.values(state.skills).forEach(k => { if (k.lvl) k.lvl = Math.min(k.lvl, DMAX); });
+  if (!state.log || typeof state.log !== "object") state.log = {};
+  if (!state.awards) state.awards = {};
+  if (!state.rec) state.rec = {};
+  if (!Object.keys(state.log).length) {   // backfill the activity log from what older saves recorded
+    Object.values(state.skills).forEach(k => k.hist.forEach(h => { const L = state.log[h.d] || (state.log[h.d] = {}); L.g = (L.g || 0) + 1; }));
+    if (state.lastDone) { const L = state.log[state.lastDone] || (state.log[state.lastDone] = {}); L.s = 1; }
+  }
   Object.keys(state.calib.est || {}).forEach(k => state.calib.est[k] = Math.min(state.calib.est[k], DMAX));
   if (state.baseline && state.baseline.est) Object.keys(state.baseline.est).forEach(k => state.baseline.est[k] = Math.min(state.baseline.est[k], DMAX));
 }
@@ -1512,6 +1638,13 @@ function normTr(items) {
   return items.filter(x => x && x.q && x.a).map(x => ({ id: "tr:" + hash(x.q), cat: x.cat || "Countries", place: x.place || "", country: x.country || "", q: String(x.q), a: String(x.a), wrong: Array.isArray(x.wrong) ? x.wrong.map(String) : [], ...(x.why ? { why: String(x.why) } : {}) }));
 }
 
+/* ---------- activity log + personal records ---------- */
+/* log[date] = { s: daily session done, f: streak freeze used, g: games, c: cards, p: puzzles, xp } */
+function logDay(f, d = today()) { const L = state.log[d] || (state.log[d] = {}); for (const [k, v] of Object.entries(f)) L[k] = k === "s" || k === "f" ? v : (L[k] || 0) + v; }
+const activeDays = () => Object.entries(state.log).filter(([, L]) => L.s || L.g || L.c || L.p).length;
+/* rec(key, value, "max"|"min") keeps personal bests; returns true when it's a new record */
+function rec(key, v, mode = "max") { const o = state.rec[key]; if (o === undefined || (mode === "max" ? v > o : v < o)) { state.rec[key] = v; return o !== undefined; } return false; }
+
 /* ---------- progression ---------- */
 function levelInfo(xp) {
   let lvl = 1, acc = 0, need = 120;
@@ -1532,17 +1665,18 @@ function processMissed() {
   const missed = daysBetween(from, t) - 1;
   state.checkedThrough = addDays(t, -1);
   if (missed <= 0) return;
-  let used = 0, lost = 0, broke = false;
+  /* Missing a day costs the streak (unless a freeze covers it), never XP or levels:
+     punishing a lapse makes people less likely to come back, which is the opposite of the point. */
+  let used = 0, broke = false;
   for (let i = 0; i < missed; i++) {
-    if (state.freezes > 0 && !broke) { state.freezes--; used++; }
-    else { broke = true; lost += 60; }
+    if (state.freezes > 0 && !broke) { state.freezes--; used++; logDay({ f: 1 }, addDays(from, i + 1)); }
+    else broke = true;
   }
-  const before = levelInfo(state.xp).lvl;
-  if (broke) { state.streak = 0; state.xp = Math.max(0, state.xp - lost); }
-  const after = levelInfo(state.xp).lvl;
+  const lostStreak = state.streak;
+  if (broke) state.streak = 0;
   const bits = [`You missed ${missed} day${missed > 1 ? "s" : ""}.`];
-  if (used) bits.push(`${used} streak freeze${used > 1 ? "s" : ""} used.`);
-  if (broke) bits.push(`Streak reset and you lost ${lost} XP${after < before ? `, dropping back to ${stopFor(after).name}` : ""}.`);
+  if (used) bits.push(`${used} streak freeze${used > 1 ? "s" : ""} kept your streak alive.`);
+  if (broke) bits.push(lostStreak > 1 ? `Your ${lostStreak}-day streak reset. Today is day one of the next one.` : "Today's a fresh start.");
   state.notice = bits.join(" ");
   save();
 }
@@ -1708,7 +1842,8 @@ function speedTrial(mode) {
       }, 650 + dur);
       return () => { over = true; timers.forEach(t => t && clearTimeout(t)); if (timers.cleanupInner) timers.cleanupInner(); };
     }
-    const dur = mode === "odd" ? Math.max(90, 700 - d * 30) : Math.max(50, 620 - d * 28);
+    // keeps getting harder all the way to DMAX: shorter flashes, more distractors, then distractors that look like the target
+    const dur = mode === "odd" ? Math.max(70, 700 - d * 30) : Math.max(34, 620 - d * 27);
     const target = rnd(0, 7);
     stage.innerHTML = `<div class="hint">${mode === "odd" ? "Spot the odd one out" : "Watch for the pink diamond"}</div>${arenaHTML()}`;
     const slots = $$(".slot", stage);
@@ -1717,11 +1852,11 @@ function speedTrial(mode) {
     T(() => {
       $(".fix", stage).style.opacity = .25;
       if (mode === "odd") {
-        const oddCls = d <= 6 ? "sq" : d <= 12 ? "cir alt" : "cir big";
+        const oddCls = d <= 6 ? "sq" : d <= 12 ? "cir alt" : d <= 18 ? "cir big" : "cir near";
         slots.forEach((s, i) => s.innerHTML = `<span class="shape ${i === target ? oddCls : "cir"}"></span>`);
       } else {
         slots[target].innerHTML = '<span class="shape dia"></span>';
-        others.forEach(i => slots[i].innerHTML = `<span class="shape dia ${d > 9 ? "alt" : "hol"}"></span>`);
+        others.forEach(i => slots[i].innerHTML = `<span class="shape dia ${d > 17 ? "near" : d > 9 ? "alt" : "hol"}"></span>`);
       }
     }, 450);
     T(() => slots.forEach(s => { s.innerHTML = ""; s.classList.add("mask"); }), 450 + dur);
@@ -2375,7 +2510,7 @@ function themeArt(t, cls = "") {
   return `<svg class="${cls}" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${g}</svg>`;
 }
 const APP_NAME = "Cerebrito";
-const TABN = { map: "Home", train: "Mind", part: "Mind", recall: "Long-term memory", journey: "Journey", country: "Journey", puzzles: "Puzzles", pass: "You", shop: "Shop" };
+const TABN = { map: "Home", train: "Mind", part: "Mind", recall: "Long-term memory", journey: "Journey", country: "Journey", puzzles: "Puzzles", pass: "You", shop: "Shop", awards: "Awards", stats: "Stats" };
 function header() {
   return `<header class="top"><div class="logo"><img src="${IMG.logo}" alt="" width="36" height="36"><span><b>${APP_NAME}</b><small>${TABN[view] || ""}</small></span></div>
   <div class="pods"><span class="pod fl" title="Day streak">${ic("flame")}${state.streak}</span><button class="pod co" data-a="tab" data-t="shop" title="Coins, open the shop">${ic("sun")}${fmt(state.coins)}</button></div></header>`;
@@ -2400,8 +2535,10 @@ const pillarWord = { speed: "Agility", memory: "Memory", attention: "Focus", fle
 function render() {
   if (view === "session") return;
   tabs.classList.remove("hidden");
-  $$("button", tabs).forEach(b => b.setAttribute("aria-current", b.dataset.tab === ({ shop: "pass", part: "train", recall: "train", country: "journey" }[view] || view) ? "page" : "false"));
-  app.innerHTML = header() + (view === "map" ? viewMap() : view === "train" ? viewTrain() : view === "recall" ? viewRecall() : view === "journey" ? viewJourney() : view === "country" ? viewCountry() : view === "puzzles" ? viewPuzzles() : view === "part" ? viewPart() : view === "pass" ? viewPass() : viewShop());
+  $$("button", tabs).forEach(b => b.setAttribute("aria-current", b.dataset.tab === ({ shop: "pass", awards: "pass", stats: "pass", part: "train", recall: "train", country: "journey" }[view] || view) ? "page" : "false"));
+  const V = { map: viewMap, train: viewTrain, recall: viewRecall, journey: viewJourney, country: viewCountry, puzzles: viewPuzzles, part: viewPart, pass: viewPass, shop: viewShop, awards: viewAwards, stats: viewStats };
+  app.innerHTML = header() + (V[view] || viewMap)();
+  setTimeout(flushAwards, 400);
   window.scrollTo(0, 0);
   if (view === "map") startCountdownTick();
 
@@ -2422,8 +2559,19 @@ function viewMap() {
     <li><i>2</i><span><b>It trains two things:</b> your <b>Mind</b> (brain games that grow your skill trees) and your <b>Recall</b> (Spanish, places and everything you've learned).</span></li>
     <li><i>3</i><span><b>Come back daily</b> to keep your streak and move one stop further along your <b>Journey</b>.</span></li></ol>
     <button class="btn small ghost" data-a="howok">Got it</button></section>`;
-  return `${notice}<section class="greet"><h1>${greeting()}, Michael</h1><p>${state.lastDone === today() ? "Today's session is done. Keep going if you like." : "Here's today's session. One tap to start."}</p></section>
-  ${dailyCard()}${journeyCard()}${how}`;
+  const doneToday = state.lastDone === today(), h = new Date().getHours();
+  const line = doneToday ? "Today's session is done. Keep going if you like." : state.streak > 0 && h >= 18 ? `Your ${state.streak}-day streak needs today's session. About ${estMins(planToday())} minutes.` : state.streak > 0 ? `Day ${state.streak + 1} of your streak is one session away.` : "Here's today's session. One tap to start.";
+  return `${notice}<section class="greet"><h1>${greeting()}, Michael</h1><p class="${!doneToday && state.streak > 0 && h >= 18 ? "risk" : ""}">${esc(line)}</p>${weekStrip()}</section>
+  ${dailyCard()}${homeExtras()}${journeyCard()}${how}`;
+}
+/* quick ways to keep going once the session is done (or alongside it) */
+function homeExtras() {
+  const due = dueCount("es") + dueCount("tr"), pz = state.pz && state.pz.date === today() ? state.pz : {}, left = PZ.filter(p => p.k !== "rush" && !(pz[p.k] && pz[p.k].done)), pd = puzzleOfDay(today());
+  const tiles = [];
+  if (due) tiles.push(`<button class="qtile" data-a="review"><i style="--qc:var(--t)">${ic("cards")}</i><b>${due} due</b><small>Reviews ready</small></button>`);
+  if (left.length && pd && pd !== "rush") tiles.push(`<button class="qtile" data-a="pzd" data-k="${pd}"><i style="--qc:${PZK[pd].col}">${ic(PZK[pd].icon)}</i><b>${PZK[pd].name}</b><small>${left.length} dailies left</small></button>`);
+  tiles.push(`<button class="qtile" data-a="tab" data-t="awards"><i style="--qc:var(--g)">${ic("medal")}</i><b>${AWARDS.filter(a => state.awards[a.id]).length}/${AWARDS.length}</b><small>Awards</small></button>`);
+  return `<div class="qtiles n${tiles.length}">${tiles.join("")}</div>`;
 }
 function dailyCard() {
   const t = today();
@@ -2667,13 +2815,18 @@ function viewPass() {
   const cuBtn = !state.baseline ? `<button class="btn" disabled>${ic("brain")}Check-up after baseline</button>`
     : checkupDue() && state.lastDone !== today() ? `<button class="btn" data-a="checkup">${ic("brain")}Start brain re-calibration</button>`
     : `<button class="btn" disabled>${ic("brain")}Next check-up ${esc(new Date(parseKey(nextCU)).toLocaleDateString("en-AU", { day: "numeric", month: "short" }))}</button>`;
-  const pzw = state.pzs.palabra.won + state.pzs.pais.won, pzp = state.pzs.palabra.played + state.pzs.pais.played;
+  const pzw = pzSolvedTotal(), pzp = PZ.filter(p => p.k !== "rush").reduce((a, p) => a + ((state.pzs[p.k] || {}).played || 0), 0);
   const todayXp = (state.plan && state.plan.date === today() ? state.plan.results.reduce((a, r) => a + (r.xp || 0), 0) : 0);
   return `<section class="card pp"><span class="ribbon">${ic("trophy", "xs")}Lvl ${li.lvl} ${titleFor(li.lvl)}</span>
     <div class="bigava" style="background-image:url(${IMG.avatar})"><span>${ic("check")}</span></div>
     <h1>Michael</h1><p class="since">${ic("hiker")}Training since ${esc(new Date(parseKey(state.joined)).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }))}</p>
     <div class="stat3"><div><b>${ic("clock")}${state.sessions}</b><span>Days travelled</span></div><div><b>${ic("flame")}${state.streak}</b><span>Day streak</span></div><div><b>${ic("globe")}${countries}/${allC}</b><span>Countries</span></div></div></section>
-  <button class="card shopcard" data-a="tab" data-t="shop"><span class="pin" style="background:var(--gl);color:var(--gd)">${ic("store")}</span><span><b>Shop</b><small>${fmt(state.coins)} coins · ${state.freezes} streak freeze${state.freezes === 1 ? "" : "s"} · ${state.hints} hints</small></span>${ic("arrow")}</button>
+  <section class="card streakcard"><div class="sch"><span class="flame">${ic("flame")}</span><div><b>${state.streak} day${state.streak === 1 ? "" : "s"}</b><small>${state.streak ? (state.lastDone === today() ? "Streak safe for today" : "Do today's session to keep it") : "Start a streak today"} · best ${state.bestStreak}</small></div>${state.freezes ? `<span class="chip">${ic("snow")}${state.freezes}</span>` : ""}</div>${weekStrip()}</section>
+  <div class="hub">
+    <button class="card shopcard" data-a="tab" data-t="awards"><span class="pin" style="background:var(--gl);color:var(--gd)">${ic("medal")}</span><span><b>Awards</b><small>${AWARDS.filter(a => state.awards[a.id]).length} of ${AWARDS.length} earned</small></span>${ic("arrow")}</button>
+    <button class="card shopcard" data-a="tab" data-t="stats"><span class="pin">${ic("chart")}</span><span><b>Stats</b><small>${activeDays()} active day${activeDays() === 1 ? "" : "s"} · calendar and trends</small></span>${ic("arrow")}</button>
+    <button class="card shopcard" data-a="tab" data-t="shop"><span class="pin" style="background:var(--sl);color:var(--sd)">${ic("store")}</span><span><b>Shop</b><small>${fmt(state.coins)} coins · ${state.freezes} freeze${state.freezes === 1 ? "" : "s"} · ${state.hints} hints</small></span>${ic("arrow")}</button>
+  </div>
   <section class="card"><div class="radarhead"><span class="pin">${ic("brain")}</span><div><b>Cognitive radar</b><small>${head}</small></div></div>${radar}</section>
   ${cuBtn}
   <h2 class="sec" style="justify-content:space-between">Expedition journal</h2>
@@ -2785,6 +2938,10 @@ document.addEventListener("click", e => {
   else if (a === "part") { partKey = b.dataset.k; view = "part"; render(); }
   else if (a === "trainpart") { const k = b.dataset.k; openPractice({ t: "game", eng: k, variant: pick(ENGINES[k].train), mode: "train" }, `${PILLARS[k].name} training`, "extra"); }
   else if (a === "extra") openExtra();
+  else if (a === "review") {
+    const steps = [["es", queueFor("es", 0, 15)], ["tr", queueFor("tr", 0, 15)]].filter(x => x[1].length).map(([kind, ids]) => ({ t: "know", kind, ids }));
+    if (steps.length) { P = { kind: "practice", label: "Reviews", lv0: levelInfo(state.xp).lvl, date: today(), idx: 0, results: [], steps }; enterSession(); stepIntro(); }
+  }
   else if (a === "learn") { const k = b.dataset.k, c = b.dataset.c; const ids = shuffle(content[k].filter(x => !state.srs[k][x.id] && (!c || x.cat === c)).map(x => x.id)).slice(0, 5); if (ids.length) openPractice({ t: "know", kind: k, ids }, k === "es" ? "Spanish" : c || "Knowledge"); }
   else if (a === "pzd") openPractice({ t: "puzzle", kind: b.dataset.k }, PZK[b.dataset.k].name);
   else if (a === "pzf") openPractice({ t: "puzzle", kind: b.dataset.k, free: true }, PZK[b.dataset.k].name);
@@ -2820,7 +2977,7 @@ function openExtra() {
   const games = shuffle(rank.slice(0, 4)).slice(0, 2).map(e => ({ t: "game", eng: e, variant: pick(ENGINES[e].train), mode: "train" }));
   const ks = knowSteps(4, 5, 8, 8), es = ks.find(k => k.kind === "es"), trs = ks.find(k => k.kind === "tr");
   const seenN = Object.keys(state.srs.tr).length + Object.keys(state.srs.es).length;
-  const pk = pick(["palabra", "wordle", "pais", "worldle", "travle", "maptap", seenN >= 10 ? "rush" : "bee"]);
+  const pk = pick(["palabra", "wordle", "pais", "worldle", "travle", "maptap", "hunt", "pairs", seenN >= 10 ? "rush" : "bee"]);
   P = { kind: "extra", label: "Bonus session", lv0: levelInfo(state.xp).lvl, date: today(), idx: 0, results: [], steps: [games[0], es, games[1], trs, { t: "puzzle", kind: pk, free: true }].filter(Boolean) };
   enterSession(); stepIntro();
 }
@@ -2865,12 +3022,14 @@ function stepIntro() {
     const pzd = PZK[s.kind] || PZK.pais, ps = state.pzs[s.kind];
     t1 = pzd.name; t2 = s.kind === "rush" ? "60 seconds" : s.free ? "free play" : "daily";
     how = PZ_HOW[s.kind] + (s.kind === "rush" && s.cat ? ` Questions from ${s.cat}.` : "");
-    chips = `<span class="chip m">${ic("clock")}${s.kind === "rush" ? "60 sec" : "~2–4 min"}</span><span class="chip y">${ic(pzd.icon)}Puzzle</span>`;
+    chips = `<span class="chip m">${ic("clock")}${s.kind === "rush" ? "60 sec" : s.kind === "hunt" ? "~30 sec" : s.kind === "pairs" ? "~1–2 min" : "~2–4 min"}</span><span class="chip y">${ic(pzd.icon)}Puzzle</span>`;
     duo = s.kind === "rush" ? `<div><i>${ic("trophy")}</i><span><small>Best score</small><b>${state.rushBest ? fmt(state.rushBest) : "None yet"}</b></span></div><div><i class="g">${ic("check")}</i><span><small>Locked in</small><b class="g">${knowStats("es").mastered + knowStats("tr").mastered}</b></span></div>`
       : `<div><i>${ic("trophy")}</i><span><small>Solved</small><b>${ps ? `${ps.won} / ${ps.played}` : "0 / 0"}</b></span></div><div><i class="g">${ic("flame")}</i><span><small>Win streak</small><b class="g">${ps ? ps.streak : 0}</b></span></div>`;
   }
   const himg = s.t === "game" ? IMG[PILLARS[s.eng].img] : s.t === "know" ? IMG[KNOW[s.kind].img] : s.kind === "rush" ? IMG.t_travel : null;
-  const pzArt = () => (s.kind === "palabra" || s.kind === "wordle" || s.kind === "bee") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : s.kind === "bee" ? "HONEY" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art">${worldSVG({ fills: s.kind === "pais" ? { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" } : {} })}</div>`;
+  const pzArt = () => s.kind === "hunt" ? `<div class="art huntart">${shuffle([...Array(16).keys()].map(n => n + 1)).map(n => `<span class="${n <= 3 ? "hit" : ""}">${n}</span>`).join("")}</div>`
+    : s.kind === "pairs" ? `<div class="art pairart">${["hola", "hello", "?", "gracias", "?", "?"].map((w, i) => `<span class="${w === "?" ? "" : i % 2 ? "en" : "es"}">${w === "?" ? ic("sparkle") : w}</span>`).join("")}</div>`
+    : (s.kind === "palabra" || s.kind === "wordle" || s.kind === "bee") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : s.kind === "bee" ? "HONEY" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art">${worldSVG({ fills: s.kind === "pais" ? { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" } : {} })}</div>`;
   const top = himg ? `<div class="heroimg"><img src="${himg}" alt=""><span class="tl">${ic(icon)}${s.t === "game" ? esc(PILLARS[s.eng].es) : s.kind === "es" ? "Vocabulario" : s.kind === "rush" ? "Rápido" : "Recuerdos"}</span></div>`
     : `<div class="heroimg">${pzArt()}<span class="tl">${ic(icon)}${s.free ? "Free play" : "Daily puzzle"}</span></div>`;
   app.innerHTML = `<div class="play">${shead()}${stepsBar()}
@@ -2879,10 +3038,10 @@ function stepIntro() {
     <div class="chiprow">${chips}</div><p class="how">${esc(how)}</p>
     <div class="duo">${duo}</div>
     <button class="btn" data-s="start" style="margin-top:20px">${ic("play")}Start</button>
-    <p class="foot">${ic("grid")}Tap only, no typing</p></section>${stopFact()}</div>`;
+    <p class="foot">${ic(s.t === "puzzle" && ["palabra", "wordle", "pais", "worldle", "travle", "bee"].includes(s.kind) ? "word" : "grid")}${s.t === "puzzle" && ["palabra", "wordle", "bee"].includes(s.kind) ? "Type or tap the letters" : s.t === "puzzle" && ["pais", "worldle", "travle"].includes(s.kind) ? "Type a country or tap the map" : "Tap only, no typing"}</p></section>${stopFact()}</div>`;
   window.scrollTo(0, 0);
 }
-function beginStep() { const s = P.steps[P.idx]; if (s.t === "game") runGame(s); else if (s.t === "know") runKnow(s); else ({ palabra: runWordle, wordle: runWordle, pais: runPais, worldle: runWorldle, travle: runTravle, maptap: runMaptap, bee: runBee, rush: runRush }[s.kind] || runPais)(s); }
+function beginStep() { const s = P.steps[P.idx]; if (s.t === "game") runGame(s); else if (s.t === "know") runKnow(s); else ({ palabra: runWordle, wordle: runWordle, pais: runPais, worldle: runWorldle, travle: runTravle, maptap: runMaptap, bee: runBee, rush: runRush, hunt: runHunt, pairs: runPairs }[s.kind] || runPais)(s); }
 function nextBtn(label) { const last = P.idx >= P.steps.length; return `<button class="btn green" data-s="${last ? "finish" : "next"}">${last ? (P.kind === "practice" || P.kind === "extra" ? "Collect & finish" : "Finish today's session") : label || "Next challenge"}${ic("play")}</button>`; }
 
 /* ---------- brain game ---------- */
@@ -2946,11 +3105,13 @@ function runGame(step) {
       sk.lastV = step.variant;
     }
     if (!practice) { sk.hist.push({ d: today(), s: r.score, v: step.variant, m: step.mode }); if (sk.hist.length > 150) sk.hist.shift(); }
+    logDay({ g: 1 }); rec("combo", r.maxCombo);
+    if (step.variant === "nback" && ts.length) { const top = Math.max(...ts.filter(t => t.ok).map(t => t.d), 0); rec("nback", top <= 5 ? 1 : top <= 14 ? 2 : 3); }
     sk.best = Math.max(sk.best, r.score);
     const xp = practice ? 0 : 20 + Math.round(acc * 20), coins = practice ? Math.min(15, 3 + Math.round(acc * 8)) : 5 + Math.round(acc * 10);
     addCoins(coins);
     P.results.push({ t: "game", eng: step.eng, score: r.score, est, acc, xp, coins }); P.idx++;
-    save();
+    checkAwards(); save();
     let near = "";
     if (r.score > prevBest && prevBest > 0) near = `New personal best in ${PILLARS[step.eng].name}!`;
     else if (prevBest > 0 && r.score === prevBest) near = "Matched your best exactly.";
@@ -3091,7 +3252,7 @@ function runKnow(step) {
     if (P.kind === "practice") state.xp += xp;
     addCoins(coins);
     P.results.push({ t: "know", kind, right: firstTry, total, xp: P.kind === "practice" ? 0 : xp, coins }); P.idx++; if (P.kind === "practice") bumpMax();
-    if (typeof checkAwards === "function") checkAwards();
+    logDay({ c: total }); checkAwards();
     save();
     const st = knowStats(kind), acc = total ? firstTry / total : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0, missed = total - firstTry;
     app.innerHTML = `<div class="play">${shead()}
@@ -3113,7 +3274,7 @@ function finishSession() {
   if (P.kind === "practice" || P.kind === "extra") {
     const lv0 = P.lv0 || levelInfo(state.xp).lvl;
     const c = P.results.reduce((a, r) => a + (r.coins || 0), 0), x = P.kind === "extra" ? P.results.reduce((a, r) => a + (r.xp || 0), 0) : 0;
-    if (x) state.xp += x; const un = bumpMax(); save();
+    if (x) state.xp += x; const un = bumpMax(); logDay({ xp: x }); checkAwards(); save();
     toast(`${x ? `+${x} XP, ` : ""}+${c} coins${un.length ? `. Unlocked ${un.map(u => u.name).join(", ")}` : ""}`); exitSession(); celebrate(lv0, levelInfo(state.xp).lvl); return;
   }
   const p = state.plan, t = today();
@@ -3125,6 +3286,7 @@ function finishSession() {
   state.bestStreak = Math.max(state.bestStreak, state.streak);
   const bonus = 20 + Math.min(state.streak, 10) * 2;
   state.xp += stepXp + bonus; state.sessions++; state.lastDone = t; state.checkedThrough = addDays(t, -1);
+  logDay({ s: 1, xp: stepXp + bonus });
   addCoins(20);
   let froze = false;
   if (state.streak > 0 && state.streak % 7 === 0 && state.freezes < 2) { state.freezes++; froze = true; }
@@ -3145,6 +3307,7 @@ function finishSession() {
   }
   const unlocked = bumpMax();
   const after = levelInfo(state.xp).lvl;
+  checkAwards();
   state.chest = { date: t, opened: false };
   const kind = p.kind; sessTitle(); state.plan = null; P = null;
   save();
@@ -3175,6 +3338,8 @@ const PZ = [
   { k: "travle", name: "Travle", sub: "Link two countries over land", icon: "compass", col: "#6D4AF0" },
   { k: "maptap", name: "MapTap", sub: "Pin five places on the map", icon: "pin", col: "#FD6A49" },
   { k: "bee", name: "Spelling Bee", sub: "Make words from seven letters", icon: "sparkle", col: "#E9A92E" },
+  { k: "hunt", name: "Number Hunt", sub: "Tap 1 to 25 in order, fast", icon: "eye", col: "#5054D6" },
+  { k: "pairs", name: "Parejas", sub: "Match Spanish words to meanings", icon: "cards", col: "#EE7FA6" },
   { k: "rush", name: "Rapid recall", sub: "60 seconds on what you've learned", icon: "zap", col: "#22BDB0" }
 ];
 const PZK = Object.fromEntries(PZ.map(p => [p.k, p]));
@@ -3186,7 +3351,9 @@ const PZ_HOW = {
   travle: "Connect two countries by naming the countries in between. Each one has to share a land border with the next. Green is on a shortest route.",
   maptap: "Five places. Drop a pin where you think each one is, then lock it in. The closer you are, the more points. Pinch or use + to zoom for precision.",
   bee: "Make words of 4+ letters from the 7 in the hive. Every word must use the centre letter. Use all 7 for a pangram bonus.",
-  rush: "60 seconds of quick two-choice questions from things you've learned. Chain right answers for bonus points."
+  rush: "60 seconds of quick two-choice questions from things you've learned. Chain right answers for bonus points.",
+  hunt: "Find and tap the numbers 1 to 25 in order as fast as you can. Keep your eyes on the centre and let your side vision do the searching. Wrong taps cost a second.",
+  pairs: "Six Spanish words, six meanings, all face down. Flip two at a time to find the matches. Remember where things are to finish in as few flips as possible."
 };
 const pzSolvedTotal = () => Object.values(state.pzs || {}).reduce((a, s) => a + (s.won || 0), 0);
 const pzPlayedTotal = () => Object.values(state.pzs || {}).reduce((a, s) => a + (s.played || 0), 0);
@@ -3203,7 +3370,7 @@ function viewPuzzles() {
     <div class="pzprog"><div class="gauge"><i style="width:${Math.round(doneN / total * 100)}%"></i></div><span><b>${doneN}</b>/${total} dailies done</span></div></section><div class="pzlist">${cards}</div>`;
 }
 function puzzleOfDay(t) {
-  const pz = state.pz && state.pz.date === t ? state.pz : {}, order = ["palabra", "pais", "worldle", "maptap", "travle", "wordle", "bee", "rush"];
+  const pz = state.pz && state.pz.date === t ? state.pz : {}, order = ["palabra", "pais", "hunt", "worldle", "maptap", "pairs", "travle", "wordle", "bee", "rush"];
   const seenN = Object.keys(state.srs.tr).length + Object.keys(state.srs.es).length, start = daysBetween("2026-01-01", t) % order.length;
   for (let j = 0; j < order.length; j++) { const k = order[(start + j) % order.length]; if (k === "rush") { if (seenN >= 20) return k; continue; } if (!(pz[k] && pz[k].done)) return k; }
   return null;
@@ -3224,6 +3391,14 @@ function newPz(kind, seed) {
   if (kind === "travle") { const P = travlePairs(); const [a, b] = P[ri(P.length)]; return { A: a, B: b, g: [], v: 2 }; }
   if (kind === "maptap") { const idx = new Set(); while (idx.size < 5) idx.add(ri(PLACES.length)); return { places: [...idx], res: [] }; }
   if (kind === "bee") return { a: ri(EN.bp.length), found: [] };
+  if (kind === "hunt") { const n = [...Array(25).keys()].map(x => x + 1); for (let i = n.length - 1; i > 0; i--) { const j = ri(i + 1); [n[i], n[j]] = [n[j], n[i]]; } return { grid: n }; }
+  if (kind === "pairs") {
+    const ok = content.es.filter(x => x.es.length <= 14 && x.en.length <= 16 && !/[/(]/.test(x.en)), seen = ok.filter(x => state.srs.es[x.id]);
+    const pool = seen.length >= 4 ? seen : ok, pickN = (arr, n) => { const a = arr.slice(), out = []; while (out.length < n && a.length) out.push(a.splice(ri(a.length), 1)[0]); return out; };
+    const chosen = pickN(pool, Math.min(4, pool.length)); chosen.push(...pickN(ok.filter(x => !chosen.includes(x)), 6 - chosen.length));
+    const deck = chosen.flatMap(x => [{ id: x.id, s: "es" }, { id: x.id, s: "en" }]); for (let i = deck.length - 1; i > 0; i--) { const j = ri(i + 1); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    return { deck };
+  }
   return {};
 }
 /* older saves stored ISO codes / GEO pair indexes; restart those games in the new format rather than crash */
@@ -3244,7 +3419,11 @@ function puzzleDone(kind, S, won, tries, max) {
   if (P.kind === "practice") state.xp += xp;
   addCoins(coins);
   P.results.push({ t: "puzzle", kind, won, xp: P.kind === "practice" ? 0 : xp, coins }); P.idx++; if (P.kind === "practice") bumpMax();
-  if (typeof checkAwards === "function") checkAwards();
+  logDay({ p: 1 });
+  if (won && ["wordle", "palabra", "pais", "worldle"].includes(kind)) rec("pz_" + kind, tries, "min");
+  const pz = state.pz && state.pz.date === today() ? state.pz : {};
+  if (PZ.every(p => p.k === "rush" || (pz[p.k] && pz[p.k].done)) && state.rec.sweepDay !== today()) { state.rec.sweepDay = today(); state.rec.sweeps = (state.rec.sweeps || 0) + 1; }
+  checkAwards();
   save();
   return { coins, xp };
 }
@@ -3567,7 +3746,7 @@ function runMaptap(step) {
     if (p >= 90) { const r = map.svg.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 20); }
   };
   const end = () => {
-    pzEnd(); const total = S.res.reduce((a, r) => a + r.p, 0), won = total >= 250;
+    pzEnd(); const total = S.res.reduce((a, r) => a + r.p, 0), won = total >= 250; rec("maptap", total);
     const rw = puzzleDone("maptap", S, won, won ? 1 : 3, 3);
     const rows = S.places.map((pi, j) => `<div class="wrow"><span class="pn">${j + 1}</span><b>${esc(PLACES[pi].n)}</b><span class="km">${fmt(S.res[j].d)} km</span><span class="pr" style="--p:${S.res[j].p}%">${S.res[j].p}</span></div>`).join("");
     app.innerHTML = pzResult("maptap", won, `${total} / 500`, `<span class="bigflag">📍</span>`, total >= 400 ? "Human GPS" : won ? "Sharp sense of place" : "Keep tapping, it gets easier",
@@ -3619,7 +3798,7 @@ function runBee(step) {
     if (!w.includes(center)) return bad("Missing centre letter");
     if (S.found.includes(w)) return bad("Already found");
     if (!answers.includes(w)) return bad("Not in word list");
-    S.found.push(w); save(); tone(true); buzz(true); say(isPan(w) ? `Pangram! +${pts(w)}` : `${w.length >= 7 ? "Awesome!" : w.length >= 5 ? "Nice!" : "Good!"} +${pts(w)}`, true); drawScore();
+    S.found.push(w); if (isPan(w)) state.rec.pangrams = (state.rec.pangrams || 0) + 1; save(); tone(true); buzz(true); say(isPan(w) ? `Pangram! +${pts(w)}` : `${w.length >= 7 ? "Awesome!" : w.length >= 5 ? "Nice!" : "Good!"} +${pts(w)}`, true); drawScore();
     if (isPan(w)) burst(innerWidth / 2, 300, 24);
   };
   $("#hive").onclick = e => { const b = e.target.closest(".hex"); if (b) add(b.dataset.l); };
@@ -3689,7 +3868,7 @@ function runRush(step) {
     const coins = Math.min(25, 5 + r.right), xp = P.kind === "practice" ? 0 : 20 + r.right;
     addCoins(coins); P.results.push({ t: "puzzle", kind: "rush", xp, coins }); P.idx++;
     const s = state.pzs.rush || (state.pzs.rush = { played: 0, won: 0, streak: 0, dist: [] }); s.played++;
-    if (typeof checkAwards === "function") checkAwards();
+    logDay({ p: 1 }); checkAwards();
     save();
     const acc = r.n ? r.right / r.n : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0;
     app.innerHTML = `<div class="play">${shead()}<section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">Rapid recall</div><b>${fmt(r.score)} <small>pts</small></b>${r.score > prev && prev ? `<div class="near">${ic("trophy")}New best!</div>` : prev ? `<div class="near">${ic("flame")}Your best is ${fmt(state.rushBest)}</div>` : ""}</section>
@@ -3697,6 +3876,189 @@ function runRush(step) {
     <div class="pills2">${xp ? `<span class="chip o">${ic("zap")}+${xp} XP</span>` : ""}<span class="chip y">${ic("sun")}+${coins} coins</span><span class="chip v">${ic("flame")}Best combo x${r.maxCombo}</span></div>${P.kind === "practice" && P.steps.length === 1 ? `<button class="btn ghost" data-s="again">${ic("sparkle")}Play again</button>` : ""}${nextBtn()}</div>`;
     if (r.score > prev && prev) setTimeout(() => burst(innerWidth / 2, 180, 24), 100);
   }
+}
+
+/* ---------- Number Hunt (Schulte table) ---------- */
+/* A classic attention and visual-search drill: fix your gaze near the centre and find each number with
+   peripheral vision. Times fall quickly with practice, which makes it very satisfying to repeat. */
+function runHunt(step) {
+  const S = pzState("hunt", step);
+  if (S.done) { P.idx++; save(); return stepIntro(); }
+  let next = 1, t0 = 0, raf = 0, pen = 0, misses = 0, ended = false;
+  app.innerHTML = `<div class="play hplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("hunt", step)}<span class="eyebrow">${state.rec.hunt ? `Best ${state.rec.hunt.toFixed(1)}s` : "No best yet"}</span></div>
+    <div class="hhead"><div><small>Find</small><b id="hnext">1</b></div><div><small>Time</small><b id="htime">0.0</b></div></div></section>
+    <div class="hgrid5" id="hgrid">${S.grid.map(n => `<button class="hcell" data-n="${n}" aria-label="${n}" disabled>${n}</button>`).join("")}</div><p class="muted hnote">Keep your eyes near the centre</p></div>`;
+  const grid = $("#hgrid"), tEl = $("#htime"), nEl = $("#hnext");
+  const cd = document.createElement("div"); cd.className = "count"; document.body.appendChild(cd); const cdT = [];
+  [3, 2, 1].forEach((n, i) => cdT.push(setTimeout(() => { cd.innerHTML = `<span>${n}</span>`; }, i * 520)));
+  cdT.push(setTimeout(() => { cd.remove(); $$(".hcell").forEach(b => b.disabled = false); t0 = performance.now(); tick(); }, 1560));
+  const elapsed = () => (performance.now() - t0) / 1000 + pen;
+  const tick = () => { if (ended) return; tEl.textContent = elapsed().toFixed(1); raf = requestAnimationFrame(tick); };
+  pzCleanup(() => { ended = true; cancelAnimationFrame(raf); cdT.forEach(clearTimeout); cd.remove(); });
+  grid.addEventListener("pointerdown", e => {
+    const b = e.target.closest(".hcell"); if (!b || b.disabled || ended || !t0) return; e.preventDefault();
+    const n = +b.dataset.n;
+    if (n === next) {
+      b.classList.add("hit"); b.disabled = true; buzz(true); next++;
+      if (next > 25) return finish();
+      nEl.textContent = next; nEl.parentElement.classList.remove("pop"); void nEl.offsetWidth; nEl.parentElement.classList.add("pop");
+    } else if (n > next) { pen += 1; misses++; b.classList.remove("miss"); void b.offsetWidth; b.classList.add("miss"); buzz(false); tEl.parentElement.classList.add("pen"); setTimeout(() => tEl.parentElement.classList.remove("pen"), 400); }
+  });
+  const finish = () => {
+    ended = true; cancelAnimationFrame(raf); const secs = +elapsed().toFixed(1), prev = state.rec.hunt;
+    const best = rec("hunt", secs, "min"); pzEnd();
+    const won = secs < 60, rw = puzzleDone("hunt", S, won, 1, 1);
+    tone(true);
+    app.innerHTML = pzResult("hunt", won, `${secs.toFixed(1)} seconds`, `<span class="bigflag">🎯</span>`, `${misses ? `${misses} wrong tap${misses > 1 ? "s" : ""} (+${misses}s)` : "No wrong taps"}. ${best ? `New best, down from ${prev.toFixed(1)}s!` : prev && prev < secs ? `Your best is ${prev.toFixed(1)}s.` : "Under 30 seconds is sharp; under 20 is elite."}`,
+      "", rw, { share: `Cerebrito Number Hunt ${step.free ? "" : today() + " "}${secs.toFixed(1)}s${misses ? ` (${misses} miss)` : ""}` });
+    if (best || secs < 25) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);
+  };
+}
+
+/* ---------- Parejas (pairs memory) ---------- */
+/* Concentration with your own vocabulary: remembering where each card was trains visuospatial working
+   memory, and matching a word to its meaning is one more retrieval of it. */
+function runPairs(step) {
+  const S = pzState("pairs", step), items = Object.fromEntries(content.es.map(x => [x.id, x]));
+  if (S.done) { P.idx++; save(); return stepIntro(); }
+  const deck = S.deck.filter(c => items[c.id]);
+  if (!deck.length) { P.idx++; save(); return stepIntro(); }
+  let open = [], matched = new Set(), flips = 0, misses = 0, busy = false, t0 = performance.now();
+  app.innerHTML = `<div class="play pplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("pairs", step, "o")}<span class="eyebrow" id="pstat"></span></div><h2>Find the six pairs</h2><p class="muted"><span class="dot es"></span>Spanish <span class="dot en"></span>English</p></section>
+    <div class="pgrid" id="pgrid">${deck.map((c, i) => `<button class="pcard" data-i="${i}" aria-label="Card ${i + 1}"><span class="back">${ic("brain")}</span><span class="face ${c.s}">${esc(c.s === "es" ? items[c.id].es : items[c.id].en)}</span></button>`).join("")}</div></div>`;
+  const cards = $$(".pcard"), stat = () => { $("#pstat").textContent = `${matched.size} of ${deck.length / 2} · ${misses} miss${misses === 1 ? "" : "es"}`; };
+  let flipT = 0; pzCleanup(() => clearTimeout(flipT));
+  $("#pgrid").addEventListener("click", e => {
+    const b = e.target.closest(".pcard"); if (!b || busy) return; const i = +b.dataset.i;
+    if (matched.has(deck[i].id) || open.includes(i)) return;
+    b.classList.add("up"); open.push(i); flips++;
+    if (deck[i].s === "es") speakEs(items[deck[i].id].es);
+    if (open.length < 2) return;
+    const [a, c] = open;
+    if (deck[a].id === deck[c].id) {
+      matched.add(deck[a].id); open = []; tone(true); buzz(true);
+      [a, c].forEach(k => cards[k].classList.add("got")); stat();
+      if (matched.size === deck.length / 2) setTimeout(finish, 650);
+    } else {
+      misses++; busy = true; buzz(false); stat();
+      [a, c].forEach(k => cards[k].classList.add("no"));
+      flipT = setTimeout(() => { [a, c].forEach(k => cards[k].classList.remove("up", "no")); open = []; busy = false; }, 950);
+    }
+  });
+  stat();
+  const finish = () => {
+    pzEnd(); const secs = Math.round((performance.now() - t0) / 1000), perfect = misses <= 3;
+    if (perfect) state.rec.pairsPerfect = (state.rec.pairsPerfect || 0) + 1;
+    rec("pairs", misses, "min");
+    const rw = puzzleDone("pairs", S, true, Math.min(6, 1 + Math.floor(misses / 2)), 6);
+    const words = [...new Set(deck.map(c => c.id))].map(id => items[id]);
+    app.innerHTML = pzResult("pairs", true, misses ? `${misses} miss${misses > 1 ? "es" : ""}` : "Flawless", `<span class="bigflag">🃏</span>`, `All six pairs in ${flips} flips and ${secs} seconds.${perfect ? " A sharp memory." : ""}`,
+      `<section class="card"><div class="eyebrow m">Today's words</div><div class="pwords">${words.map(w => `<div><b>${esc(w.es)}</b><span>${esc(w.en)}</span></div>`).join("")}</div></section>`, rw,
+      { share: `Cerebrito Parejas ${step.free ? "" : today() + " "}${misses} misses, ${flips} flips` });
+    if (perfect) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);
+  };
+}
+
+/* ================= AWARDS ================= */
+/* Badges reward the behaviours that make training work (showing up, spacing, breadth), not just high scores.
+   Each one reports [progress, goal] so locked badges show how close you are. */
+const mastered = kind => Object.values(state.srs[kind]).filter(r => (r.iv || INT[r.b] || 0) >= 14).length;
+const pzWon = k => (state.pzs[k] && state.pzs[k].won) || 0;
+const AWARDS = [
+  { id: "streak3", g: "Habit", name: "Spark", desc: "A 3-day streak", icon: "flame", col: "#FD6A49", p: () => [state.bestStreak, 3] },
+  { id: "streak7", g: "Habit", name: "On fire", desc: "A 7-day streak", icon: "flame", col: "#F04E2A", p: () => [state.bestStreak, 7] },
+  { id: "streak30", g: "Habit", name: "Unstoppable", desc: "A 30-day streak", icon: "flame", col: "#D7301B", p: () => [state.bestStreak, 30] },
+  { id: "streak100", g: "Habit", name: "Centurion", desc: "A 100-day streak", icon: "trophy", col: "#B8860B", p: () => [state.bestStreak, 100] },
+  { id: "sess1", g: "Habit", name: "First steps", desc: "Finish your first daily session", icon: "check", col: "#15B486", p: () => [state.sessions, 1] },
+  { id: "sess25", g: "Habit", name: "Regular", desc: "Finish 25 daily sessions", icon: "calendar", col: "#15B486", p: () => [state.sessions, 25] },
+  { id: "sess100", g: "Habit", name: "Devoted", desc: "Finish 100 daily sessions", icon: "calendar", col: "#0E8F69", p: () => [state.sessions, 100] },
+  { id: "baseline", g: "Mind", name: "Baseline", desc: "Complete the 3-day calibration", icon: "brain", col: "#6D4AF0", p: () => [state.calib.day, 3] },
+  { id: "checkup", g: "Mind", name: "Check-up", desc: "Complete a monthly check-up", icon: "chart", col: "#6D4AF0", p: () => [state.checkups.length, 1] },
+  { id: "allround", g: "Mind", name: "All-rounder", desc: "Every skill at level 5 or higher", icon: "sparkle", col: "#8B6CFF", p: () => [SKILLS.filter(k => (state.skills[k].lvl || 0) >= 5).length, 7] },
+  { id: "bloom", g: "Mind", name: "In bloom", desc: "Any skill reaches level 10", icon: "sparkle", col: "#9B7BF0", p: () => [Math.floor(Math.max(...SKILLS.map(k => state.skills[k].lvl || 0))), 10] },
+  { id: "combo10", g: "Mind", name: "Locked on", desc: "A x10 combo in a brain game", icon: "zap", col: "#F5B83D", p: () => [state.rec.combo || 0, 10] },
+  { id: "nback3", g: "Mind", name: "Three back", desc: "Reach 3-back in N-back", icon: "brain", col: "#5054D6", p: () => [state.rec.nback || 0, 3] },
+  { id: "cards25", g: "Memory", name: "Locked in", desc: "25 cards remembered for 2+ weeks", icon: "cards", col: "#22BDB0", p: () => [mastered("es") + mastered("tr"), 25] },
+  { id: "cards100", g: "Memory", name: "Librarian", desc: "100 cards remembered for 2+ weeks", icon: "cards", col: "#16A57A", p: () => [mastered("es") + mastered("tr"), 100] },
+  { id: "spanish50", g: "Memory", name: "Hablante", desc: "50 Spanish words locked in", icon: "word", col: "#EE7FA6", p: () => [mastered("es"), 50] },
+  { id: "recall300", g: "Memory", name: "Quick draw", desc: "Score 300+ in Rapid recall", icon: "zap", col: "#22BDB0", p: () => [state.rushBest || 0, 300] },
+  { id: "puzzles10", g: "Puzzles", name: "Puzzler", desc: "Solve 10 puzzles", icon: "grid", col: "#3F7FD8", p: () => [pzSolvedTotal(), 10] },
+  { id: "puzzles100", g: "Puzzles", name: "Puzzle master", desc: "Solve 100 puzzles", icon: "medal", col: "#2559A8", p: () => [pzSolvedTotal(), 100] },
+  { id: "wordle2", g: "Puzzles", name: "Wordsmith", desc: "Solve Wordle or Palabra in 2", icon: "word", col: "#15B486", p: () => [Math.min(state.rec.pz_wordle || 9, state.rec.pz_palabra || 9) <= 2 ? 1 : 0, 1] },
+  { id: "globle3", g: "Puzzles", name: "Cartographer", desc: "Find a Globle country in 3 guesses or fewer", icon: "globe", col: "#3F7FD8", p: () => [(state.rec.pz_pais || 99) <= 3 ? 1 : 0, 1] },
+  { id: "worldle1", g: "Puzzles", name: "Shape shifter", desc: "Name a Worldle country first try", icon: "target", col: "#E9A92E", p: () => [(state.rec.pz_worldle || 99) === 1 ? 1 : 0, 1] },
+  { id: "maptap400", g: "Puzzles", name: "Human GPS", desc: "Score 400+ in MapTap", icon: "pin", col: "#FD6A49", p: () => [state.rec.maptap || 0, 400] },
+  { id: "pangram", g: "Puzzles", name: "Pangram!", desc: "Find a Spelling Bee pangram", icon: "sparkle", col: "#E9A92E", p: () => [state.rec.pangrams || 0, 1] },
+  { id: "hunt25", g: "Puzzles", name: "Eagle eye", desc: "Clear Number Hunt in under 25 seconds", icon: "eye", col: "#6D4AF0", p: () => [state.rec.hunt && state.rec.hunt < 25 ? 1 : 0, 1] },
+  { id: "pairs", g: "Puzzles", name: "Perfect pairs", desc: "Clear Parejas with 3 misses or fewer", icon: "cards", col: "#EE7FA6", p: () => [state.rec.pairsPerfect || 0, 1] },
+  { id: "sweep", g: "Puzzles", name: "Clean sweep", desc: "Play every daily puzzle in one day", icon: "check", col: "#15B486", p: () => [state.rec.sweeps || 0, 1] },
+  { id: "lvl5", g: "Journey", name: "Explorer", desc: "Reach level 5", icon: "compass", col: "#FD6A49", p: () => [state.maxLvl || 1, 5] },
+  { id: "sa", g: "Journey", name: "Sudamericano", desc: "Explore all of South America", icon: "mountain", col: "#16A57A", p: () => [Math.min(state.maxLvl - 1, 10), 10] },
+  { id: "half", g: "Journey", name: "Globetrotter", desc: "Explore 32 countries", icon: "globe", col: "#3F7FD8", p: () => [Math.min(state.maxLvl - 1, 32), 32] }
+];
+let awardQueue = [];
+function checkAwards() {
+  const fresh = [];
+  AWARDS.forEach(a => { if (state.awards[a.id]) return; let p; try { p = a.p(); } catch (e) { return; } if (p[0] >= p[1]) { state.awards[a.id] = today(); fresh.push(a); } });
+  if (fresh.length) { awardQueue.push(...fresh); setTimeout(flushAwards, 900); }
+  return fresh;
+}
+function flushAwards() {
+  if (!awardQueue.length || $(".awardpop")) return;
+  const a = awardQueue.shift(), el = document.createElement("div");
+  el.className = "awardpop"; el.setAttribute("role", "status");
+  el.innerHTML = `<span class="abadge" style="--ac:${a.col}">${ic(a.icon)}</span><div><small>Award unlocked</small><b>${esc(a.name)}</b><span>${esc(a.desc)}</span></div>`;
+  document.body.appendChild(el); tone(true);
+  const r = el.getBoundingClientRect(); burst(r.left + 40, r.top + 30, 16);
+  el.onclick = () => { el.remove(); view = "awards"; if (P) { if (currentAbort) currentAbort(); P = null; } tabs.classList.remove("hidden"); render(); };
+  setTimeout(() => { el.classList.add("out"); setTimeout(() => { el.remove(); flushAwards(); }, 300); }, 3600);
+}
+function awardTile(a) {
+  const got = state.awards[a.id]; let p = [0, 1]; try { p = a.p(); } catch (e) {}
+  const pct = got ? 100 : Math.round(clamp(p[0] / p[1], 0, 1) * 100);
+  return `<div class="award ${got ? "got" : ""}" style="--ac:${a.col}"><span class="abadge">${ic(a.icon)}</span><b>${esc(a.name)}</b><small>${esc(a.desc)}</small>${got ? `<em>${ic("check")}${esc(new Date(parseKey(got)).toLocaleDateString("en-AU", { day: "numeric", month: "short" }))}</em>` : p[1] > 1 ? `<div class="gauge thin"><i style="width:${pct}%"></i></div><em>${fmt(Math.min(p[0], p[1]))}/${fmt(p[1])}</em>` : `<em>${ic("lock")}Locked</em>`}</div>`;
+}
+function viewAwards() {
+  const n = AWARDS.filter(a => state.awards[a.id]).length, groups = [...new Set(AWARDS.map(a => a.g))];
+  return `<button class="backlink" data-a="tab" data-t="pass">${ic("back")}Back to You</button><section class="card pagecard"><div class="eyebrow">Logros</div><h1>Awards</h1><p>Badges for the habits that make training work: showing up, spacing it out, and breadth.</p>
+    <div class="pzprog"><div class="gauge"><i style="width:${Math.round(n / AWARDS.length * 100)}%"></i></div><span><b>${n}</b>/${AWARDS.length} earned</span></div></section>
+    ${groups.map(g => `<h2 class="sec">${esc(g)}</h2><div class="awards">${AWARDS.filter(a => a.g === g).sort((x, y) => (state.awards[y.id] ? 1 : 0) - (state.awards[x.id] ? 1 : 0)).map(awardTile).join("")}</div>`).join("")}`;
+}
+
+/* ================= STATS ================= */
+function heatmap(weeks = 15) {
+  const t = today(), end = parseKey(t), dow = (end.getDay() + 6) % 7, start = addDays(t, -(weeks * 7 - 1) - (6 - dow));
+  let cells = "", months = "", lastM = -1;
+  for (let w = 0; w < weeks; w++) {
+    const wkStart = addDays(start, w * 7), m = parseKey(wkStart).getMonth();
+    months += `<span style="grid-column:${w + 1}">${m !== lastM ? parseKey(wkStart).toLocaleDateString("en-AU", { month: "short" }) : ""}</span>`; lastM = m;
+    for (let d = 0; d < 7; d++) {
+      const k = addDays(start, w * 7 + d), L = state.log[k] || {}, future = k > t;
+      const v = (L.s ? 3 : 0) + Math.min(3, (L.g || 0) + (L.p || 0) + Math.ceil((L.c || 0) / 8));
+      const lv = future ? "fut" : L.f && !L.s ? "frz" : v >= 5 ? "l4" : v >= 3 ? "l3" : v >= 2 ? "l2" : v >= 1 ? "l1" : "";
+      cells += `<i class="${lv} ${k === t ? "today" : ""}" style="grid-column:${w + 1};grid-row:${d + 1}" title="${k}"></i>`;
+    }
+  }
+  return `<div class="hmap"><div class="hmonths" style="grid-template-columns:repeat(${weeks},1fr)">${months}</div><div class="hgrid" style="grid-template-columns:repeat(${weeks},1fr)">${cells}</div>
+    <div class="hkey"><span>Less</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More</span><i class="frz"></i><span>Freeze</span></div></div>`;
+}
+function weekStrip() {
+  const t = today(), d0 = parseKey(t), dow = (d0.getDay() + 6) % 7, mon = addDays(t, -dow), names = ["M", "T", "W", "T", "F", "S", "S"];
+  return `<div class="wstrip">${names.map((n, i) => { const k = addDays(mon, i), L = state.log[k] || {}, st = L.s ? "done" : L.f ? "frz" : k === t ? "today" : k < t ? "miss" : ""; return `<div class="${st}"><small>${n}</small><i>${L.s ? ic("check") : L.f ? ic("snow") : ""}</i></div>`; }).join("")}</div>`;
+}
+function viewStats() {
+  const days = activeDays(), srsAll = [...Object.values(state.srs.es), ...Object.values(state.srs.tr)];
+  const reviews = srsAll.reduce((a, r) => a + (r.n || 0), 0), recalled = srsAll.reduce((a, r) => a + (r.ok || 0), 0);
+  const games = SKILLS.reduce((a, k) => a + state.skills[k].hist.length, 0);
+  const tile = (icon, v, l, col) => `<div class="jc" style="--jb:color-mix(in srgb,${col} 16%,transparent);--jf:${col}"><div class="t"><i>${ic(icon)}</i></div><b>${v}</b><span>${l}</span></div>`;
+  const skillRows = SKILLS.map(k => { const P = PILLARS[k], h = state.skills[k].hist.slice(-12).map(x => x.s), mx = Math.max(1, ...h), L = state.skills[k].lvl || 0;
+    return `<button class="srow" data-a="part" data-k="${k}" style="--tc:${P.col}"><img src="${IMG[P.img]}" alt=""><span><b>${P.name}</b><small>${L ? `Level ${L.toFixed(1)}` : "Not measured"}</small></span>${h.length > 1 ? `<svg viewBox="0 0 100 30" preserveAspectRatio="none"><polyline points="${h.map((s, i) => `${(i / (h.length - 1) * 100).toFixed(1)},${(28 - s / mx * 26).toFixed(1)}`).join(" ")}"/></svg>` : `<svg viewBox="0 0 100 30"></svg>`}</button>`; }).join("");
+  const pzRows = PZ.filter(p => state.pzs[p.k] && state.pzs[p.k].played).map(p => { const s = state.pzs[p.k]; return `<div class="crow" style="--cc:${p.col}"><i>${ic(p.icon)}</i><div class="cm"><div class="ct"><b>${p.name}</b><span>${p.k === "rush" ? `Best ${fmt(state.rushBest || 0)}` : `${Math.round(s.won / s.played * 100)}% won`}</span></div><small>${s.played} played${p.k !== "rush" ? ` · streak ${s.streak} · best ${s.best || s.streak}` : ""}</small></div></div>`; }).join("");
+  return `<button class="backlink" data-a="tab" data-t="pass">${ic("back")}Back to You</button><section class="card pagecard"><div class="eyebrow">Estadísticas</div><h1>Your stats</h1><p>Every day you've trained since ${esc(new Date(parseKey(state.joined)).toLocaleDateString("en-AU", { day: "numeric", month: "long" }))}.</p>${heatmap()}</section>
+  <div class="journal">${tile("calendar", days, "Days active", "var(--p)")}${tile("flame", `${state.bestStreak}`, "Longest streak", "var(--s)")}${tile("brain", games, "Brain games", "#5054D6")}${tile("cards", fmt(reviews), "Cards reviewed", "var(--t)")}
+    ${tile("check", reviews ? Math.round(recalled / reviews * 100) + "%" : "–", "Recall success", "#16A57A")}${tile("grid", pzSolvedTotal(), "Puzzles solved", "#3F7FD8")}</div>
+  <h2 class="sec">${ic("brain")}Skill trends</h2><section class="card srows">${skillRows}</section>
+  ${pzRows ? `<h2 class="sec">${ic("grid")}Puzzles</h2><section class="card kpanel">${pzRows}</section>` : ""}`;
 }
 
 applySkin(); processMissed(); render(); initCloud();

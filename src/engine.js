@@ -43,6 +43,7 @@ function freshState() {
     calib: { day: 0, est: {} }, baseline: null, checkups: [],
     skills, srs: { es: {}, tr: {} }, chest: null, plan: null, lastGames: [],
     skin: "andean", sound: true, haptics: true, notice: null,
+    log: {}, awards: {}, rec: {},
     coins: 150, hints: 2, owned: ["andean"], joined: null, pz: {}, pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
   };
 }
@@ -56,6 +57,13 @@ function migrate() {
   const f = freshState(); state.pzs = Object.assign(f.pzs, state.pzs || {});
   if (state.pz && state.pz.date !== today()) state.pz = {};
   Object.values(state.skills).forEach(k => { if (k.lvl) k.lvl = Math.min(k.lvl, DMAX); });
+  if (!state.log || typeof state.log !== "object") state.log = {};
+  if (!state.awards) state.awards = {};
+  if (!state.rec) state.rec = {};
+  if (!Object.keys(state.log).length) {   // backfill the activity log from what older saves recorded
+    Object.values(state.skills).forEach(k => k.hist.forEach(h => { const L = state.log[h.d] || (state.log[h.d] = {}); L.g = (L.g || 0) + 1; }));
+    if (state.lastDone) { const L = state.log[state.lastDone] || (state.log[state.lastDone] = {}); L.s = 1; }
+  }
   Object.keys(state.calib.est || {}).forEach(k => state.calib.est[k] = Math.min(state.calib.est[k], DMAX));
   if (state.baseline && state.baseline.est) Object.keys(state.baseline.est).forEach(k => state.baseline.est[k] = Math.min(state.baseline.est[k], DMAX));
 }
@@ -116,6 +124,13 @@ function normTr(items) {
   return items.filter(x => x && x.q && x.a).map(x => ({ id: "tr:" + hash(x.q), cat: x.cat || "Countries", place: x.place || "", country: x.country || "", q: String(x.q), a: String(x.a), wrong: Array.isArray(x.wrong) ? x.wrong.map(String) : [], ...(x.why ? { why: String(x.why) } : {}) }));
 }
 
+/* ---------- activity log + personal records ---------- */
+/* log[date] = { s: daily session done, f: streak freeze used, g: games, c: cards, p: puzzles, xp } */
+function logDay(f, d = today()) { const L = state.log[d] || (state.log[d] = {}); for (const [k, v] of Object.entries(f)) L[k] = k === "s" || k === "f" ? v : (L[k] || 0) + v; }
+const activeDays = () => Object.entries(state.log).filter(([, L]) => L.s || L.g || L.c || L.p).length;
+/* rec(key, value, "max"|"min") keeps personal bests; returns true when it's a new record */
+function rec(key, v, mode = "max") { const o = state.rec[key]; if (o === undefined || (mode === "max" ? v > o : v < o)) { state.rec[key] = v; return o !== undefined; } return false; }
+
 /* ---------- progression ---------- */
 function levelInfo(xp) {
   let lvl = 1, acc = 0, need = 120;
@@ -136,17 +151,18 @@ function processMissed() {
   const missed = daysBetween(from, t) - 1;
   state.checkedThrough = addDays(t, -1);
   if (missed <= 0) return;
-  let used = 0, lost = 0, broke = false;
+  /* Missing a day costs the streak (unless a freeze covers it), never XP or levels:
+     punishing a lapse makes people less likely to come back, which is the opposite of the point. */
+  let used = 0, broke = false;
   for (let i = 0; i < missed; i++) {
-    if (state.freezes > 0 && !broke) { state.freezes--; used++; }
-    else { broke = true; lost += 60; }
+    if (state.freezes > 0 && !broke) { state.freezes--; used++; logDay({ f: 1 }, addDays(from, i + 1)); }
+    else broke = true;
   }
-  const before = levelInfo(state.xp).lvl;
-  if (broke) { state.streak = 0; state.xp = Math.max(0, state.xp - lost); }
-  const after = levelInfo(state.xp).lvl;
+  const lostStreak = state.streak;
+  if (broke) state.streak = 0;
   const bits = [`You missed ${missed} day${missed > 1 ? "s" : ""}.`];
-  if (used) bits.push(`${used} streak freeze${used > 1 ? "s" : ""} used.`);
-  if (broke) bits.push(`Streak reset and you lost ${lost} XP${after < before ? `, dropping back to ${stopFor(after).name}` : ""}.`);
+  if (used) bits.push(`${used} streak freeze${used > 1 ? "s" : ""} kept your streak alive.`);
+  if (broke) bits.push(lostStreak > 1 ? `Your ${lostStreak}-day streak reset. Today is day one of the next one.` : "Today's a fresh start.");
   state.notice = bits.join(" ");
   save();
 }
@@ -312,7 +328,8 @@ function speedTrial(mode) {
       }, 650 + dur);
       return () => { over = true; timers.forEach(t => t && clearTimeout(t)); if (timers.cleanupInner) timers.cleanupInner(); };
     }
-    const dur = mode === "odd" ? Math.max(90, 700 - d * 30) : Math.max(50, 620 - d * 28);
+    // keeps getting harder all the way to DMAX: shorter flashes, more distractors, then distractors that look like the target
+    const dur = mode === "odd" ? Math.max(70, 700 - d * 30) : Math.max(34, 620 - d * 27);
     const target = rnd(0, 7);
     stage.innerHTML = `<div class="hint">${mode === "odd" ? "Spot the odd one out" : "Watch for the pink diamond"}</div>${arenaHTML()}`;
     const slots = $$(".slot", stage);
@@ -321,11 +338,11 @@ function speedTrial(mode) {
     T(() => {
       $(".fix", stage).style.opacity = .25;
       if (mode === "odd") {
-        const oddCls = d <= 6 ? "sq" : d <= 12 ? "cir alt" : "cir big";
+        const oddCls = d <= 6 ? "sq" : d <= 12 ? "cir alt" : d <= 18 ? "cir big" : "cir near";
         slots.forEach((s, i) => s.innerHTML = `<span class="shape ${i === target ? oddCls : "cir"}"></span>`);
       } else {
         slots[target].innerHTML = '<span class="shape dia"></span>';
-        others.forEach(i => slots[i].innerHTML = `<span class="shape dia ${d > 9 ? "alt" : "hol"}"></span>`);
+        others.forEach(i => slots[i].innerHTML = `<span class="shape dia ${d > 17 ? "near" : d > 9 ? "alt" : "hol"}"></span>`);
       }
     }, 450);
     T(() => slots.forEach(s => { s.innerHTML = ""; s.classList.add("mask"); }), 450 + dur);

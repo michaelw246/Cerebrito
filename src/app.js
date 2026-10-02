@@ -24,7 +24,7 @@ function themeArt(t, cls = "") {
   return `<svg class="${cls}" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${g}</svg>`;
 }
 const APP_NAME = "Cerebrito";
-const TABN = { map: "Home", train: "Mind", part: "Mind", recall: "Long-term memory", journey: "Journey", country: "Journey", puzzles: "Puzzles", pass: "You", shop: "Shop" };
+const TABN = { map: "Home", train: "Mind", part: "Mind", recall: "Long-term memory", journey: "Journey", country: "Journey", puzzles: "Puzzles", pass: "You", shop: "Shop", awards: "Awards", stats: "Stats" };
 function header() {
   return `<header class="top"><div class="logo"><img src="${IMG.logo}" alt="" width="36" height="36"><span><b>${APP_NAME}</b><small>${TABN[view] || ""}</small></span></div>
   <div class="pods"><span class="pod fl" title="Day streak">${ic("flame")}${state.streak}</span><button class="pod co" data-a="tab" data-t="shop" title="Coins, open the shop">${ic("sun")}${fmt(state.coins)}</button></div></header>`;
@@ -49,8 +49,10 @@ const pillarWord = { speed: "Agility", memory: "Memory", attention: "Focus", fle
 function render() {
   if (view === "session") return;
   tabs.classList.remove("hidden");
-  $$("button", tabs).forEach(b => b.setAttribute("aria-current", b.dataset.tab === ({ shop: "pass", part: "train", recall: "train", country: "journey" }[view] || view) ? "page" : "false"));
-  app.innerHTML = header() + (view === "map" ? viewMap() : view === "train" ? viewTrain() : view === "recall" ? viewRecall() : view === "journey" ? viewJourney() : view === "country" ? viewCountry() : view === "puzzles" ? viewPuzzles() : view === "part" ? viewPart() : view === "pass" ? viewPass() : viewShop());
+  $$("button", tabs).forEach(b => b.setAttribute("aria-current", b.dataset.tab === ({ shop: "pass", awards: "pass", stats: "pass", part: "train", recall: "train", country: "journey" }[view] || view) ? "page" : "false"));
+  const V = { map: viewMap, train: viewTrain, recall: viewRecall, journey: viewJourney, country: viewCountry, puzzles: viewPuzzles, part: viewPart, pass: viewPass, shop: viewShop, awards: viewAwards, stats: viewStats };
+  app.innerHTML = header() + (V[view] || viewMap)();
+  setTimeout(flushAwards, 400);
   window.scrollTo(0, 0);
   if (view === "map") startCountdownTick();
 
@@ -71,8 +73,19 @@ function viewMap() {
     <li><i>2</i><span><b>It trains two things:</b> your <b>Mind</b> (brain games that grow your skill trees) and your <b>Recall</b> (Spanish, places and everything you've learned).</span></li>
     <li><i>3</i><span><b>Come back daily</b> to keep your streak and move one stop further along your <b>Journey</b>.</span></li></ol>
     <button class="btn small ghost" data-a="howok">Got it</button></section>`;
-  return `${notice}<section class="greet"><h1>${greeting()}, Michael</h1><p>${state.lastDone === today() ? "Today's session is done. Keep going if you like." : "Here's today's session. One tap to start."}</p></section>
-  ${dailyCard()}${journeyCard()}${how}`;
+  const doneToday = state.lastDone === today(), h = new Date().getHours();
+  const line = doneToday ? "Today's session is done. Keep going if you like." : state.streak > 0 && h >= 18 ? `Your ${state.streak}-day streak needs today's session. About ${estMins(planToday())} minutes.` : state.streak > 0 ? `Day ${state.streak + 1} of your streak is one session away.` : "Here's today's session. One tap to start.";
+  return `${notice}<section class="greet"><h1>${greeting()}, Michael</h1><p class="${!doneToday && state.streak > 0 && h >= 18 ? "risk" : ""}">${esc(line)}</p>${weekStrip()}</section>
+  ${dailyCard()}${homeExtras()}${journeyCard()}${how}`;
+}
+/* quick ways to keep going once the session is done (or alongside it) */
+function homeExtras() {
+  const due = dueCount("es") + dueCount("tr"), pz = state.pz && state.pz.date === today() ? state.pz : {}, left = PZ.filter(p => p.k !== "rush" && !(pz[p.k] && pz[p.k].done)), pd = puzzleOfDay(today());
+  const tiles = [];
+  if (due) tiles.push(`<button class="qtile" data-a="review"><i style="--qc:var(--t)">${ic("cards")}</i><b>${due} due</b><small>Reviews ready</small></button>`);
+  if (left.length && pd && pd !== "rush") tiles.push(`<button class="qtile" data-a="pzd" data-k="${pd}"><i style="--qc:${PZK[pd].col}">${ic(PZK[pd].icon)}</i><b>${PZK[pd].name}</b><small>${left.length} dailies left</small></button>`);
+  tiles.push(`<button class="qtile" data-a="tab" data-t="awards"><i style="--qc:var(--g)">${ic("medal")}</i><b>${AWARDS.filter(a => state.awards[a.id]).length}/${AWARDS.length}</b><small>Awards</small></button>`);
+  return `<div class="qtiles n${tiles.length}">${tiles.join("")}</div>`;
 }
 function dailyCard() {
   const t = today();
@@ -316,13 +329,18 @@ function viewPass() {
   const cuBtn = !state.baseline ? `<button class="btn" disabled>${ic("brain")}Check-up after baseline</button>`
     : checkupDue() && state.lastDone !== today() ? `<button class="btn" data-a="checkup">${ic("brain")}Start brain re-calibration</button>`
     : `<button class="btn" disabled>${ic("brain")}Next check-up ${esc(new Date(parseKey(nextCU)).toLocaleDateString("en-AU", { day: "numeric", month: "short" }))}</button>`;
-  const pzw = state.pzs.palabra.won + state.pzs.pais.won, pzp = state.pzs.palabra.played + state.pzs.pais.played;
+  const pzw = pzSolvedTotal(), pzp = PZ.filter(p => p.k !== "rush").reduce((a, p) => a + ((state.pzs[p.k] || {}).played || 0), 0);
   const todayXp = (state.plan && state.plan.date === today() ? state.plan.results.reduce((a, r) => a + (r.xp || 0), 0) : 0);
   return `<section class="card pp"><span class="ribbon">${ic("trophy", "xs")}Lvl ${li.lvl} ${titleFor(li.lvl)}</span>
     <div class="bigava" style="background-image:url(${IMG.avatar})"><span>${ic("check")}</span></div>
     <h1>Michael</h1><p class="since">${ic("hiker")}Training since ${esc(new Date(parseKey(state.joined)).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }))}</p>
     <div class="stat3"><div><b>${ic("clock")}${state.sessions}</b><span>Days travelled</span></div><div><b>${ic("flame")}${state.streak}</b><span>Day streak</span></div><div><b>${ic("globe")}${countries}/${allC}</b><span>Countries</span></div></div></section>
-  <button class="card shopcard" data-a="tab" data-t="shop"><span class="pin" style="background:var(--gl);color:var(--gd)">${ic("store")}</span><span><b>Shop</b><small>${fmt(state.coins)} coins · ${state.freezes} streak freeze${state.freezes === 1 ? "" : "s"} · ${state.hints} hints</small></span>${ic("arrow")}</button>
+  <section class="card streakcard"><div class="sch"><span class="flame">${ic("flame")}</span><div><b>${state.streak} day${state.streak === 1 ? "" : "s"}</b><small>${state.streak ? (state.lastDone === today() ? "Streak safe for today" : "Do today's session to keep it") : "Start a streak today"} · best ${state.bestStreak}</small></div>${state.freezes ? `<span class="chip">${ic("snow")}${state.freezes}</span>` : ""}</div>${weekStrip()}</section>
+  <div class="hub">
+    <button class="card shopcard" data-a="tab" data-t="awards"><span class="pin" style="background:var(--gl);color:var(--gd)">${ic("medal")}</span><span><b>Awards</b><small>${AWARDS.filter(a => state.awards[a.id]).length} of ${AWARDS.length} earned</small></span>${ic("arrow")}</button>
+    <button class="card shopcard" data-a="tab" data-t="stats"><span class="pin">${ic("chart")}</span><span><b>Stats</b><small>${activeDays()} active day${activeDays() === 1 ? "" : "s"} · calendar and trends</small></span>${ic("arrow")}</button>
+    <button class="card shopcard" data-a="tab" data-t="shop"><span class="pin" style="background:var(--sl);color:var(--sd)">${ic("store")}</span><span><b>Shop</b><small>${fmt(state.coins)} coins · ${state.freezes} freeze${state.freezes === 1 ? "" : "s"} · ${state.hints} hints</small></span>${ic("arrow")}</button>
+  </div>
   <section class="card"><div class="radarhead"><span class="pin">${ic("brain")}</span><div><b>Cognitive radar</b><small>${head}</small></div></div>${radar}</section>
   ${cuBtn}
   <h2 class="sec" style="justify-content:space-between">Expedition journal</h2>
@@ -434,6 +452,10 @@ document.addEventListener("click", e => {
   else if (a === "part") { partKey = b.dataset.k; view = "part"; render(); }
   else if (a === "trainpart") { const k = b.dataset.k; openPractice({ t: "game", eng: k, variant: pick(ENGINES[k].train), mode: "train" }, `${PILLARS[k].name} training`, "extra"); }
   else if (a === "extra") openExtra();
+  else if (a === "review") {
+    const steps = [["es", queueFor("es", 0, 15)], ["tr", queueFor("tr", 0, 15)]].filter(x => x[1].length).map(([kind, ids]) => ({ t: "know", kind, ids }));
+    if (steps.length) { P = { kind: "practice", label: "Reviews", lv0: levelInfo(state.xp).lvl, date: today(), idx: 0, results: [], steps }; enterSession(); stepIntro(); }
+  }
   else if (a === "learn") { const k = b.dataset.k, c = b.dataset.c; const ids = shuffle(content[k].filter(x => !state.srs[k][x.id] && (!c || x.cat === c)).map(x => x.id)).slice(0, 5); if (ids.length) openPractice({ t: "know", kind: k, ids }, k === "es" ? "Spanish" : c || "Knowledge"); }
   else if (a === "pzd") openPractice({ t: "puzzle", kind: b.dataset.k }, PZK[b.dataset.k].name);
   else if (a === "pzf") openPractice({ t: "puzzle", kind: b.dataset.k, free: true }, PZK[b.dataset.k].name);

@@ -39,7 +39,7 @@ data = (data.replace("__GEO__", open(DATA + "geo.json").read()).replace("__BEE__
 for k, v in imgs.items(): data = data.replace(f"__IMG_{k}__", v)
 eng = open(SRC + "engine.js").read().replace('"use strict";', "", 1).replace("__BANK_ES__", BANK_ES).replace("__BANK_TR__", BANK_TR)
 geo = open(SRC + "geo.js").read().replace("__COUNTRIES__", open(DATA + "countries.json").read())
-js = ('"use strict";\n' + data + "\n" + eng + "\n" + geo + "\n" + open(SRC + "app.js").read() + "\n" + open(SRC + "session.js").read() + "\n" + open(SRC + "puzzles.js").read()
+js = ('"use strict";\n' + data + "\n" + eng + "\n" + geo + "\n" + open(SRC + "app.js").read() + "\n" + open(SRC + "session.js").read() + "\n" + open(SRC + "puzzles.js").read() + "\n" + open(SRC + "awards.js").read()
       + "\napplySkin(); processMissed(); render(); initCloud();\n")
 html=f'''<!doctype html>
 <html lang="en" data-skin="andean">
