@@ -84,7 +84,7 @@ function heatmap(weeks = 15) {
 }
 function weekStrip() {
   const t = today(), d0 = parseKey(t), dow = (d0.getDay() + 6) % 7, mon = addDays(t, -dow), names = ["M", "T", "W", "T", "F", "S", "S"];
-  return `<div class="wstrip">${names.map((n, i) => { const k = addDays(mon, i), L = state.log[k] || {}, st = L.s ? "done" : L.f ? "frz" : k === t ? "today" : k < t ? "miss" : ""; return `<div class="${st}"><small>${n}</small><i>${L.s ? ic("check") : L.f ? ic("snow") : ""}</i></div>`; }).join("")}</div>`;
+  return `<div class="wstrip">${names.map((n, i) => { const k = addDays(mon, i), L = state.log[k] || {}, st = L.s ? "done" : L.f ? "frz" : k === t ? "today" : k < t ? "miss" : ""; return `<div class="${st}" style="--d:${i}"><small>${n}</small><i>${L.s ? ic("check") : L.f ? ic("snow") : ""}</i></div>`; }).join("")}</div>`;
 }
 function viewStats() {
   const days = activeDays(), srsAll = [...Object.values(state.srs.es), ...Object.values(state.srs.tr)];

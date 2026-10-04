@@ -1306,3 +1306,23 @@ body.ob-open{overflow:hidden}
 [hidden]{display:none!important}
 .more .eyebrow{display:flex;gap:6px;align-items:center} .more .eyebrow .ic{width:14px;height:14px}
 .moresheet{background:var(--c1)}
+/* motion: living trees, a streak that flickers, a coin counter that flies, a session button that glints */
+.pod.co{position:relative}
+.coinfly{position:absolute;right:6px;top:-4px;font-size:12px;font-weight:800;color:var(--gd);pointer-events:none;animation:coinfly 1.1s ease-out forwards}
+@keyframes coinfly{0%{opacity:0;transform:translateY(6px)}20%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
+.part .pimg img,.parthero img,.hero .heroimg img,.ltm .pimg img{animation:breathe 7s ease-in-out infinite;transform-origin:50% 85%}
+.part:nth-child(2n) .pimg img{animation-delay:-2.3s} .part:nth-child(3n) .pimg img{animation-delay:-4.1s}
+@keyframes breathe{0%,100%{transform:scale(1) rotate(0)}30%{transform:scale(1.035) rotate(.6deg)}65%{transform:scale(1.02) rotate(-.5deg)}}
+.pod.fl .ic{animation:flick 2.4s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes flick{0%,100%{transform:scale(1) rotate(0)}25%{transform:scale(1.08,1.14) rotate(-4deg)}50%{transform:scale(.96,1.02) rotate(3deg)}75%{transform:scale(1.05,1.1) rotate(-2deg)}}
+.btn.green[data-s],.hero .btn{position:relative;overflow:hidden}
+.btn.green[data-s]::after,.hero .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.38) 50%,transparent 65%);transform:translateX(-120%);animation:glint 4.5s ease-in-out 1.2s infinite;pointer-events:none}
+@keyframes glint{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.wstrip div i{animation:dayin .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--d,0) * 70ms)}
+@keyframes dayin{from{transform:scale(.4);opacity:0}}
+.card[data-a]:active,.part:active,.deck:active,.pzc:active{transform:scale(.985);transition:transform .12s}
+.kcard{animation:cardin .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes cardin{from{transform:perspective(800px) rotateX(8deg) translateY(10px);opacity:.4}}
+.fbbar{animation:fbin .35s cubic-bezier(.3,1.5,.5,1)}
+@keyframes fbin{from{transform:translateY(10px) scale(.96);opacity:0}}
+@media (prefers-reduced-motion:reduce){.part .pimg img,.parthero img,.hero .heroimg img,.ltm .pimg img,.pod.fl .ic,.btn.green[data-s]::after,.hero .btn::after,.wstrip div i,.kcard,.fbbar,.coinfly{animation:none}}

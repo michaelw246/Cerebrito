@@ -101,7 +101,7 @@ function pzStats(kind, hl) {
   const s = state.pzs[kind]; if (!s || !s.played) return "";
   const dist = (s.dist || []).slice(0, PZK[kind].max || 0), mx = Math.max(1, ...dist.map(v => v || 0));
   const bars = PZK[kind].max ? `<div class="dist">${Array.from({ length: PZK[kind].max }, (_, i) => `<div><span>${i + 1}</span><i style="--w:${Math.max(6, Math.round((dist[i] || 0) / mx * 100))}%" class="${hl === i + 1 ? "hl" : ""}"><b>${dist[i] || 0}</b></i></div>`).join("")}</div>` : "";
-  return `<section class="card pzstats"><div class="eyebrow m">Your ${esc(PZK[kind].name)} stats</div><div class="st4"><div><b>${s.played}</b><small>Played</small></div><div><b>${Math.round(s.won / s.played * 100)}%</b><small>Won</small></div><div><b>${s.streak}</b><small>Streak</small></div><div><b>${s.best || s.streak}</b><small>Best</small></div></div>${bars}</section>`;
+  return `<section class="card pzstats"><div class="eyebrow m">Your ${esc(PZK[kind].name)} stats</div><div class="st4"><div><b data-count="${s.played}">${s.played}</b><small>Played</small></div><div><b data-count="${Math.round(s.won / s.played * 100)}" data-fmt="pct">${Math.round(s.won / s.played * 100)}%</b><small>Won</small></div><div><b>${s.streak}</b><small>Streak</small></div><div><b>${s.best || s.streak}</b><small>Best</small></div></div>${bars}</section>`;
 }
 function shareResult(text) {
   const done = () => toast("Result copied. Paste it anywhere");

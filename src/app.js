@@ -201,7 +201,7 @@ function viewRecall() {
     <h2>All ${fmt(pc.total)} cards by <span>${esc(dShort(pc.goal))}</span></h2>
     <div class="pchips" role="group" aria-label="Goal">${[6, 9, 12].map(m => `<button data-a="pace" data-m="${m}" class="${state.pace.months === m ? "on" : ""}">${m} months</button>`).join("")}</div>
     <div class="ptrack"><i class="met" style="--w:${met / pc.total * 100}%"></i><i class="lock" style="--w:${locked / pc.total * 100}%"></i></div>
-    <div class="plegend"><span><i class="lock"></i><b>${fmt(locked)}</b> locked in</span><span><i class="met"></i><b>${fmt(met)}</b> met</span><span><i></i><b>${fmt(pc.U)}</b> to go</span></div>
+    <div class="plegend"><span><i class="lock"></i><b data-count="${locked}">${fmt(locked)}</b> locked in</span><span><i class="met"></i><b data-count="${met}">${fmt(met)}</b> met</span><span><i></i><b data-count="${pc.U}">${fmt(pc.U)}</b> to go</span></div>
     <p>${pc.U ? `${pc.perDay} new a day, as short lessons, alongside your reviews. ${late ? `You're a little behind: at most 16 new a day, the last arrives around <b>${esc(dShort(addDays(pc.finish, -30)))}</b>.` : `You'll meet the last card around <b>${esc(dShort(addDays(pc.finish, -30)))}</b>, leaving a month for it all to settle.`}` : "You've met every card. Reviews now keep them locked in."}</p></section>`;
   return `<button class="backlink" data-a="tab" data-t="train">${ic("back")}Your brain</button><section class="card pagecard"><div class="eyebrow g">Memoria</div><h1>Long-term memory</h1><p>Spanish and everything you've seen, learned and been curious about. Cards come back right before you'd forget them, so they stick for good.</p>
     <div class="statrow"><span class="chip m">${ic("check")}${locked} locked in</span><span class="chip v">${ic("clock")}${learning} learning</span><span class="chip o">${ic("bulb")}${dueCount("es") + dueCount("tr")} due today</span></div></section>
@@ -486,3 +486,39 @@ document.addEventListener("click", e => {
     state = freshState(); migrate(); save(); applySkin(); resetArmed = false; view = "map"; render(); toast("Progress reset");
   }
 });
+
+/* ================= MOTION ================= */
+/* One observer brings every screen to life without touching each template: whenever #app gets new content, its blocks
+   rise in one after another, progress bars fill from empty and [data-count] numbers count up. Web Animations are used
+   (not CSS classes) so they layer over each element's own animations instead of replacing them. Reduced motion skips it all. */
+const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const EASE = "cubic-bezier(.2,.8,.2,1)";
+function countUp(el, dur = 900) {
+  const to = +el.dataset.count; if (!isFinite(to)) return;
+  const fmtN = n => el.dataset.fmt === "pct" ? `${n}%` : fmt(n), t0 = performance.now();
+  const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmtN(Math.round(to * e)); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
+  el.textContent = fmtN(0); requestAnimationFrame(step);
+}
+function animateIn(root) {
+  if (calm() || !root.animate) return;
+  const blocks = [...root.children].flatMap(el => el.classList.contains("play") ? [...el.children] : [el])
+    .filter(el => { const p = getComputedStyle(el).position; return p !== "fixed" && p !== "sticky" && el.offsetParent !== null; });
+  let i = 0;
+  blocks.forEach(el => {
+    if (el.getBoundingClientRect().top > innerHeight + 40) return;   // only what's on screen; below the fold just appears
+    el.animate([{ opacity: 0, transform: "translateY(16px) scale(.985)" }, { opacity: 1, transform: "none" }], { duration: 480, delay: Math.min(i++, 9) * 55, easing: EASE, fill: "backwards" });
+  });
+  $$(".gauge i, .ptrack i", root).forEach((g, j) => { const w = g.style.width || getComputedStyle(g).width; if (!w || w === "0px" || w === "0%") return; g.animate([{ width: "0px" }, { width: w }], { duration: 1000, delay: 150 + Math.min(j, 8) * 40, easing: EASE, fill: "backwards" }); });
+  $$("[data-count]", root).forEach(el => countUp(el));
+}
+let lastCoinsShown = null;
+function coinPop() {
+  const pod = $(".pod.co"); if (!pod) return;
+  if (lastCoinsShown !== null && state.coins !== lastCoinsShown && !calm() && pod.animate) {
+    pod.animate([{ transform: "scale(1)" }, { transform: "scale(1.22)", offset: .35 }, { transform: "scale(1)" }], { duration: 520, easing: "cubic-bezier(.3,1.6,.5,1)" });
+    const b = document.createElement("span"); b.className = "coinfly"; b.textContent = `${state.coins > lastCoinsShown ? "+" : ""}${fmt(state.coins - lastCoinsShown)}`; pod.appendChild(b); setTimeout(() => b.remove(), 1100);
+  }
+  lastCoinsShown = state.coins;
+}
+new MutationObserver(() => { animateIn(app); coinPop(); }).observe(app, { childList: true });
+tabs.addEventListener("click", e => { const b = e.target.closest("button[data-tab]"); if (b && !calm() && b.animate) { const i = $(".ic", b); if (i) i.animate([{ transform: "scale(.6) rotate(-12deg)" }, { transform: "scale(1.15)", offset: .6 }, { transform: "none" }], { duration: 420, easing: EASE }); } });

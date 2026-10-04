@@ -160,7 +160,7 @@ function runGame(step) {
     const stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0;
     app.innerHTML = `<div class="play">${shead()}
     <div class="rhero"><img src="${IMG[PILLARS[step.eng].img]}" alt=""><div class="cap"><span class="chip">${ic("trophy")}${acc >= 0.8 ? "Excelente!" : "Round complete"}</span><h2>${esc(PILLARS[step.eng].name)} · ${esc(v.name)}</h2></div></div>
-    <section class="card scorebig"><div class="eyebrow m">Total round score</div><b>${fmt(r.score)} <small>pts</small></b>${near ? `<div class="near">${ic("flame")}${esc(near)}</div>` : ""}</section>
+    <section class="card scorebig"><div class="eyebrow m">Total round score</div><b><span data-count="${r.score}">${fmt(r.score)}</span> <small>pts</small></b>${near ? `<div class="near">${ic("flame")}${esc(near)}</div>` : ""}</section>
     <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Accuracy</div><b>${Math.round(acc * 100)}% across ${ts.length}</b></div><span class="stars">${[0, 1, 2].map(i => ic("star", i < stars ? "on" : "")).join("")}</span></section>
     <div class="two2"><div class="card"><div class="eyebrow">${ic("zap")}Best combo</div><b class="o">x${r.maxCombo}</b><small>${r.maxCombo >= 10 ? "Double points unlocked" : r.maxCombo >= 5 ? "1.5x points unlocked" : "Chain 5 for 1.5x"}</small></div><div class="card"><div class="eyebrow">${ic("brain")}${esc(lvlTitle)}</div><b>${esc(lvlLine)}</b><small>${esc(lvlSub)}</small></div></div>
     <div class="pills2">${xp ? `<span class="chip o">${ic("zap")}+${xp} XP</span>` : ""}<span class="chip y">${ic("sun")}+${coins} coins</span></div>
@@ -299,7 +299,7 @@ function runKnow(step) {
     save();
     const st = knowStats(kind), acc = total ? firstTry / total : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0, missedN = total - firstTry;
     app.innerHTML = `<div class="play">${shead()}
-    <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b>${firstTry}<small> / ${total}</small></b><div class="near">${ic(missed ? "bulb" : "trophy")}${missedN ? `${missedN} to revisit. They're back tomorrow, when a second try counts most.` : "Clean sweep. Those just got pushed further out."}</div></section>
+    <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b><span data-count="${firstTry}">${firstTry}</span><small> / ${total}</small></b><div class="near">${ic(missed ? "bulb" : "trophy")}${missedN ? `${missedN} to revisit. They're back tomorrow, when a second try counts most.` : "Clean sweep. Those just got pushed further out."}</div></section>
     ${lessonLine ? `<section class="card lessons"><div class="eyebrow m">${ic("sparkle")}Lesson progress</div>${lessonLine}</section>` : ""}
     ${missList ? `<section class="card misses"><div class="eyebrow m">${ic("bulb")}Worth a second look</div><p class="muted">Tap one to read the full story.</p>${missList}</section>` : ""}
     <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Locked in (2+ weeks)</div><b>${st.mastered} of ${content[kind].length}</b></div><span class="stars">${[0, 1, 2].map(k => ic("star", k < stars ? "on" : "")).join("")}</span></section>

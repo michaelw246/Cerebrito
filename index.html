@@ -1324,6 +1324,26 @@ body.ob-open{overflow:hidden}
 [hidden]{display:none!important}
 .more .eyebrow{display:flex;gap:6px;align-items:center} .more .eyebrow .ic{width:14px;height:14px}
 .moresheet{background:var(--c1)}
+/* motion: living trees, a streak that flickers, a coin counter that flies, a session button that glints */
+.pod.co{position:relative}
+.coinfly{position:absolute;right:6px;top:-4px;font-size:12px;font-weight:800;color:var(--gd);pointer-events:none;animation:coinfly 1.1s ease-out forwards}
+@keyframes coinfly{0%{opacity:0;transform:translateY(6px)}20%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
+.part .pimg img,.parthero img,.hero .heroimg img,.ltm .pimg img{animation:breathe 7s ease-in-out infinite;transform-origin:50% 85%}
+.part:nth-child(2n) .pimg img{animation-delay:-2.3s} .part:nth-child(3n) .pimg img{animation-delay:-4.1s}
+@keyframes breathe{0%,100%{transform:scale(1) rotate(0)}30%{transform:scale(1.035) rotate(.6deg)}65%{transform:scale(1.02) rotate(-.5deg)}}
+.pod.fl .ic{animation:flick 2.4s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes flick{0%,100%{transform:scale(1) rotate(0)}25%{transform:scale(1.08,1.14) rotate(-4deg)}50%{transform:scale(.96,1.02) rotate(3deg)}75%{transform:scale(1.05,1.1) rotate(-2deg)}}
+.btn.green[data-s],.hero .btn{position:relative;overflow:hidden}
+.btn.green[data-s]::after,.hero .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.38) 50%,transparent 65%);transform:translateX(-120%);animation:glint 4.5s ease-in-out 1.2s infinite;pointer-events:none}
+@keyframes glint{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.wstrip div i{animation:dayin .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--d,0) * 70ms)}
+@keyframes dayin{from{transform:scale(.4);opacity:0}}
+.card[data-a]:active,.part:active,.deck:active,.pzc:active{transform:scale(.985);transition:transform .12s}
+.kcard{animation:cardin .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes cardin{from{transform:perspective(800px) rotateX(8deg) translateY(10px);opacity:.4}}
+.fbbar{animation:fbin .35s cubic-bezier(.3,1.5,.5,1)}
+@keyframes fbin{from{transform:translateY(10px) scale(.96);opacity:0}}
+@media (prefers-reduced-motion:reduce){.part .pimg img,.parthero img,.hero .heroimg img,.ltm .pimg img,.pod.fl .ic,.btn.green[data-s]::after,.hero .btn::after,.wstrip div i,.kcard,.fbbar,.coinfly{animation:none}}
 
 </style>
 </head>
@@ -2855,7 +2875,7 @@ function viewRecall() {
     <h2>All ${fmt(pc.total)} cards by <span>${esc(dShort(pc.goal))}</span></h2>
     <div class="pchips" role="group" aria-label="Goal">${[6, 9, 12].map(m => `<button data-a="pace" data-m="${m}" class="${state.pace.months === m ? "on" : ""}">${m} months</button>`).join("")}</div>
     <div class="ptrack"><i class="met" style="--w:${met / pc.total * 100}%"></i><i class="lock" style="--w:${locked / pc.total * 100}%"></i></div>
-    <div class="plegend"><span><i class="lock"></i><b>${fmt(locked)}</b> locked in</span><span><i class="met"></i><b>${fmt(met)}</b> met</span><span><i></i><b>${fmt(pc.U)}</b> to go</span></div>
+    <div class="plegend"><span><i class="lock"></i><b data-count="${locked}">${fmt(locked)}</b> locked in</span><span><i class="met"></i><b data-count="${met}">${fmt(met)}</b> met</span><span><i></i><b data-count="${pc.U}">${fmt(pc.U)}</b> to go</span></div>
     <p>${pc.U ? `${pc.perDay} new a day, as short lessons, alongside your reviews. ${late ? `You're a little behind: at most 16 new a day, the last arrives around <b>${esc(dShort(addDays(pc.finish, -30)))}</b>.` : `You'll meet the last card around <b>${esc(dShort(addDays(pc.finish, -30)))}</b>, leaving a month for it all to settle.`}` : "You've met every card. Reviews now keep them locked in."}</p></section>`;
   return `<button class="backlink" data-a="tab" data-t="train">${ic("back")}Your brain</button><section class="card pagecard"><div class="eyebrow g">Memoria</div><h1>Long-term memory</h1><p>Spanish and everything you've seen, learned and been curious about. Cards come back right before you'd forget them, so they stick for good.</p>
     <div class="statrow"><span class="chip m">${ic("check")}${locked} locked in</span><span class="chip v">${ic("clock")}${learning} learning</span><span class="chip o">${ic("bulb")}${dueCount("es") + dueCount("tr")} due today</span></div></section>
@@ -3141,6 +3161,42 @@ document.addEventListener("click", e => {
   }
 });
 
+/* ================= MOTION ================= */
+/* One observer brings every screen to life without touching each template: whenever #app gets new content, its blocks
+   rise in one after another, progress bars fill from empty and [data-count] numbers count up. Web Animations are used
+   (not CSS classes) so they layer over each element's own animations instead of replacing them. Reduced motion skips it all. */
+const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const EASE = "cubic-bezier(.2,.8,.2,1)";
+function countUp(el, dur = 900) {
+  const to = +el.dataset.count; if (!isFinite(to)) return;
+  const fmtN = n => el.dataset.fmt === "pct" ? `${n}%` : fmt(n), t0 = performance.now();
+  const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmtN(Math.round(to * e)); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
+  el.textContent = fmtN(0); requestAnimationFrame(step);
+}
+function animateIn(root) {
+  if (calm() || !root.animate) return;
+  const blocks = [...root.children].flatMap(el => el.classList.contains("play") ? [...el.children] : [el])
+    .filter(el => { const p = getComputedStyle(el).position; return p !== "fixed" && p !== "sticky" && el.offsetParent !== null; });
+  let i = 0;
+  blocks.forEach(el => {
+    if (el.getBoundingClientRect().top > innerHeight + 40) return;   // only what's on screen; below the fold just appears
+    el.animate([{ opacity: 0, transform: "translateY(16px) scale(.985)" }, { opacity: 1, transform: "none" }], { duration: 480, delay: Math.min(i++, 9) * 55, easing: EASE, fill: "backwards" });
+  });
+  $$(".gauge i, .ptrack i", root).forEach((g, j) => { const w = g.style.width || getComputedStyle(g).width; if (!w || w === "0px" || w === "0%") return; g.animate([{ width: "0px" }, { width: w }], { duration: 1000, delay: 150 + Math.min(j, 8) * 40, easing: EASE, fill: "backwards" }); });
+  $$("[data-count]", root).forEach(el => countUp(el));
+}
+let lastCoinsShown = null;
+function coinPop() {
+  const pod = $(".pod.co"); if (!pod) return;
+  if (lastCoinsShown !== null && state.coins !== lastCoinsShown && !calm() && pod.animate) {
+    pod.animate([{ transform: "scale(1)" }, { transform: "scale(1.22)", offset: .35 }, { transform: "scale(1)" }], { duration: 520, easing: "cubic-bezier(.3,1.6,.5,1)" });
+    const b = document.createElement("span"); b.className = "coinfly"; b.textContent = `${state.coins > lastCoinsShown ? "+" : ""}${fmt(state.coins - lastCoinsShown)}`; pod.appendChild(b); setTimeout(() => b.remove(), 1100);
+  }
+  lastCoinsShown = state.coins;
+}
+new MutationObserver(() => { animateIn(app); coinPop(); }).observe(app, { childList: true });
+tabs.addEventListener("click", e => { const b = e.target.closest("button[data-tab]"); if (b && !calm() && b.animate) { const i = $(".ic", b); if (i) i.animate([{ transform: "scale(.6) rotate(-12deg)" }, { transform: "scale(1.15)", offset: .6 }, { transform: "none" }], { duration: 420, easing: EASE }); } });
+
 /* ================= sessions ================= */
 let P = null; // active plan (daily plan lives in state.plan; practice plans are temporary)
 function openSession(kind) {
@@ -3303,7 +3359,7 @@ function runGame(step) {
     const stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0;
     app.innerHTML = `<div class="play">${shead()}
     <div class="rhero"><img src="${IMG[PILLARS[step.eng].img]}" alt=""><div class="cap"><span class="chip">${ic("trophy")}${acc >= 0.8 ? "Excelente!" : "Round complete"}</span><h2>${esc(PILLARS[step.eng].name)} · ${esc(v.name)}</h2></div></div>
-    <section class="card scorebig"><div class="eyebrow m">Total round score</div><b>${fmt(r.score)} <small>pts</small></b>${near ? `<div class="near">${ic("flame")}${esc(near)}</div>` : ""}</section>
+    <section class="card scorebig"><div class="eyebrow m">Total round score</div><b><span data-count="${r.score}">${fmt(r.score)}</span> <small>pts</small></b>${near ? `<div class="near">${ic("flame")}${esc(near)}</div>` : ""}</section>
     <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Accuracy</div><b>${Math.round(acc * 100)}% across ${ts.length}</b></div><span class="stars">${[0, 1, 2].map(i => ic("star", i < stars ? "on" : "")).join("")}</span></section>
     <div class="two2"><div class="card"><div class="eyebrow">${ic("zap")}Best combo</div><b class="o">x${r.maxCombo}</b><small>${r.maxCombo >= 10 ? "Double points unlocked" : r.maxCombo >= 5 ? "1.5x points unlocked" : "Chain 5 for 1.5x"}</small></div><div class="card"><div class="eyebrow">${ic("brain")}${esc(lvlTitle)}</div><b>${esc(lvlLine)}</b><small>${esc(lvlSub)}</small></div></div>
     <div class="pills2">${xp ? `<span class="chip o">${ic("zap")}+${xp} XP</span>` : ""}<span class="chip y">${ic("sun")}+${coins} coins</span></div>
@@ -3442,7 +3498,7 @@ function runKnow(step) {
     save();
     const st = knowStats(kind), acc = total ? firstTry / total : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0, missedN = total - firstTry;
     app.innerHTML = `<div class="play">${shead()}
-    <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b>${firstTry}<small> / ${total}</small></b><div class="near">${ic(missed ? "bulb" : "trophy")}${missedN ? `${missedN} to revisit. They're back tomorrow, when a second try counts most.` : "Clean sweep. Those just got pushed further out."}</div></section>
+    <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b><span data-count="${firstTry}">${firstTry}</span><small> / ${total}</small></b><div class="near">${ic(missed ? "bulb" : "trophy")}${missedN ? `${missedN} to revisit. They're back tomorrow, when a second try counts most.` : "Clean sweep. Those just got pushed further out."}</div></section>
     ${lessonLine ? `<section class="card lessons"><div class="eyebrow m">${ic("sparkle")}Lesson progress</div>${lessonLine}</section>` : ""}
     ${missList ? `<section class="card misses"><div class="eyebrow m">${ic("bulb")}Worth a second look</div><p class="muted">Tap one to read the full story.</p>${missList}</section>` : ""}
     <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Locked in (2+ weeks)</div><b>${st.mastered} of ${content[kind].length}</b></div><span class="stars">${[0, 1, 2].map(k => ic("star", k < stars ? "on" : "")).join("")}</span></section>
@@ -3677,7 +3733,7 @@ function pzStats(kind, hl) {
   const s = state.pzs[kind]; if (!s || !s.played) return "";
   const dist = (s.dist || []).slice(0, PZK[kind].max || 0), mx = Math.max(1, ...dist.map(v => v || 0));
   const bars = PZK[kind].max ? `<div class="dist">${Array.from({ length: PZK[kind].max }, (_, i) => `<div><span>${i + 1}</span><i style="--w:${Math.max(6, Math.round((dist[i] || 0) / mx * 100))}%" class="${hl === i + 1 ? "hl" : ""}"><b>${dist[i] || 0}</b></i></div>`).join("")}</div>` : "";
-  return `<section class="card pzstats"><div class="eyebrow m">Your ${esc(PZK[kind].name)} stats</div><div class="st4"><div><b>${s.played}</b><small>Played</small></div><div><b>${Math.round(s.won / s.played * 100)}%</b><small>Won</small></div><div><b>${s.streak}</b><small>Streak</small></div><div><b>${s.best || s.streak}</b><small>Best</small></div></div>${bars}</section>`;
+  return `<section class="card pzstats"><div class="eyebrow m">Your ${esc(PZK[kind].name)} stats</div><div class="st4"><div><b data-count="${s.played}">${s.played}</b><small>Played</small></div><div><b data-count="${Math.round(s.won / s.played * 100)}" data-fmt="pct">${Math.round(s.won / s.played * 100)}%</b><small>Won</small></div><div><b>${s.streak}</b><small>Streak</small></div><div><b>${s.best || s.streak}</b><small>Best</small></div></div>${bars}</section>`;
 }
 function shareResult(text) {
   const done = () => toast("Result copied. Paste it anywhere");
@@ -4310,7 +4366,7 @@ function heatmap(weeks = 15) {
 }
 function weekStrip() {
   const t = today(), d0 = parseKey(t), dow = (d0.getDay() + 6) % 7, mon = addDays(t, -dow), names = ["M", "T", "W", "T", "F", "S", "S"];
-  return `<div class="wstrip">${names.map((n, i) => { const k = addDays(mon, i), L = state.log[k] || {}, st = L.s ? "done" : L.f ? "frz" : k === t ? "today" : k < t ? "miss" : ""; return `<div class="${st}"><small>${n}</small><i>${L.s ? ic("check") : L.f ? ic("snow") : ""}</i></div>`; }).join("")}</div>`;
+  return `<div class="wstrip">${names.map((n, i) => { const k = addDays(mon, i), L = state.log[k] || {}, st = L.s ? "done" : L.f ? "frz" : k === t ? "today" : k < t ? "miss" : ""; return `<div class="${st}" style="--d:${i}"><small>${n}</small><i>${L.s ? ic("check") : L.f ? ic("snow") : ""}</i></div>`; }).join("")}</div>`;
 }
 function viewStats() {
   const days = activeDays(), srsAll = [...Object.values(state.srs.es), ...Object.values(state.srs.tr)];
