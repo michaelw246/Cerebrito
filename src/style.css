@@ -592,11 +592,11 @@ textarea{width:100%;min-height:130px;border:1px solid var(--line);border-radius:
 /* journey path */
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 
-.deck{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.deck{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center}
 .deck .dtop{grid-column:1}
-.deck .dbtns{grid-column:2;grid-row:1 / span 3;flex-direction:column;margin:0}
+.deck .dbtns{grid-column:2;grid-row:1 / span 4;flex-direction:column;margin:0}
 .deck .dbtns button{padding:8px 14px;white-space:nowrap}
-.deck .dnum,.deck .gauge{grid-column:1}
+.deck .dnum,.deck .gauge,.deck .dmeta{grid-column:1}
 
 /* ---- mind v4 ---- */
 .parts{display:flex;flex-direction:column;gap:10px}
@@ -1237,3 +1237,72 @@ body.ob-open{overflow:hidden}
 }
 .onb img{-webkit-user-drag:none;user-select:none;-webkit-user-select:none;pointer-events:none}
 .ob-track{user-select:none;-webkit-user-select:none}
+/* Spelling Bee: daily goal + intro art */
+.beegoal{display:flex;flex-direction:column;gap:8px;margin-top:12px;font-size:13px;color:var(--ink3)}
+.beegoal b{color:var(--ink)} .beegoal.met{color:var(--td)} .beegoal.met svg{width:15px;height:15px;vertical-align:-3px;margin-right:4px}
+.bgdots{display:flex;gap:5px} .bgdots i{flex:1;height:8px;border-radius:5px;background:var(--line);transition:background .3s}
+.bgdots i.on{background:linear-gradient(90deg,var(--s2),var(--s));animation:dotpop .45s cubic-bezier(.3,1.6,.5,1)}
+.beegoal.met .bgdots i{background:linear-gradient(90deg,#2BC48A,#15B486)}
+@keyframes dotpop{0%{transform:scaleY(.3)}60%{transform:scaleY(1.6)}100%{transform:none}}
+.art.beeart{background:radial-gradient(circle at 50% 40%,#FFF4C8,#FFD86B 75%)}
+.hive.mini{transform:scale(.62);margin:0;pointer-events:none}
+.hive.mini .hex{display:grid;color:var(--ink);box-shadow:none;animation:hexfloat 3.2s ease-in-out infinite;animation-delay:calc(var(--i) * -.45s)}
+.hive.mini .hex:not(.mid){background:#fff}
+@keyframes hexfloat{50%{translate:0 -4px}}
+@media (prefers-reduced-motion:reduce){.hive.mini .hex,.bgdots i.on{animation:none}}
+/* "More" deep-dive sheet */
+.moresheet{max-height:88vh;overflow-y:auto}
+.more{display:flex;flex-direction:column;gap:14px;padding-bottom:8px}
+.more .mtop{display:flex;justify-content:space-between;align-items:center}
+.more .mq{font-size:15px;color:var(--ink2);margin:0;line-height:1.45}
+.more .ma{position:relative;background:linear-gradient(135deg,var(--tl),var(--pl));border-radius:18px;padding:14px 16px;animation:mpop .35s cubic-bezier(.3,1.4,.5,1)}
+.more .ma small{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.more .ma b{font-family:var(--fh);font-size:22px;line-height:1.2;display:block;margin-top:2px;padding-right:44px}
+.more .ma .spk{position:absolute;right:12px;top:50%;translate:0 -50%}
+.more .msec p{margin:6px 0 0;line-height:1.55;color:var(--ink2);font-size:14.5px}
+.more .mdeep{white-space:pre-line;line-height:1.6;font-size:14.5px;color:var(--ink);margin-top:6px}
+.more .mdeep.typing:empty::before{content:"Thinking…";color:var(--ink3);animation:mthink 1.2s ease-in-out infinite}
+.more .mhist{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--ink3);margin:0}
+.more .mhist svg{width:14px;height:14px}
+.msib{border-top:1px solid var(--line);padding:10px 0}
+.msib summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.msib summary::-webkit-details-marker{display:none}
+.msib summary span{font-size:13px;color:var(--ink3)} .msib summary b{font-size:14.5px}
+.msib p{font-size:13.5px!important}
+.more .mweb{display:flex;gap:6px;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--pd);text-decoration:none;padding:6px}
+.more .mweb svg{width:15px;height:15px}
+.morebtn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 14px;border-radius:999px;background:var(--pl);color:var(--pd);font-weight:700;font-size:13px;transition:transform .15s}
+.morebtn:active{transform:scale(.95)} .morebtn svg{width:15px;height:15px}
+.card.misses .missrow{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:12px 0;border-top:1px solid var(--line)}
+.card.misses .missrow span{display:flex;flex-direction:column;gap:2px}
+.card.misses .missrow small{color:var(--ink3);font-size:12.5px} .card.misses .missrow b{font-size:14.5px}
+.card.misses .missrow>svg{width:16px;height:16px;flex:none;color:var(--ink3)}
+.card.lessons .lrow{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:center;margin-top:10px;font-size:13.5px}
+.card.lessons .lrow span{display:flex;gap:6px;align-items:center} .card.lessons .lrow svg{width:15px;height:15px;color:var(--pd)}
+@keyframes mpop{from{transform:scale(.94);opacity:0}}
+@keyframes mthink{50%{opacity:.4}}
+/* subjects: learning + locked-in bars, lesson under way, recent accuracy */
+.gauge.dual{position:relative} .gauge.dual i{position:absolute;left:0;top:0;bottom:0}
+.gauge.dual i.lrn{opacity:.28;box-shadow:none}
+.deck .dmeta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
+.deck .dmeta span{display:flex;align-items:center;gap:4px;min-width:0}
+.deck .dmeta span:first-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block}
+.deck .dmeta .ic{display:inline-block;width:13px;height:13px;color:var(--cc);vertical-align:-2px;margin-right:3px}
+.deck .dmeta .acc{flex:none;font-weight:700}
+.deck .dmeta em{font-style:normal;font-size:11px} .deck .dmeta em.up{color:#15B486} .deck .dmeta em.down{color:#E4412B}
+.pathcard h2{font-family:var(--fh);font-size:22px;line-height:1.2;margin:6px 0 12px}
+.pathcard h2 span{background:linear-gradient(90deg,var(--p),var(--s));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pathcard p{font-size:13.5px;color:var(--ink2);line-height:1.5;margin:12px 0 0}
+.pchips{display:flex;gap:6px;background:var(--c2);padding:4px;border-radius:999px}
+.pchips button{flex:1;padding:8px 4px;border-radius:999px;font-weight:700;font-size:13px;color:var(--ink2);transition:background .25s,color .25s,box-shadow .25s}
+.pchips button.on{background:var(--c1);color:var(--ink);box-shadow:var(--shs)}
+.ptrack{position:relative;height:12px;border-radius:8px;background:var(--line);margin-top:14px;overflow:hidden}
+.ptrack i{position:absolute;left:0;top:0;bottom:0;width:var(--w);border-radius:8px;animation:pgrow 1.1s cubic-bezier(.2,.8,.2,1) both}
+.ptrack i.met{background:color-mix(in srgb,var(--p) 35%,transparent)} .ptrack i.lock{background:linear-gradient(90deg,var(--p),var(--s));animation-delay:.25s}
+@keyframes pgrow{from{width:0}}
+.plegend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--ink3)}
+.plegend span{display:flex;align-items:center;gap:5px} .plegend b{color:var(--ink)}
+.plegend i{width:9px;height:9px;border-radius:3px;background:var(--line)} .plegend i.met{background:color-mix(in srgb,var(--p) 35%,transparent)} .plegend i.lock{background:var(--p)}
+[hidden]{display:none!important}
+.more .eyebrow{display:flex;gap:6px;align-items:center} .more .eyebrow .ic{width:14px;height:14px}
+.moresheet{background:var(--c1)}

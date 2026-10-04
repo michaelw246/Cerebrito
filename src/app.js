@@ -112,7 +112,7 @@ function startCountdownTick() {
 }
 function chestHTML() {
   return `<button class="chest wiggle" data-a="chest" aria-label="Open the gift box"><span class="lid"></span><span class="lock"></span><span class="base"></span></button><span class="unbox">Tap to open</span>
-  <div class="chesttitle">Caja sorpresa</div><div class="loot"><span class="chip w">${ic("sun")}Coins</span><span class="chip w">${ic("zap")}Bonus XP</span><span class="chip w">${ic("bulb")}Hints or a freeze</span></div><div class="reward" id="reward"></div>`;
+  <div class="chesttitle">Caja sorpresa</div><div class="loot"><span class="chip w">${ic("sun")}Coins</span><span class="chip w">${ic("zap")}Bonus XP</span><span class="chip w">${ic("snow")}A streak freeze?</span></div><div class="reward" id="reward"></div>`;
 }
 function openChest(b) {
   if (b.classList.contains("open") || !state.chest || state.chest.opened) return;
@@ -120,7 +120,7 @@ function openChest(b) {
   const r = Math.random(), coins = rnd(20, 60), bits = [`+${coins} coins`]; addCoins(coins);
   if (r < 0.06) { state.xp += 150; bits.push("+150 XP jackpot"); }
   else if (r < 0.22 && state.freezes < 2) { state.freezes++; bits.push("a streak freeze"); }
-  else if (r < 0.45) { state.hints = (state.hints || 0) + 2; bits.push("2 hints"); }
+  else if (r < 0.45) { const c2 = rnd(30, 60); addCoins(c2); bits.push(`+${c2} bonus coins`); }
   else { const x = rnd(20, 60); state.xp += x; bits.push(`+${x} XP`); }
   state.chest.opened = true; const un = bumpMax(); save();
   const rect = b.getBoundingClientRect(); burst(rect.left + rect.width / 2, rect.top + 30, 30); tone(true); buzz(true);
@@ -177,20 +177,38 @@ function catRows(withBtn) {
 
 /* ================= RECALL (Spanish + knowledge) ================= */
 function dueCount(kind, cat) { const t = today(), srs = state.srs[kind]; return content[kind].filter(it => (!cat || it.cat === cat) && srs[it.id] && srs[it.id].due <= t).length; }
+const dShort = k => new Date(parseKey(k)).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+function catLine(kind, c) {
+  // where this category is up to: the lesson under way, and how often you're right lately vs the fortnight before
+  const nx = nextNew(kind, 1, kind === "es" ? null : c)[0], l = nx && lessonFor(kind, nx), lp = l && lessonProgress(l, kind);
+  const now = catAccuracy(c, 0, 14), prev = catAccuracy(c, 14, 28);
+  const trend = now && prev && prev.n >= 5 ? Math.round((now.acc - prev.acc) * 100) : null;
+  return `<div class="dmeta">${l ? `<span>${ic("book")}Now: <b>${esc(l.name)}</b> ${lp.seen}/${lp.total}</span>` : `<span>${ic("check")}Every card met</span>`}
+    ${now ? `<span class="acc">${Math.round(now.acc * 100)}% right${trend !== null && Math.abs(trend) >= 3 ? ` <em class="${trend > 0 ? "up" : "down"}">${trend > 0 ? "▲" : "▼"}${Math.abs(trend)}</em>` : ""}</span>` : ""}</div>`;
+}
 function viewRecall() {
   const es = knowStats("es"), tr = knowStats("tr");
   const locked = es.mastered + tr.mastered, learning = es.learning + tr.learning;
   const deck = (id, name, sub, visual, col, st, kind, cat) => `<article class="deck" style="--cc:${col}"><div class="dtop">${visual}<div class="dtx"><b>${esc(name)}</b><small>${esc(sub)}</small></div></div>
-    <div class="dnum"><span><b>${st.mastered}</b>/${st.total} locked in</span>${dueCount(kind, cat) ? `<span class="due">${dueCount(kind, cat)} due</span>` : st.learning ? `<span>${st.learning} learning</span>` : ""}</div><div class="gauge thin"><i style="width:${Math.max(Math.round(st.mastered / Math.max(1, st.total) * 100), st.learning ? 3 : 0)}%"></i></div>
-    <div class="dbtns"><button data-a="learn" data-k="${kind}" ${cat ? `data-c="${esc(cat)}"` : ""} ${st.fresh ? "" : "disabled"}>${ic("sparkle")}Learn 5</button><button data-a="rush" ${cat ? `data-c="${esc(cat)}"` : `data-c="Spanish"`}>${ic("zap")}Rush</button></div></article>`;
+    <div class="dnum"><span><b>${st.mastered}</b>/${st.total} locked in</span>${dueCount(kind, cat) ? `<span class="due">${dueCount(kind, cat)} due</span>` : st.learning ? `<span>${st.learning} learning</span>` : ""}</div><div class="gauge thin dual"><i class="lrn" style="width:${Math.round((st.mastered + st.learning) / Math.max(1, st.total) * 100)}%"></i><i style="width:${Math.max(Math.round(st.mastered / Math.max(1, st.total) * 100), st.learning ? 3 : 0)}%"></i></div>
+    ${catLine(kind, cat || "Spanish")}
+    <div class="dbtns"><button data-a="learn" data-k="${kind}" ${cat ? `data-c="${esc(cat)}"` : ""} ${st.fresh ? "" : "disabled"}>${ic("sparkle")}Next lesson</button><button data-a="rush" ${cat ? `data-c="${esc(cat)}"` : `data-c="Spanish"`}>${ic("zap")}Rush</button></div></article>`;
   const esSt = { ...es, total: content.es.length };
   const decks = deck("es", "Spanish", "Your Argentine word bank", `<img src="${IMG.t_spanish}" alt="">`, "#EE7FA6", esSt, "es", null)
     + CATS.map(c => deck(c.id, c.id, c.sub, `<i>${ic(c.icon)}</i>`, c.col, knowStats("tr", c.id), "tr", c.id)).join("");
+  const pc = paceInfo(), met = pc.total - pc.U, late = pc.finish > pc.goal;
+  const path = `<section class="card pathcard"><div class="eyebrow v">${ic("calendar")}Your learning path</div>
+    <h2>All ${fmt(pc.total)} cards by <span>${esc(dShort(pc.goal))}</span></h2>
+    <div class="pchips" role="group" aria-label="Goal">${[6, 9, 12].map(m => `<button data-a="pace" data-m="${m}" class="${state.pace.months === m ? "on" : ""}">${m} months</button>`).join("")}</div>
+    <div class="ptrack"><i class="met" style="--w:${met / pc.total * 100}%"></i><i class="lock" style="--w:${locked / pc.total * 100}%"></i></div>
+    <div class="plegend"><span><i class="lock"></i><b>${fmt(locked)}</b> locked in</span><span><i class="met"></i><b>${fmt(met)}</b> met</span><span><i></i><b>${fmt(pc.U)}</b> to go</span></div>
+    <p>${pc.U ? `${pc.perDay} new a day, as short lessons, alongside your reviews. ${late ? `You're a little behind: at most 16 new a day, the last arrives around <b>${esc(dShort(addDays(pc.finish, -30)))}</b>.` : `You'll meet the last card around <b>${esc(dShort(addDays(pc.finish, -30)))}</b>, leaving a month for it all to settle.`}` : "You've met every card. Reviews now keep them locked in."}</p></section>`;
   return `<button class="backlink" data-a="tab" data-t="train">${ic("back")}Your brain</button><section class="card pagecard"><div class="eyebrow g">Memoria</div><h1>Long-term memory</h1><p>Spanish and everything you've seen, learned and been curious about. Cards come back right before you'd forget them, so they stick for good.</p>
     <div class="statrow"><span class="chip m">${ic("check")}${locked} locked in</span><span class="chip v">${ic("clock")}${learning} learning</span><span class="chip o">${ic("bulb")}${dueCount("es") + dueCount("tr")} due today</span></div></section>
   ${dueCount("es") + dueCount("tr") ? `<button class="btn green" data-a="review">${ic("cards")}Review ${dueCount("es") + dueCount("tr")} due card${dueCount("es") + dueCount("tr") === 1 ? "" : "s"}</button>` : ""}
+  ${path}
   <button class="card rushcard" data-a="rush"><span class="rz">${ic("zap")}</span><span><b>Rapid recall</b><small>60 seconds of rapid-fire questions on things you've learned${state.rushBest ? ` · best ${fmt(state.rushBest)}` : ""}</small></span>${ic("play")}</button>
-  <div class="secrow"><div><h2 class="sec">${ic("cards")}Decks</h2><p>Your daily session already pulls from all of these. Use these to go further.</p></div></div>
+  <div class="secrow"><div><h2 class="sec">${ic("cards")}Your subjects</h2><p>Your daily session already pulls from all of these. Tap Next lesson to go further in one.</p></div></div>
   <div class="decks">${decks}</div>
 `;
 }
@@ -333,7 +351,7 @@ function viewPass() {
   <div class="hub">
     <button class="card shopcard" data-a="tab" data-t="awards"><span class="pin" style="background:var(--gl);color:var(--gd)">${ic("medal")}</span><span><b>Awards</b><small>${AWARDS.filter(a => state.awards[a.id]).length} of ${AWARDS.length} earned</small></span>${ic("arrow")}</button>
     <button class="card shopcard" data-a="tab" data-t="stats"><span class="pin">${ic("chart")}</span><span><b>Stats</b><small>${activeDays()} active day${activeDays() === 1 ? "" : "s"} · calendar and trends</small></span>${ic("arrow")}</button>
-    <button class="card shopcard" data-a="tab" data-t="shop"><span class="pin" style="background:var(--sl);color:var(--sd)">${ic("store")}</span><span><b>Shop</b><small>${fmt(state.coins)} coins · ${state.freezes} freeze${state.freezes === 1 ? "" : "s"} · ${state.hints} hints</small></span>${ic("arrow")}</button>
+    <button class="card shopcard" data-a="tab" data-t="shop"><span class="pin" style="background:var(--sl);color:var(--sd)">${ic("store")}</span><span><b>Shop</b><small>${fmt(state.coins)} coins · ${state.freezes} freeze${state.freezes === 1 ? "" : "s"}</small></span>${ic("arrow")}</button>
   </div>
   <section class="card"><div class="radarhead"><span class="pin">${ic("brain")}</span><div><b>Cognitive radar</b><small>${head}</small></div></div>${radar}</section>
   ${cuBtn}
@@ -389,7 +407,6 @@ function viewShop() {
   <h2 class="sec">Supplies</h2>
   <section class="card" style="padding:6px 16px">
     <div class="supply"><i style="background:#E3F1FB;color:#2F84C4">${ic("snow")}</i><div><b>Streak freeze</b><small>Covers one missed day. You can hold 2, you have ${state.freezes}.</small></div><button class="btn" data-a="buyf" ${state.freezes >= 2 || state.coins < 250 ? "disabled" : ""}>${ic("sun")}250</button></div>
-    <div class="supply"><i style="background:var(--gl);color:var(--gd)">${ic("bulb")}</i><div><b>3 Palabra hints</b><small>Each reveals one letter. You have ${state.hints}.</small></div><button class="btn" data-a="buyh" ${state.coins < 60 ? "disabled" : ""}>${ic("sun")}60</button></div>
   </section>`;
 }
 
@@ -450,7 +467,8 @@ document.addEventListener("click", e => {
     const steps = [["es", queueFor("es", 0, 15)], ["tr", queueFor("tr", 0, 15)]].filter(x => x[1].length).map(([kind, ids]) => ({ t: "know", kind, ids }));
     if (steps.length) { P = { kind: "practice", label: "Reviews", lv0: levelInfo(state.xp).lvl, date: today(), idx: 0, results: [], steps }; enterSession(); stepIntro(); }
   }
-  else if (a === "learn") { const k = b.dataset.k, c = b.dataset.c; const ids = shuffle(content[k].filter(x => !state.srs[k][x.id] && (!c || x.cat === c)).map(x => x.id)).slice(0, 5); if (ids.length) openPractice({ t: "know", kind: k, ids }, k === "es" ? "Spanish" : c || "Knowledge"); }
+  else if (a === "learn") { const k = b.dataset.k, c = b.dataset.c; const ids = nextNew(k, 5, c); if (ids.length) openPractice({ t: "know", kind: k, ids }, k === "es" ? "Spanish" : c || "Knowledge"); }
+  else if (a === "pace") { state.pace.months = +b.dataset.m; save(); const y = scrollY; render(); scrollTo(0, y); toast(`Goal: everything in ${b.dataset.m} months. That's ${paceInfo().perDay} new cards a day.`); }
   else if (a === "pzd") openPractice({ t: "puzzle", kind: b.dataset.k }, PZK[b.dataset.k].name);
   else if (a === "pzf") openPractice({ t: "puzzle", kind: b.dataset.k, free: true }, PZK[b.dataset.k].name);
   else if (a === "rush") openPractice({ t: "puzzle", kind: "rush", cat: b.dataset.c || null }, b.dataset.c ? `${b.dataset.c} rush` : "Rapid recall");
@@ -461,7 +479,6 @@ document.addEventListener("click", e => {
   else if (a === "equip") { state.skin = b.dataset.id; applySkin(); save(); shopSel = null; render(); toast("Theme applied"); }
   else if (a === "buy") { const t = THEMES.find(x => x.id === b.dataset.id); if (t && state.coins >= t.price) { addCoins(-t.price); state.owned.push(t.id); state.skin = t.id; applySkin(); save(); shopSel = null; render(); burst(innerWidth / 2, 200, 24); toast(`${t.name} is yours`); } }
   else if (a === "buyf") { if (state.coins >= 250 && state.freezes < 2) { addCoins(-250); state.freezes++; save(); const y = scrollY; render(); scrollTo(0, y); toast("Streak freeze added"); } }
-  else if (a === "buyh") { if (state.coins >= 60) { addCoins(-60); state.hints += 3; save(); const y = scrollY; render(); scrollTo(0, y); toast("3 hints added"); } }
   else if (a === "tog") { state[b.dataset.k] = !state[b.dataset.k]; save(); b.setAttribute("aria-pressed", state[b.dataset.k]); }
   else if (a === "imp") importContent(b.dataset.k, b.dataset.m);
   else if (a === "reset") {

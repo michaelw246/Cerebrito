@@ -20,7 +20,7 @@ falls back to `localStorage`).
       geo.js                 geography kit: 176-country table, border distances, MapView (pan/pinch/zoom), guess bar, sheets
       app.js                 views: Home, Mind (+ skill pages), Long-term memory, Journey, Country, You, Shop; navigation
       session.js             session flow: intros, brain games, knowledge cards (recall + self-grading), results, celebrations
-      puzzles.js             Puzzles tab + Palabra, Wordle, Globle, Worldle, Travle, MapTap, Spelling Bee, Rapid recall,
+      puzzles.js             Puzzles tab + Palabra, Wordle, Globle, Silhouette, Travle, MapTap, Spelling Bee, Rapid recall,
                              Number Hunt, Parejas
       awards.js              awards, Stats page (activity heatmap, trends), week streak strip
       onboard.js             animated first-run walkthrough (also replayable from Settings)

@@ -1,12 +1,12 @@
 /* ================= PUZZLES ================= */
 const PZ = [
-  { k: "palabra", name: "Palabra", sub: "Spanish Wordle, 6 guesses", icon: "word", col: "#EE7FA6", max: 6 },
-  { k: "wordle", name: "Wordle", sub: "The English original, 6 guesses", icon: "grid", col: "#15B486", max: 6 },
+  { k: "palabra", name: "Palabra", sub: "Guess the Spanish word in 6", icon: "word", col: "#EE7FA6", max: 6 },
+  { k: "wordle", name: "Wordle", sub: "Guess the English word in 6", icon: "grid", col: "#15B486", max: 6 },
   { k: "pais", name: "Globle", sub: "Find the mystery country, hot or cold", icon: "globe", col: "#3F7FD8", max: 12 },
-  { k: "worldle", name: "Worldle", sub: "Name the country from its shape", icon: "target", col: "#E9A92E", max: 6 },
+  { k: "worldle", name: "Silhouette", sub: "Name the country from its outline", icon: "target", col: "#E9A92E", max: 6 },
   { k: "travle", name: "Travle", sub: "Link two countries over land", icon: "compass", col: "#6D4AF0" },
   { k: "maptap", name: "MapTap", sub: "Pin five places on the map", icon: "pin", col: "#FD6A49" },
-  { k: "bee", name: "Spelling Bee", sub: "Make words from seven letters", icon: "sparkle", col: "#E9A92E" },
+  { k: "bee", name: "Spelling Bee", sub: "Find 8–10 words, then go for bonus", icon: "sparkle", col: "#E9A92E" },
   { k: "hunt", name: "Number Hunt", sub: "Tap 1 to 25 in order, fast", icon: "eye", col: "#5054D6" },
   { k: "pairs", name: "Parejas", sub: "Match Spanish words to meanings", icon: "cards", col: "#EE7FA6" },
   { k: "rush", name: "Rapid recall", sub: "60 seconds on what you've learned", icon: "zap", col: "#22BDB0" }
@@ -19,11 +19,12 @@ const PZ_HOW = {
   worldle: "Name the country from its outline. Each wrong guess shows how far away it is and which way to head.",
   travle: "Connect two countries by naming the countries in between. Each one has to share a land border with the next. Green is on a shortest route.",
   maptap: "Five places. Drop a pin where you think each one is, then lock it in. The closer you are, the more points. Pinch or use + to zoom for precision.",
-  bee: "Make words of 4+ letters from the 7 in the hive. Every word must use the centre letter. Use all 7 for a pangram bonus.",
+  bee: "Make words of 4+ letters from the 7 in the hive. Every word must use the centre letter. Find 8 to 10 words to complete today's Bee, then keep going: every extra word earns bonus coins, and using all 7 letters scores a pangram.",
   rush: "60 seconds of quick two-choice questions from things you've learned. Chain right answers for bonus points.",
   hunt: "Find and tap the numbers 1 to 25 in order as fast as you can. Keep your eyes on the centre and let your side vision do the searching. Wrong taps cost a second.",
   pairs: "Six Spanish words, six meanings, all face down. Flip two at a time to find the matches. Remember where things are to finish in as few flips as possible."
 };
+const HINTS = 2;   // free hints in every game (Palabra, Wordle, Travle); never drawn from a shared pool
 const pzSolvedTotal = () => Object.values(state.pzs || {}).reduce((a, s) => a + (s.won || 0), 0);
 const pzPlayedTotal = () => Object.values(state.pzs || {}).reduce((a, s) => a + (s.played || 0), 0);
 function viewPuzzles() {
@@ -146,7 +147,7 @@ function runWordle(step) {
   const keyState = () => { const k = {}; S.g.forEach(g => scoreGuess(g, ans).forEach((r, i) => { const c = g[i]; if (!k[c] || rank[r] > rank[k[c]]) k[c] = r; })); return k; };
   const K = es ? ["QWERTYUIOP", "ASDFGHJKLÑ", "ZXCVBNM"] : ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
   const kb = dockBar("kbdock");
-  app.innerHTML = `<div class="play wplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag(kind, step, es ? "o" : "m")}<span class="pzbtns"><button class="hintbtn" id="hint" aria-label="Use a hint">${ic("bulb")}<span id="hn"></span></button><button class="giveup" id="giveup">Give up</button></span></div></section>
+  app.innerHTML = `<div class="play wplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag(kind, step, es ? "o" : "m")}<span class="pzbtns"><button class="hintbtn" id="hint" aria-label="Reveal a letter (2 per game)">${ic("bulb")}<span id="hn"></span></button><button class="giveup" id="giveup">Give up</button></span></div></section>
     <div class="bwrap"><div id="wmsg" role="status" aria-live="polite"></div><div class="board" id="board"></div></div><p class="hintrow" id="hintrow"></p></div>`;
   const board = $("#board"), msgEl = $("#wmsg");
   const drawBoard = (revRow = -1) => {
@@ -156,7 +157,7 @@ function runWordle(step) {
     }
     board.innerHTML = rows.join("");
     $("#hintrow").innerHTML = S.rev.length ? `${ic("bulb")} ${S.rev.map(i => `Letter ${i + 1} is <b>${ans[i]}</b>`).join(" · ")}` : "";
-    $("#hn").textContent = state.hints; $("#hint").disabled = !(state.hints > 0 && S.rev.length < 2);
+    $("#hn").textContent = HINTS - S.rev.length; $("#hint").disabled = S.rev.length >= HINTS || S.done;
   };
   const drawKb = () => {
     const ks = keyState(), key = c => `<button class="key ${ks[c] || ""}" data-k="${c}" aria-label="${c}${ks[c] ? " " + { g: "correct", y: "in word", x: "not in word" }[ks[c]] : ""}">${c}</button>`;
@@ -197,11 +198,11 @@ function runWordle(step) {
     end(false, true);
   };
   $("#hint").onclick = () => {
-    if (state.hints <= 0 || S.rev.length >= 2) return;
+    if (S.rev.length >= HINTS) return;
     const known = new Set(); S.g.forEach(g => scoreGuess(g, ans).forEach((r, i) => r === "g" && known.add(i)));
     const opts = [0, 1, 2, 3, 4].filter(i => !known.has(i) && !S.rev.includes(i));
     if (!opts.length) { say("You've already found every letter's spot"); return; }
-    state.hints--; S.rev.push(pick(opts)); save(); drawBoard();
+    S.rev.push(pick(opts)); save(); drawBoard(); say(`Letter ${S.rev[S.rev.length - 1] + 1} revealed`);
   };
   const end = (won, gaveUp) => {
     pzEnd();
@@ -315,7 +316,7 @@ function runWorldle(step) {
     pzEnd(); const rw = puzzleDone("worldle", S, won, S.g.length, MAX);
     const emo = S.g.map(i => i === T.i ? "🎉" : ARROWS[dir8(geo(CTRY[i], T).brg)]).join("");
     app.innerHTML = pzResult("worldle", won, T.n, `<span class="bigflag">${ctryFlag(T)}</span>`, won ? `Got it in ${S.g.length}` : "Now you'll know its shape", `<section class="card mapcard"><div id="rmap"></div></section>`, rw,
-      { hl: won ? S.g.length : 0, share: `Cerebrito Worldle ${step.free ? "" : today() + " "}${won ? S.g.length : "X"}/${MAX}\n${emo}` });
+      { hl: won ? S.g.length : 0, share: `Cerebrito Silhouette ${step.free ? "" : today() + " "}${won ? S.g.length : "X"}/${MAX}\n${emo}` });
     const m = MapView($("#rmap"), { label: "Answer map" }); m.fills({ [T.i]: "var(--s)" }); setTimeout(() => m.flyTo(fitW(bboxOf([T.i], 60), 320), 900), 250);
     pzCleanup(() => m.destroy());
     if (won) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);
@@ -351,13 +352,13 @@ function runTravle(step) {
     map.fills(fills); map.overlay("");
     $("#tcount").textContent = `${S.g.length} of ${MAX} guesses`;
     $("#tchips").innerHTML = S.g.map(i => `<span class="tchip" style="--hc:${colors[status(i)]}">${ctryFlag(CTRY[i])} ${esc(CTRY[i].n)}</span>`).join("") || `<p class="muted">Name a country that borders ${esc(CTRY[A].n)} and heads towards ${esc(CTRY[B].n)}.</p>`;
-    $("#thn").textContent = `(${state.hints})`; $("#thint").disabled = state.hints <= 0;
+    $("#thn").textContent = `(${HINTS - S.hint.length} left)`; $("#thint").disabled = S.hint.length >= HINTS || S.done;
   };
   $("#thint").onclick = () => {
     const next = shortest().slice(1, -1).find(i => !S.g.includes(i) && !S.hint.includes(i));
     if (!next) { toast("Nothing left to hint"); return; }
-    if (state.hints <= 0) { toast("No hints left. Get more in the Shop"); return; }
-    state.hints--; S.hint.push(next); save(); draw(); map.flyTo(fitW(bboxOf([next], 60), 200)); toast("A country on a shortest route is shaded");
+    if (S.hint.length >= HINTS) { toast("That's both hints for this game"); return; }
+    S.hint.push(next); save(); draw(); map.flyTo(fitW(bboxOf([next], 60), 200)); toast("A country on a shortest route is shaded");
   };
   const guess = i => {
     S.g.push(i); save(); const st = status(i), won = connected();
@@ -441,15 +442,18 @@ function runBee(step) {
   const answers = EN.bee.filter(w => w.length >= 4 && w.includes(center) && [...w].every(c => L.has(c)));
   const isPan = w => new Set(w).size === 7, pts = w => (w.length === 4 ? 1 : w.length) + (isPan(w) ? 7 : 0);
   const max = answers.reduce((a, w) => a + pts(w), 0);
+  // today's Bee is complete at `goal` words (8-10, fewer only for a small hive); every word after that earns bonus coins
+  const goal = Math.min(answers.length, clamp(Math.round(answers.length * .3), 8, 10)), BONUS = 5;
   const RANKS = [[0, "Beginner"], [.05, "Good start"], [.15, "Solid"], [.25, "Nice"], [.4, "Great"], [.5, "Amazing"], [.7, "Genius"]];
   let ring = outer.split(""), cur = "", msgT = 0;
   app.innerHTML = `<div class="play bplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("bee", step, "y")}<span class="eyebrow" id="bcount"></span></div>
+      <div class="beegoal" id="bgoal"></div>
       <div class="beerank"><b id="brank"></b><span id="bscore"></span></div><div class="gauge beeg"><i id="bgauge"></i>${RANKS.slice(1).map(r => `<s style="left:${r[0] / .7 * 100}%"></s>`).join("")}</div></section>
     <div class="beeword" id="bword" aria-live="polite"></div><div class="beemsg" id="bmsg" role="status"></div>
     <div class="hive" id="hive"></div>
     <div class="beebtns"><button class="btn ghost small" id="bdel">Delete</button><button class="iconbtn big" id="bshuf" aria-label="Shuffle letters">${ic("shuffle")}</button><button class="btn small" id="bent">Enter</button></div>
     <details class="card found" id="bfound"><summary></summary><div class="fwords" id="bwords"></div></details>
-    <button class="btn green" id="bfin">${ic("check")}Finish</button></div>`;
+    <button class="btn green" id="bfin"></button></div>`;
   const hex = (c, cls, i) => `<button class="hex ${cls}" data-l="${c}" style="--i:${i}" aria-label="${c}">${c.toUpperCase()}</button>`;
   const drawHive = () => { $("#hive").innerHTML = hex(center, "mid", 0) + ring.map((c, i) => hex(c, "", i + 1)).join(""); };
   const drawWord = () => { $("#bword").innerHTML = cur ? [...cur].map(c => `<span class="${c === center ? "c" : L.has(c) ? "" : "bad"}">${c.toUpperCase()}</span>`).join("") + `<i class="caret"></i>` : `<span class="ph">Type or tap letters</span>`; };
@@ -458,6 +462,11 @@ function runBee(step) {
     $("#brank").textContent = rk; $("#bscore").textContent = `${score} pts${next ? ` · ${Math.ceil(next[0] * max - score)} to ${next[1]}` : ""}`;
     $("#bgauge").style.width = Math.min(100, frac / .7 * 100) + "%"; $("#bcount").textContent = `${S.found.length} of ${answers.length} words`;
     $("#bfound").querySelector("summary").innerHTML = `<span>Found <b>${S.found.length}</b></span><span class="fprev">${S.found.slice(-4).reverse().map(w => esc(w)).join(" · ") || "Nothing yet"}</span>`;
+    const n = S.found.length, met = n >= goal;
+    $("#bgoal").className = "beegoal" + (met ? " met" : "");
+    $("#bgoal").innerHTML = `<div class="bgdots">${Array.from({ length: goal }, (_, i) => `<i class="${i < n ? "on" : ""}" style="--i:${i}"></i>`).join("")}</div>
+      <span>${met ? `${ic("check")}Today's Bee done! ${n > goal ? `<b>+${(n - goal) * BONUS}</b> bonus coins so far.` : ""} Keep going: +${BONUS} coins a word` : `<b>${n}/${goal}</b> words to complete today's Bee`}</span>`;
+    $("#bfin").innerHTML = met ? `${ic("check")}Collect & finish` : `${ic("check")}Finish early`; $("#bfin").classList.toggle("ghost", !met);
     $("#bwords").innerHTML = S.found.slice().sort().map(w => `<span class="${isPan(w) ? "pan" : ""}">${w}</span>`).join("") || `<span class="muted">Your words will collect here.</span>`;
   };
   const say = (m, good) => { clearTimeout(msgT); const el = $("#bmsg"); el.textContent = m; el.className = "beemsg on " + (good ? "good" : ""); msgT = setTimeout(() => { el.className = "beemsg"; }, 1400); };
@@ -471,14 +480,20 @@ function runBee(step) {
     if (!w.includes(center)) return bad("Missing centre letter");
     if (S.found.includes(w)) return bad("Already found");
     if (!answers.includes(w)) return bad("Not in word list");
-    S.found.push(w); if (isPan(w)) state.rec.pangrams = (state.rec.pangrams || 0) + 1; save(); tone(true); buzz(true); say(isPan(w) ? `Pangram! +${pts(w)}` : `${w.length >= 7 ? "Awesome!" : w.length >= 5 ? "Nice!" : "Good!"} +${pts(w)}`, true); drawScore();
+    S.found.push(w); const hit = S.found.length === goal; if (isPan(w)) state.rec.pangrams = (state.rec.pangrams || 0) + 1; save(); tone(true); buzz(true); say(isPan(w) ? `Pangram! +${pts(w)}` : `${w.length >= 7 ? "Awesome!" : w.length >= 5 ? "Nice!" : "Good!"} +${pts(w)}`, true); drawScore();
     if (isPan(w)) burst(innerWidth / 2, 300, 24);
+    if (hit) { setTimeout(() => { burst(innerWidth / 2, 140, 36); toast(`Today's Bee complete! Every extra word is +${BONUS} coins`); }, 500); }
   };
   $("#hive").onclick = e => { const b = e.target.closest(".hex"); if (b) add(b.dataset.l); };
   $("#bdel").onclick = () => { cur = cur.slice(0, -1); drawWord(); };
   $("#bshuf").onclick = () => { ring = shuffle(ring); const h = $("#hive"); h.classList.remove("spin"); void h.offsetWidth; h.classList.add("spin"); drawHive(); };
   $("#bent").onclick = enter;
-  $("#bfin").onclick = () => end();
+  let finArmed = false;
+  $("#bfin").onclick = () => {
+    if (S.found.length >= goal || finArmed) return end();
+    finArmed = true; say(`${goal - S.found.length} more word${goal - S.found.length === 1 ? "" : "s"} to complete it. Tap again to finish anyway.`);
+    setTimeout(() => { finArmed = false; }, 3000);
+  };
   const onKey = e => {
     if (e.metaKey || e.ctrlKey || e.altKey || $(".scrim")) return;
     if (e.key === "Enter") { e.preventDefault(); enter(); } else if (e.key === "Backspace") { e.preventDefault(); cur = cur.slice(0, -1); drawWord(); }
@@ -487,10 +502,11 @@ function runBee(step) {
   document.addEventListener("keydown", onKey);
   pzCleanup(() => document.removeEventListener("keydown", onKey), () => clearTimeout(msgT));
   const end = () => {
-    pzEnd(); const score = S.found.reduce((a, w) => a + pts(w), 0), won = score / max >= .25;
-    const rw = puzzleDone("bee", S, won, won ? 1 : 3, 3);
+    pzEnd(); const score = S.found.reduce((a, w) => a + pts(w), 0), won = S.found.length >= goal;
+    const rw = puzzleDone("bee", S, won, won ? 1 : 3, 3), extra = won ? (S.found.length - goal) * BONUS : 0;
+    if (extra) { addCoins(extra); rw.coins += extra; P.results[P.results.length - 1].coins += extra; save(); }
     const missed = answers.filter(w => !S.found.includes(w)), pans = answers.filter(isPan), rk = RANKS.filter(r => score / max >= r[0]).pop()[1];
-    app.innerHTML = pzResult("bee", won, `${rk} · ${score} points`, `<span class="bigflag">🐝</span>`, `${S.found.length} of ${answers.length} words. Pangram${pans.length > 1 ? "s" : ""}: ${pans.join(", ")}`,
+    app.innerHTML = pzResult("bee", won, `${rk} · ${score} points`, `<span class="bigflag">🐝</span>`, `${S.found.length} words (today's goal: ${goal})${extra ? `, +${extra} bonus coins` : ""}. Pangram${pans.length > 1 ? "s" : ""}: ${pans.join(", ")}`,
       `<section class="card"><div class="eyebrow m">Words you missed</div><div class="fwords">${missed.slice(0, 60).map(w => `<span class="${isPan(w) ? "pan" : ""}">${w}</span>`).join("") || "None. Incredible."}</div></section>`, rw,
       { share: `Cerebrito Spelling Bee ${step.free ? "" : today() + " "}${rk}: ${S.found.length} words, ${score} pts` });
   };
