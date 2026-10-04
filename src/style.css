@@ -744,27 +744,29 @@ textarea{width:100%;min-height:130px;border:1px solid var(--line);border-radius:
 .iconbtn:active{transform:scale(.94)}
 
 /* map view */
-.mapv{position:relative;border-radius:20px;overflow:hidden;background:radial-gradient(120% 90% at 50% 40%,color-mix(in srgb,var(--au4) 75%,var(--bg)),color-mix(in srgb,var(--au2) 55%,var(--bg)))}
-.mapv svg.wmap{width:100%;height:clamp(210px,64vw,330px);border-radius:0;background:none;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.mapv{position:relative;border-radius:20px;overflow:hidden;background:#0B1A3A;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.mapv svg.wmap{width:100%;height:clamp(200px,62vw,320px);border-radius:0;background:none;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .mapcard.tall .mapv svg.wmap{height:clamp(260px,52vh,520px)}
 .mapv svg.wmap.dragging{cursor:grabbing}
 .mapv.tap svg.wmap{cursor:crosshair}
-.mapv .lands path{fill:color-mix(in srgb,var(--c3) 85%,#fff);stroke:var(--bg);stroke-width:.7px;vector-effect:non-scaling-stroke;stroke-linejoin:round;transition:fill .35s}
-.mapv .lands path.hl{stroke:color-mix(in srgb,var(--ink) 25%,transparent)}
-.mapv .selc{fill:none;stroke:var(--p);stroke-width:3px;vector-effect:non-scaling-stroke;stroke-linejoin:round;animation:selp 1.2s ease-in-out infinite}
-@keyframes selp{50%{stroke-width:5px;stroke:var(--s)}}
+.mapv .earth{image-rendering:auto}
+.mapv .lands path{fill:transparent;stroke:rgba(255,255,255,.42);stroke-width:.7px;vector-effect:non-scaling-stroke;stroke-linejoin:round;transition:fill .35s,fill-opacity .35s}
+.mapv .lands path.hl{fill-opacity:.78;stroke:rgba(255,255,255,.9);stroke-width:1.1px}
+.mapv .selc{fill:rgba(255,255,255,.18);stroke:#fff;stroke-width:3px;vector-effect:non-scaling-stroke;stroke-linejoin:round;animation:selp 1.2s ease-in-out infinite}
+@keyframes selp{50%{stroke-width:5px;stroke:#FFD86B}}
 .mapctl{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}
-.mapctl button{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font:700 20px/1 var(--fh);color:var(--ink);background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shs);border:1px solid var(--edge)}
+.mapctl button{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font:700 20px/1 var(--fh);color:#fff;background:rgba(10,20,45,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.18)}
 .mapctl button .ic{width:18px;height:18px}
 .mapctl button:active{transform:scale(.92)}
-.maphint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;color:var(--ink2);background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shs);pointer-events:none;transition:opacity .4s}
+.maphint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;color:#fff;background:rgba(10,20,45,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shs);pointer-events:none;transition:opacity .4s}
 .mapv.touched .maphint{opacity:0}
+.mapv{touch-action:none;overscroll-behavior:contain}
 .mapcard.live{padding:8px}
 .pinm circle{fill:var(--p);stroke:#fff;stroke-width:2.5px;vector-effect:non-scaling-stroke}
 .pinm .halo{fill:color-mix(in srgb,var(--p) 25%,transparent);stroke:none;animation:halo 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
 .pinm.truth circle{fill:var(--s)} .pinm.truth .halo{fill:color-mix(in srgb,var(--s) 30%,transparent)}
 @keyframes halo{from{transform:scale(.5);opacity:1}to{transform:scale(1.5);opacity:0}}
-.mapv .tline{stroke:var(--ink);stroke-width:2px;stroke-dasharray:5 5;vector-effect:non-scaling-stroke;fill:none}
+.mapv .tline{stroke:#fff;stroke-width:2px;stroke-dasharray:5 5;vector-effect:non-scaling-stroke;fill:none}
 .heatkey{display:flex;align-items:center;gap:8px;margin:8px 6px 2px;font-size:11.5px;font-weight:700;color:var(--ink3)}
 .heatkey i{flex:1;height:7px;border-radius:9px;background:linear-gradient(90deg,#B01420,#EA3838,#F77C1E,#F2AC22,#ECD35C,#8CC4EE,#6896E6)}
 

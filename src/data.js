@@ -192,7 +192,7 @@ const IC = {
   eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'
 };
 const ic = (n, cls = "") => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
-const IMG = { logo: "__IMG_logo__", mark: "__IMG_mark__", avatar: "__IMG_avatar__", hero: "__IMG_hero__", t_memory: "__IMG_t_memory__", t_speed: "__IMG_t_speed__", t_flex: "__IMG_t_flex__", t_numbers: "__IMG_t_numbers__", t_focus: "__IMG_t_focus__", t_logic: "__IMG_t_logic__", t_spatial: "__IMG_t_spatial__", t_spanish: "__IMG_t_spanish__", t_travel: "__IMG_t_travel__" };
+const IMG = { earth: "__IMG_earth__", logo: "__IMG_logo__", mark: "__IMG_mark__", avatar: "__IMG_avatar__", hero: "__IMG_hero__", t_memory: "__IMG_t_memory__", t_speed: "__IMG_t_speed__", t_flex: "__IMG_t_flex__", t_numbers: "__IMG_t_numbers__", t_focus: "__IMG_t_focus__", t_logic: "__IMG_t_logic__", t_spatial: "__IMG_t_spatial__", t_spanish: "__IMG_t_spanish__", t_travel: "__IMG_t_travel__" };
 
 const CATS = [
   { id: "Countries", icon: "globe", col: "#16A57A", sub: "Capitals, food, beers, places you went" },

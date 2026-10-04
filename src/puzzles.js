@@ -337,7 +337,11 @@ function runTravle(step) {
     <h2 class="trv"><span>${ctryFlag(CTRY[A])} ${esc(CTRY[A].n)}</span>${ic("arrow")}<span>${ctryFlag(CTRY[B])} ${esc(CTRY[B].n)}</span></h2><p class="muted">The shortest land route crosses <b>${D - 1}</b> countr${D - 1 === 1 ? "y" : "ies"} in between.</p></section>
     <section class="card mapcard live"><div id="tmap"></div></section><div class="tchips" id="tchips"></div>
     <div class="trow"><div class="legend3"><span><i style="background:${colors.on}"></i>On route</span><span><i style="background:${colors.near}"></i>Close</span><span><i style="background:${colors.off}"></i>Off track</span></div><button class="hintbtn" id="thint">${ic("bulb")}Hint <span id="thn"></span></button></div></div>`;
-  const ends = [A, B], home = fitW(bboxOf(ends.concat(shortest()), 50), 220);
+  const ends = [A, B], home = (() => {   // frame both ends plus the centres of a shortest route (a route through Russia shouldn't show all of Siberia)
+    const e = bboxOf(ends, 30), r = bboxPts(shortest().map(i => proj(CTRY[i].lat, CTRY[i].lon)), 30);
+    const x0 = Math.min(e[0], r[0]), y0 = Math.min(e[1], r[1]);
+    return fitW([x0, y0, Math.max(e[0] + e[2], r[0] + r[2]) - x0, Math.max(e[1] + e[3], r[1] + r[3]) - y0], 150);
+  })();
   const map = MapView($("#tmap"), { vb: home, snap: true, label: "Route map", onTap: (pt, k) => { if (k === null || ends.includes(k)) return; if (S.g.includes(k)) { toast(`${CTRY[k].n} is already on your list`); return; } bar.select(k); } });
   const bar = guessBar({ exclude: () => new Set(S.g.concat(ends)), onSelect: c => map.overlay(c ? `<path d="${WORLD.c[c.key]}" class="selc"/>` : ""), onSubmit: c => guess(c.i) });
   pzCleanup(() => bar.destroy(), () => map.destroy());
