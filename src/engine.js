@@ -44,7 +44,8 @@ function freshState() {
     skills, srs: { es: {}, tr: {} }, chest: null, plan: null, lastGames: [],
     skin: "andean", sound: true, haptics: true, notice: null,
     log: {}, awards: {}, rec: {},
-    coins: 150, hints: 2, owned: ["andean"], joined: null, pz: {}, pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
+    pace: { months: 9, start: null }, kst: {},
+    coins: 150, owned: ["andean"], joined: null, pz: {}, pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
   };
 }
 let state = freshState();
@@ -58,6 +59,9 @@ function migrate() {
   if (state.pz && state.pz.date !== today()) state.pz = {};
   Object.values(state.skills).forEach(k => { if (k.lvl) k.lvl = Math.min(k.lvl, DMAX); });
   if (!state.log || typeof state.log !== "object") state.log = {};
+  if (!state.pace || ![6, 9, 12].includes(state.pace.months)) state.pace = { months: 9, start: null };
+  if (!state.pace.start) state.pace.start = state.joined || today();
+  if (!state.kst || typeof state.kst !== "object") state.kst = {};
   if (!state.awards) state.awards = {};
   if (!state.rec) state.rec = {};
   if (!Object.keys(state.log).length) {   // backfill the activity log from what older saves recorded
@@ -627,13 +631,71 @@ function sched(prev, q, t) {
 }
 function grade(kind, id, q) { return (state.srs[kind][id] = sched(state.srs[kind][id], q, today())); }
 const ivLabel = d => d <= 1 ? "1 day" : d < 14 ? `${d} days` : d < 60 ? `${Math.round(d / 7)} wks` : d < 365 ? `${Math.round(d / 30)} mo` : "1 yr";
-function queueFor(kind, maxNew, maxRev) {
-  const items = content[kind], srs = state.srs[kind], t = today();
+/* ---------- curriculum ----------
+   New cards arrive as short lessons: a topic (knowledge) or a word group (Spanish), taught in the bank's order so each
+   fact builds on the last. A lesson already under way is finished before a new one opens, and lessons follow the bank's
+   interleaving of categories, so the days stay varied. Pace is set by a goal (6, 9 or 12 months to meet everything). */
+const lessonName = (kind, it) => kind === "es" ? it.cat.replace(/^New: /, "") : it.place;
+const catOf = (kind, it) => kind === "es" ? "Spanish" : it.cat;
+const _lessons = {};
+function lessonsOf(kind) {
+  if (_lessons[kind] && _lessons[kind].src === content[kind]) return _lessons[kind].list;
+  const m = new Map();
+  content[kind].forEach(it => { const n = lessonName(kind, it); if (!m.has(n)) m.set(n, { name: n, cat: catOf(kind, it), ids: [] }); m.get(n).ids.push(it.id); });
+  _lessons[kind] = { src: content[kind], list: [...m.values()] };
+  return _lessons[kind].list;
+}
+function lessonFor(kind, id) { return lessonsOf(kind).find(l => l.ids.includes(id)); }
+function lessonProgress(l, kind) { const srs = state.srs[kind]; return { seen: l.ids.filter(id => srs[id]).length, total: l.ids.length }; }
+function nextNew(kind, n, cat) {
+  const srs = state.srs[kind], L = lessonsOf(kind).filter(l => !cat || l.cat === cat);
+  const open = L.filter(l => l.ids.some(id => srs[id]) && l.ids.some(id => !srs[id])).sort((a, b) => lessonProgress(b, kind).seen / b.ids.length - lessonProgress(a, kind).seen / a.ids.length);
+  const out = [];
+  for (const l of open.concat(L.filter(l => !l.ids.some(id => srs[id])))) { for (const id of l.ids) if (!srs[id] && out.length < n) out.push(id); if (out.length >= n) break; }
+  return out;
+}
+const PACE_BUFFER = 30;   // meet every card a month before the goal, so the last ones have time to settle
+function paceInfo() {
+  const unseen = k => content[k].filter(it => !state.srs[k][it.id]).length, uEs = unseen("es"), uTr = unseen("tr"), U = uEs + uTr;
+  const total = content.es.length + content.tr.length, start = state.pace.start || today();
+  const goal = addDays(start, Math.round(state.pace.months * 30.44)), meetBy = addDays(goal, -PACE_BUFFER);
+  const daysLeft = Math.max(1, daysBetween(today(), meetBy));
+  const perDay = U ? clamp(Math.ceil(U / daysLeft), 3, 16) : 0;
+  const es = U ? Math.min(uEs, Math.max(uEs ? 1 : 0, Math.round(perDay * uEs / U))) : 0;
+  const metToday = (state.log[today()] || {}).n || 0;
+  const finish = U ? addDays(today(), Math.ceil(U / perDay) + PACE_BUFFER) : addDays(today(), PACE_BUFFER);
+  return { U, total, perDay, es, tr: Math.min(uTr, perDay - es), goal, finish, metToday, onTrack: Math.ceil(U / Math.max(1, daysLeft)) <= 16 };
+}
+// two cards that give each other away (same answer, or one's answer sits in the other's question) never share a round
+function clash(kind, a, b) {
+  if (kind === "es") return a.es === b.es || a.en === b.en;
+  const A = a.a.toLowerCase(), B = b.a.toLowerCase(), qa = a.q.toLowerCase(), qb = b.q.toLowerCase();
+  const inQ = (ans, q) => ans.replace(/^(the|a|an|about) /, "").length >= 4 && q.includes(ans.replace(/^(the|a|an|about) /, ""));
+  return A === B || inQ(A, qb) || inQ(B, qa);
+}
+function queueFor(kind, maxNew, maxRev, cat) {
+  const items = content[kind], srs = state.srs[kind], t = today(), byId = Object.fromEntries(items.map(it => [it.id, it]));
   // most overdue first, relative to the card's own interval (a 1-day card 3 days late is more at risk than a 60-day card 3 days late)
   const risk = it => { const r = srs[it.id]; return daysBetween(r.due, t) / Math.max(1, r.iv || INT[r.b] || 1); };
-  const due = items.filter(it => srs[it.id] && srs[it.id].due <= t).sort((a, b) => risk(b) - risk(a)).slice(0, maxRev);
-  const fresh = items.filter(it => !srs[it.id]).slice(0, maxNew);
-  return shuffle(due.concat(fresh)).map(it => it.id);
+  const picked = [], ok = it => !picked.some(p => clash(kind, p, it));
+  nextNew(kind, maxNew * 2, cat).map(id => byId[id]).forEach(it => { if (picked.length < maxNew && ok(it)) picked.push(it); });
+  const fresh = picked.slice(); picked.length = 0;
+  const due = items.filter(it => srs[it.id] && srs[it.id].due <= t && (!cat || it.cat === cat)).sort((a, b) => risk(b) - risk(a));
+  for (const it of due) { if (picked.length >= maxRev) break; if (ok(it) && !fresh.some(f => clash(kind, f, it))) picked.push(it); }
+  // reviews first (a warm-up of retrieval), spread so cards from one topic aren't back to back, then today's lesson in order
+  const spread = [], rest = shuffle(picked);
+  while (rest.length) { const last = spread[spread.length - 1], j = rest.findIndex(it => !last || lessonName(kind, it) !== lessonName(kind, last)); spread.push(rest.splice(j < 0 ? 0 : j, 1)[0]); }
+  return spread.concat(fresh).map(it => it.id);
+}
+/* per-category tracking: lifetime answers plus a per-day log, for accuracy and trend */
+function trackAnswer(kind, it, ok) {
+  const c = catOf(kind, it), k = state.kst[c] || (state.kst[c] = [0, 0]); k[0] += ok ? 1 : 0; k[1]++;
+  const L = state.log[today()] || (state.log[today()] = {}), d = L.k || (L.k = {}), e = d[c] || (d[c] = [0, 0]); e[0] += ok ? 1 : 0; e[1]++;
+}
+function catAccuracy(c, from, to) {   // days [from, to) back from today
+  let r = 0, n = 0;
+  for (let i = from; i < to; i++) { const L = state.log[addDays(today(), -i)]; const e = L && L.k && L.k[c]; if (e) { r += e[0]; n += e[1]; } }
+  return n ? { acc: r / n, n } : null;
 }
 function knowStats(kind, cat) {
   let m = 0, l = 0, n = 0; const srs = state.srs[kind];
@@ -646,6 +708,11 @@ function checkupDue() {
   if (!state.baseline) return false;
   const last = state.checkups.length ? state.checkups[state.checkups.length - 1].date : state.baseline.date;
   return daysBetween(last, today()) >= 28;
+}
+// today's new cards at the chosen pace, less any already met today (e.g. from a Learn button)
+function todaysNew() {
+  const pc = paceInfo(), left = Math.max(0, pc.perDay - pc.metToday), f = pc.perDay ? left / pc.perDay : 0;
+  return { es: Math.round(pc.es * f), tr: left - Math.round(pc.es * f) };
 }
 function knowSteps(sweepEs, sweepTr, revEs, revTr) {
   const out = [];
@@ -672,7 +739,7 @@ function buildPlan(kind) {
     if (chosen.length === n) chosen.push(pool[pool.length - 1].k);
   }
   const steps = chosen.map(e => { const tr = ENGINES[e].train; const opts = tr.filter(v => v !== state.skills[e].lastV); return { t: "game", eng: e, variant: pick(opts.length ? opts : tr), mode: "train" }; });
-  const ks = knowSteps(6, 6, 10, 10), es = ks.find(k => k.kind === "es"), trs = ks.find(k => k.kind === "tr");
+  const nw = todaysNew(), ks = knowSteps(nw.es, nw.tr, 15, 15), es = ks.find(k => k.kind === "es"), trs = ks.find(k => k.kind === "tr");
   const seq = [steps[0], es, steps[1], trs, { t: "puzzle", kind: puzzleOfDay(t) }].filter(Boolean);
   return { date: t, kind: "daily", idx: 0, results: [], steps: seq };
 }

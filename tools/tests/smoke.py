@@ -33,6 +33,29 @@ async def main():
         for kind in ["es", "tr"]:
             await ev(f"know {kind}", f"openPractice({{t:'know',kind:'{kind}',ids:content.{kind}.slice(0,3).map(x=>x.id)}},'t');beginStep()", 300)
             await ev(f"know {kind} exit", "exitSession()")
+        async def chk(label, js):
+            try:
+                if not await pg.evaluate(js): errs.append(f"check failed: {label}")
+            except Exception as e: errs.append(f"{label}: {e}")
+        # hints are per game: using both in Palabra leaves Wordle's untouched
+        await ev("palabra hints", "openPractice({t:'puzzle',kind:'palabra',free:true},'t');beginStep();$('#hint').click();$('#hint').click()", 200)
+        await chk("palabra hints used up", "$('#hint').disabled"); await ev("exit", "exitSession()")
+        await ev("wordle", "openPractice({t:'puzzle',kind:'wordle',free:true},'t');beginStep()", 200)
+        await chk("wordle still has 2 hints", "!$('#hint').disabled && $('#hn').textContent === '2'"); await ev("exit", "exitSession()")
+        await ev("bee", "openPractice({t:'puzzle',kind:'bee',free:true},'t');beginStep()", 200)
+        await chk("bee shows its daily goal", "/\\d+\\/\\d+/.test($('#bgoal').textContent)"); await ev("exit", "exitSession()")
+        # a knowledge round never repeats a card: miss every card and the round still ends after its length
+        await ev("know misses", "openPractice({t:'know',kind:'tr',ids:queueFor('tr',4,0)},'t');beginStep()", 200)
+        for _ in range(8):
+            await ev("miss", """(()=>{const o=[...document.querySelectorAll('.opt')];if(o.length){const bad=o.find(b=>!b.classList.contains('ok'))||o[0];bad.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));return}
+              const r=$('#krv');if(r){r.click();document.querySelector('[data-q="1"]').click();return}const c=$('#kcont');if(c)c.click()})()""", 250)
+            await ev("cont", "const c=$('#kcont');if(c)c.click()", 250)
+        await chk("round ended without repeats", "!!$('.scorebig') && !!$('.misses')")
+        await ev("more sheet", "document.querySelector('.missrow').click()", 300)
+        await chk("More sheet opens", "!!$('.moresheet') && !$('#mask').offsetParent"); await ev("close", "$('.moresheet [data-close]').click();exitSession()", 300)
+        await chk("queue has no give-away pairs", "(()=>{const q=queueFor('tr',8,40).map(id=>content.tr.find(x=>x.id===id));return q.every((a,i)=>q.every((b,j)=>i===j||!clash('tr',a,b)))})()")
+        await ev("pace", "view='recall';render();document.querySelector('[data-a=pace][data-m=\"6\"]').click()", 200)
+        await chk("pace set to 6 months", "state.pace.months === 6 && paceInfo().perDay >= 3")
         await b.close()
         print("OK" if not errs else "FAIL\n" + "\n".join(errs)); sys.exit(1 if errs else 0)
 asyncio.run(main())

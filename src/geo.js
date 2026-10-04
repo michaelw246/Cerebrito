@@ -61,8 +61,11 @@ const MAP_H = WORLD.H;
 function bboxOf(idxs, pad = 30) {
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   idxs.forEach(i => {
-    const n = (WORLD.c[CTRY[i].key] || "").match(/-?[\d.]+/g) || [];
-    for (let k = 0; k + 1 < n.length; k += 2) { const x = +n[k], y = +n[k + 1]; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    // skip far-flung overseas parts (French Guiana, Hawaii...) so a route or country frames its mainland
+    const [cx, cy] = proj(CTRY[i].lat, CTRY[i].lon);
+    const subs = (WORLD.c[CTRY[i].key] || "").split("M").map(d => { const n = (d.match(/-?[\d.]+/g) || []).map(Number), xs = n.filter((_, k) => !(k & 1)), ys = n.filter((_, k) => k & 1); return xs.length ? [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] : null; }).filter(Boolean);
+    const near = subs.filter(([a, b, c, d]) => Math.hypot(Math.max(a - cx, 0, cx - c), Math.max(b - cy, 0, cy - d)) < 140);
+    (near.length ? near : subs).forEach(([a, b, c, d]) => { x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d); });
   });
   if (!isFinite(x0)) return [0, 0, 1000, MAP_H];
   // countries straddling the antimeridian (Russia, Fiji) would zoom out to the whole world; use their mainland centroid instead
@@ -76,21 +79,24 @@ const unproj = (x, y) => ({ lat: WORLD.LAT0 - y * 360 / 1000, lon: x * 360 / 100
 function MapView(host, o = {}) {
   const minW = o.minW || 36, ease = t => t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
   host.innerHTML = `<div class="mapv ${o.cls || ""}"><svg class="wmap" role="img" aria-label="${esc(o.label || "World map")}" preserveAspectRatio="xMidYMid meet">
+    <image href="${IMG.earth}" x="0" y="0" width="1000" height="${MAP_H}" preserveAspectRatio="none" class="earth"/>
     <g class="lands">${CTRY.map(c => `<path data-k="${c.i}" d="${WORLD.c[c.key]}"/>`).join("")}</g><g class="ov"></g></svg>
     <div class="mapctl"><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="out" aria-label="Zoom out">−</button><button type="button" data-z="fit" aria-label="Reset view">${ic("globe")}</button></div>
     ${o.hint ? `<div class="maphint">${esc(o.hint)}</div>` : ""}</div>`;
   const wrap = host.firstElementChild, svg = $("svg", wrap), ov = $(".ov", svg), paths = $$("path[data-k]", svg);
+  // Keep two-finger gestures on the map from zooming the whole page. iOS Safari ignores touch-action for pinch,
+  // so its proprietary gesture events and multi-touch moves are cancelled here too.
+  const stopPage = e => { if (!e.touches || e.touches.length > 1) e.preventDefault(); };
+  wrap.addEventListener("touchstart", stopPage, { passive: false }); wrap.addEventListener("touchmove", stopPage, { passive: false });
+  ["gesturestart", "gesturechange", "gestureend"].forEach(t => wrap.addEventListener(t, e => e.preventDefault()));
   let vb = (o.vb || [0, 0, 1000, MAP_H]).slice(), home = vb.slice(), anim = 0, dead = false;
   const ar = () => { const r = svg.getBoundingClientRect(); return r.width && r.height ? r.width / r.height : 1000 / MAP_H; };
   const fitAR = v => { const a = ar(), cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2; let w = v[2], h = v[3]; if (w / h < a) w = h * a; else h = w / a; return [cx - w / 2, cy - h / 2, w, h]; };
+  /* The satellite image always fills the frame: you can't zoom out past its edges or pan into empty space. */
   const clampVB = v => {
-    let [x, y, w, h] = v; const a = w / h;
-    if (w > 1000) { w = 1000; h = w / a; } if (w < minW) { w = minW; h = w / a; }
-    const sx = w * .35, sy = h * .35;               // allow a little overscroll so edges can reach the middle of the screen
-    x = clamp(x, -sx, 1000 - w + sx); y = clamp(y, -sy - 20, MAP_H - h + sy);
-    if (w >= 1000) x = (1000 - w) / 2;
-    if (h >= MAP_H) y = (MAP_H - h) / 2;
-    return [x, y, w, h];
+    let [x, y, w, h] = v; const a = w / h, maxW = Math.min(1000, MAP_H * a), cx = x + w / 2, cy = y + h / 2;
+    if (w > maxW) { w = maxW; h = w / a; } if (w < minW) { w = minW; h = w / a; }
+    return [clamp(cx - w / 2, 0, 1000 - w), clamp(cy - h / 2, 0, MAP_H - h), w, h];   // resize about the centre
   };
   const apply = () => {
     svg.setAttribute("viewBox", vb.map(v => v.toFixed(2)).join(" "));

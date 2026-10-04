@@ -67,7 +67,8 @@ function stepIntro() {
   const himg = s.t === "game" ? IMG[PILLARS[s.eng].img] : s.t === "know" ? IMG[KNOW[s.kind].img] : s.kind === "rush" ? IMG.t_travel : null;
   const pzArt = () => s.kind === "hunt" ? `<div class="art huntart">${shuffle([...Array(16).keys()].map(n => n + 1)).map(n => `<span class="${n <= 3 ? "hit" : ""}">${n}</span>`).join("")}</div>`
     : s.kind === "pairs" ? `<div class="art pairart">${[["hola", "es"], ["hello", "en"], ["?"], ["?"], ["gracias", "es"], ["?"]].map(([w, c]) => `<span class="${c || ""}">${w === "?" ? ic("sparkle") : w}</span>`).join("")}</div>`
-    : (s.kind === "palabra" || s.kind === "wordle" || s.kind === "bee") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : s.kind === "bee" ? "HONEY" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art">${worldSVG({ fills: s.kind === "pais" ? { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" } : {} })}</div>`;
+    : s.kind === "bee" ? `<div class="art beeart"><div class="hive mini">${[..."ENTRAIL"].map((c, i) => `<span class="hex ${i ? "" : "mid"}" style="--i:${i}">${c}</span>`).join("")}</div></div>`
+    : (s.kind === "palabra" || s.kind === "wordle") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art">${worldSVG({ fills: s.kind === "pais" ? { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" } : {} })}</div>`;
   const top = himg ? `<div class="heroimg"><img src="${himg}" alt=""><span class="tl">${ic(icon)}${s.t === "game" ? esc(PILLARS[s.eng].es) : s.kind === "es" ? "Vocabulario" : s.kind === "rush" ? "Rápido" : "Recuerdos"}</span></div>`
     : `<div class="heroimg">${pzArt()}<span class="tl">${ic(icon)}${s.free ? "Free play" : "Daily puzzle"}</span></div>`;
   app.innerHTML = `<div class="play">${shead()}${stepsBar()}
@@ -159,7 +160,7 @@ function runGame(step) {
     const stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0;
     app.innerHTML = `<div class="play">${shead()}
     <div class="rhero"><img src="${IMG[PILLARS[step.eng].img]}" alt=""><div class="cap"><span class="chip">${ic("trophy")}${acc >= 0.8 ? "Excelente!" : "Round complete"}</span><h2>${esc(PILLARS[step.eng].name)} · ${esc(v.name)}</h2></div></div>
-    <section class="card scorebig"><div class="eyebrow m">Total round score</div><b>${fmt(r.score)} <small>pts</small></b>${near ? `<div class="near">${ic("flame")}${esc(near)}</div>` : ""}</section>
+    <section class="card scorebig"><div class="eyebrow m">Total round score</div><b><span data-count="${r.score}">${fmt(r.score)}</span> <small>pts</small></b>${near ? `<div class="near">${ic("flame")}${esc(near)}</div>` : ""}</section>
     <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Accuracy</div><b>${Math.round(acc * 100)}% across ${ts.length}</b></div><span class="stars">${[0, 1, 2].map(i => ic("star", i < stars ? "on" : "")).join("")}</span></section>
     <div class="two2"><div class="card"><div class="eyebrow">${ic("zap")}Best combo</div><b class="o">x${r.maxCombo}</b><small>${r.maxCombo >= 10 ? "Double points unlocked" : r.maxCombo >= 5 ? "1.5x points unlocked" : "Chain 5 for 1.5x"}</small></div><div class="card"><div class="eyebrow">${ic("brain")}${esc(lvlTitle)}</div><b>${esc(lvlLine)}</b><small>${esc(lvlSub)}</small></div></div>
     <div class="pills2">${xp ? `<span class="chip o">${ic("zap")}+${xp} XP</span>` : ""}<span class="chip y">${ic("sun")}+${coins} coins</span></div>
@@ -183,7 +184,8 @@ function ghostFor(eng) {
    - early reviews: multiple choice or true/false, in either direction for Spanish
    - established cards: free recall. Think of the answer, reveal, then grade yourself.
      Recall is harder than recognition, and that effort is exactly what makes memories last.
-   Missed cards come back once at the end of the round, so you leave having got them right. */
+   A round never repeats a card: a miss is explained on the spot, listed at the end with a "More" deep-dive, and
+   scheduled for tomorrow, when recalling it after a gap does far more than a second look a minute later. */
 const SPEAK_LANGS = ["es-AR", "es-419", "es-US", "es-MX", "es-ES", "es"];
 function speakEs(text) {
   try {
@@ -202,8 +204,8 @@ function cardMode(kind, it, r) {
 }
 function runKnow(step) {
   const kind = step.kind, items = Object.fromEntries(content[kind].map(it => [it.id, it]));
-  const queue = step.ids.filter(id => items[id]).map(id => ({ id, retry: false })), total = queue.length;
-  let i = 0, right = 0, firstTry = 0, done = 0, keyH = null, autoT = 0;
+  const queue = step.ids.filter(id => items[id]).map(id => ({ id })), total = queue.length, missed = [], lessonsMet = new Set();
+  let i = 0, firstTry = 0, done = 0, keyH = null, autoT = 0;
   const dock = dockBar("kdock"); dock.el.hidden = true;
   const cleanup = () => { clearTimeout(autoT); if (keyH) document.removeEventListener("keydown", keyH); dock.destroy(); try { speechSynthesis.cancel(); } catch (e) {} };
   currentAbort = () => { cleanup(); currentAbort = null; };
@@ -212,7 +214,7 @@ function runKnow(step) {
     clearTimeout(autoT);
     if (i >= queue.length) return end();
     const slot = queue[i], it = items[slot.id], r = state.srs[kind][it.id], isNew = !r;
-    const mode = slot.retry ? "mc" : cardMode(kind, it, r);
+    const mode = cardMode(kind, it, r), les = isNew && lessonFor(kind, it.id);
     let prompt, sub, ans, wrongs, prLine = "", speakTxt = "", answerSide = "";
     if (kind === "es") {
       const produce = mode === "recall" ? Math.random() < .7 : !isNew && (r.b || 1) >= 2 && Math.random() < .5;
@@ -227,8 +229,9 @@ function runKnow(step) {
     }
     let tfShown = null;
     if (mode === "tf") { const truth = Math.random() < 0.5; tfShown = truth ? it.a : wrongs[0]; sub = "True or false?"; }
-    const tagL = slot.retry ? `<span class="chip o">${ic("bulb")}Try again</span>` : isNew ? `<span class="chip m">${ic("sparkle")}New ${kind === "es" ? "word" : "fact"}</span>` : `<span class="chip">${ic(mode === "recall" ? "brain" : "clock")}${mode === "recall" ? "Recall" : "Review"}</span>`;
-    const tagR = `<span class="chip">${esc(kind === "es" ? it.cat.replace(/^New: /, "") : it.cat || "Knowledge")}</span>`;
+    const lp = les && lessonProgress(les, kind);
+    const tagL = isNew ? `<span class="chip m">${ic("sparkle")}New${les ? ` · ${lp.seen + 1}/${lp.total}` : ""}</span>` : `<span class="chip">${ic(mode === "recall" ? "brain" : "clock")}${mode === "recall" ? "Recall" : "Review"}</span>`;
+    const tagR = `<span class="chip">${esc(isNew && les ? `Lesson: ${les.name}` : kind === "es" ? it.cat.replace(/^New: /, "") : it.cat || "Knowledge")}</span>`;
     const spk = speakTxt && canSpeak() ? `<button class="iconbtn spk" id="spk" aria-label="Hear it">${ic("sound")}</button>` : "";
     app.innerHTML = `<div class="play kplay">${shead()}<div class="kprog"><span class="chip">${ic("cards")}${Math.min(done + 1, queue.length)} of ${queue.length}</span><div class="gauge"><i style="width:${done / queue.length * 100}%"></i></div></div>
     <div class="stage kstage" id="stage"></div></div>`;
@@ -236,11 +239,10 @@ function runKnow(step) {
     const card = `<div class="kcardw"><div class="kcard ${mode}"><div class="kt">${tagL}${tagR}</div>${kind === "tr" && it.place ? `<div class="eyebrow m kplace">${esc(it.place)}</div>` : ""}
       <div class="prompt ${prompt.length > 60 ? "mid small" : prompt.length > 16 ? "mid" : ""}">${esc(prompt)}</div>${prLine ? `<p class="sub">[${esc(prLine)}]</p>` : ""}${spk}
       ${tfShown !== null ? `<div class="tfans"><small>Answer</small><b>${esc(tfShown)}</b></div>` : ""}<div class="kreveal" id="krev"></div></div></div>`;
-    const why = it.why ? `<p class="why">${ic("bulb")}<span>${esc(it.why)}</span></p>` : "";
+    const why = `${it.why ? `<p class="why">${ic("bulb")}<span>${esc(it.why)}</span></p>` : ""}<button class="morebtn" data-more="${kind}:${it.id}">${ic("book")}More on this</button>`;
     const finishCard = (q, ok) => {
-      if (!slot.retry) { grade(kind, it.id, q); if (ok) firstTry++; }
-      if (ok) right++;
-      if (!ok && !slot.retry) queue.push({ id: it.id, retry: true });
+      grade(kind, it.id, q); if (ok) firstTry++; else missed.push(it.id);
+      trackAnswer(kind, it, ok); if (isNew) { logDay({ n: 1 }); if (les) lessonsMet.add(les.name); }
       done++; save();
     };
     const next = () => { i++; show(); };
@@ -272,10 +274,10 @@ function runKnow(step) {
       onKeys(() => {});
       finishCard(ok ? 3 : 1, ok);
       tone(ok); buzz(ok);
-      const fb = ok ? `<div class="fbbar ok">${ic("check")}<span>${pick(["Excelente!", "Genial!", "Buenísimo!", "Qué bueno!", "Dale!"])}${slot.retry ? " Locked in for now." : ""}</span></div>` : `<div class="fbbar no">${ic("bulb")}<span>It's <b>${esc(tf ? `${correctTF === 0 ? "true" : "false"}: ${it.a}` : ans)}</b>. ${slot.retry ? "You'll see it again tomorrow." : "One more try at the end."}</span></div>`;
+      const fb = ok ? `<div class="fbbar ok">${ic("check")}<span>${pick(["Excelente!", "Genial!", "Buenísimo!", "Qué bueno!", "Dale!"])}</span></div>` : `<div class="fbbar no">${ic("bulb")}<span>It's <b>${esc(tf ? `${correctTF === 0 ? "true" : "false"}: ${it.a}` : ans)}</b>. It comes back tomorrow.</span></div>`;
       if (speakTxt || answerSide === "es") speakEs(it.es);
       // explanations matter most on first meeting and after a miss; a correct review of a familiar card keeps the pace up
-      if (ok && (!why || !isNew)) { dock.el.hidden = false; dock.set(fb); autoT = setTimeout(next, 900); return; }
+      if (ok && !isNew) { dock.el.hidden = false; dock.set(fb); autoT = setTimeout(next, 900); return; }
       dock.el.hidden = false; dock.set(`${fb}${why}<button class="btn" id="kcont">Continue${ic("arrow")}</button>`);
       $("#kcont").onclick = next;
       onKeys(e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); next(); } });
@@ -291,11 +293,15 @@ function runKnow(step) {
     if (P.kind === "practice") state.xp += xp;
     addCoins(coins);
     P.results.push({ t: "know", kind, right: firstTry, total, xp: P.kind === "practice" ? 0 : xp, coins }); P.idx++; if (P.kind === "practice") bumpMax();
+    const lessonLine = [...lessonsMet].map(n => { const l = lessonsOf(kind).find(x => x.name === n), p = lessonProgress(l, kind); return `<div class="lrow"><span>${ic("book")}<b>${esc(n)}</b></span><div class="gauge thin"><i style="width:${Math.round(p.seen / p.total * 100)}%"></i></div><small>${p.seen}/${p.total}</small></div>`; }).join("");
+    const missList = missed.map(id => items[id]).map(it => `<button class="missrow" data-more="${kind}:${it.id}"><span><small>${esc(kind === "es" ? it.es : it.q)}</small><b>${esc(kind === "es" ? it.en : it.a)}</b></span>${ic("arrow")}</button>`).join("");
     logDay({ c: total }); checkAwards();
     save();
-    const st = knowStats(kind), acc = total ? firstTry / total : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0, missed = total - firstTry;
+    const st = knowStats(kind), acc = total ? firstTry / total : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0, missedN = total - firstTry;
     app.innerHTML = `<div class="play">${shead()}
-    <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b>${firstTry}<small> / ${total}</small></b><div class="near">${ic(missed ? "bulb" : "trophy")}${missed ? `${missed} missed, then practised again. They're back tomorrow.` : "Clean sweep. Those just got pushed further out."}</div></section>
+    <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b><span data-count="${firstTry}">${firstTry}</span><small> / ${total}</small></b><div class="near">${ic(missed ? "bulb" : "trophy")}${missedN ? `${missedN} to revisit. They're back tomorrow, when a second try counts most.` : "Clean sweep. Those just got pushed further out."}</div></section>
+    ${lessonLine ? `<section class="card lessons"><div class="eyebrow m">${ic("sparkle")}Lesson progress</div>${lessonLine}</section>` : ""}
+    ${missList ? `<section class="card misses"><div class="eyebrow m">${ic("bulb")}Worth a second look</div><p class="muted">Tap one to read the full story.</p>${missList}</section>` : ""}
     <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Locked in (2+ weeks)</div><b>${st.mastered} of ${content[kind].length}</b></div><span class="stars">${[0, 1, 2].map(k => ic("star", k < stars ? "on" : "")).join("")}</span></section>
     <div class="two2"><div class="card tint"><div class="eyebrow">${ic("clock")}Learning</div><b class="o">${st.learning}</b><small>In rotation</small></div><div class="card tint"><div class="eyebrow">${ic("sparkle")}Not seen</div><b>${fmt(st.fresh)}</b><small>A few new each day</small></div></div>
     <div class="pills2"><span class="chip o">${ic("zap")}+${xp} XP</span><span class="chip y">${ic("sun")}+${coins} coins</span></div>
@@ -305,6 +311,63 @@ function runKnow(step) {
   if (!queue.length) return end();
   show();
 }
+
+/* ---------- "More": the full story behind a card ----------
+   Everything here works offline: the answer, why it's true, your history with the card, and the rest of its lesson.
+   Where the page runs inside Claude (the artifact runtime's `sample` capability), "Tell me the full story" asks
+   Claude for the context around it; answers are kept on this device so a second look costs nothing. */
+const DEEP_KEY = "ruta.deep.v1";
+let samplerP = null;
+const getSampler = () => samplerP || (samplerP = window.claude && typeof window.claude.use === "function" ? window.claude.use("sample").catch(() => null) : Promise.resolve(null));
+const deepGet = id => { try { return (JSON.parse(localStorage.getItem(DEEP_KEY)) || {})[id] || ""; } catch (e) { return ""; } };
+const deepSet = (id, text) => { try { const d = JSON.parse(localStorage.getItem(DEEP_KEY)) || {}; d[id] = text; const ks = Object.keys(d); ks.slice(0, Math.max(0, ks.length - 300)).forEach(k => delete d[k]); localStorage.setItem(DEEP_KEY, JSON.stringify(d)); } catch (e) {} };
+function deepPrompt(kind, it, les) {
+  if (kind === "es") return `You're a friendly Spanish tutor inside a flashcard app. The learner, an English speaker travelling in Argentina, is learning:\n"${it.es}" = "${it.en}" (word group: ${les ? les.name : it.cat}).\n\nIn about 150 words of plain text (no headings, no markdown), explain how it's really used, with two short natural example sentences (Argentine/Rioplatense Spanish, with English), any common confusion or false friend, and one memorable hook to remember it.`;
+  return `You're a brilliant tutor inside a memory app. The learner just studied this flashcard:\nTopic: ${it.place} (${it.cat})\nQ: ${it.q}\nA: ${it.a}\n${it.why ? `Short note: ${it.why}\n` : ""}\nIn about 180 words of plain text (no headings, no markdown, short paragraphs), tell the story behind it: the context, why it happened or why it's true, and why it matters. End with one vivid hook that makes the answer hard to forget. Be accurate; if a detail is uncertain or debated, say so rather than inventing it.`;
+}
+function openMore(kind, id) {
+  const it = content[kind].find(x => x.id === id); if (!it) return;
+  const les = lessonFor(kind, id), r = state.srs[kind][id], es = kind === "es";
+  const q = es ? it.es : it.q, a = es ? it.en : it.a;
+  const hist = r ? `Seen ${r.n || 1} time${(r.n || 1) === 1 ? "" : "s"} · ${r.ok || 0} right · next review ${r.due <= today() ? "today" : `in ${ivLabel(daysBetween(today(), r.due))}`}` : "Not studied yet";
+  const sibs = les ? les.ids.filter(x => x !== id).map(x => content[kind].find(y => y.id === x)).filter(Boolean) : [];
+  const seenSibs = sibs.filter(x => state.srs[kind][x.id]), upcoming = sibs.length - seenSibs.length;
+  const sibHTML = seenSibs.map(x => `<details class="msib"><summary><span>${esc(es ? x.es : x.q)}</span><b>${esc(es ? x.en : x.a)}</b></summary>${x.why ? `<p>${esc(x.why)}</p>` : ""}</details>`).join("");
+  const saved = deepGet(kind + id);
+  const web = `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(es ? `${it.es} Spanish` : `${it.a.replace(/^(About|Roughly) /, "")} ${it.place}`)}`;
+  const sh = bottomSheet(`<div class="more">
+    <div class="mtop"><span class="chip m">${ic("book")}${esc(les ? les.name : es ? "Spanish" : it.cat)}</span><button class="iconbtn" data-close aria-label="Close">${ic("x")}</button></div>
+    <p class="mq">${esc(q)}</p><div class="ma"><small>Answer</small><b>${esc(a)}</b>${es && it.pr ? `<span class="sub">[${esc(it.pr)}]</span>` : ""}${es && canSpeak() ? `<button class="iconbtn spk" id="mspk" aria-label="Hear it">${ic("sound")}</button>` : ""}</div>
+    ${it.why ? `<div class="msec"><div class="eyebrow m">${ic("bulb")}Why</div><p>${esc(it.why)}</p></div>` : ""}
+    <div class="msec deep" id="mdeep" ${saved ? "" : "hidden"}><div class="eyebrow m">${ic("sparkle")}The full story</div><div class="mdeep" id="mdtxt">${saved ? esc(saved) : ""}</div></div>
+    <button class="btn ghost" id="mask" hidden>${ic("sparkle")}Tell me the full story</button>
+    <p class="mhist">${ic("clock")}${esc(hist)}</p>
+    ${les ? `<div class="msec"><div class="eyebrow m">${ic("cards")}In this lesson · ${les.ids.length - upcoming} of ${les.ids.length} met</div>${sibHTML || `<p class="muted">This is the first card you've met from ${esc(les.name)}.</p>`}
+      ${upcoming && view !== "session" ? `<button class="btn small" id="mles">${ic("sparkle")}Learn ${Math.min(5, upcoming)} more from this lesson</button>` : ""}</div>` : ""}
+    <a class="mweb" href="${web}" target="_blank" rel="noopener">${ic("search")}Look it up on Wikipedia</a></div>`, { cls: "moresheet" });
+  const S = sh.sheet; let ctl = null;
+  const sp = $("#mspk", S); if (sp) sp.onclick = () => speakEs(it.es);
+  const ml = $("#mles", S); if (ml) ml.onclick = () => { const ids = les.ids.filter(x => !state.srs[kind][x]).slice(0, 5); sh.close(); if (currentAbort) { currentAbort(); currentAbort = null; } openPractice({ t: "know", kind, ids }, les.name); };
+  const ask = $("#mask", S), box = $("#mdeep", S), txt = $("#mdtxt", S);
+  if (!saved) getSampler().then(sample => {
+    if (!sample || !S.isConnected) return;
+    ask.hidden = false;
+    ask.onclick = async () => {
+      ask.disabled = true; ask.innerHTML = `${ic("sparkle")}Thinking…`; box.hidden = false; txt.classList.add("typing"); txt.textContent = "";
+      ctl = new AbortController();
+      try {
+        const { text } = await sample(deepPrompt(kind, it, les), { signal: ctl.signal, cache: { gcTime: 86400000 }, onText: u => { txt.textContent = u.text; ask.hidden = true; } });
+        deepSet(kind + id, text); ask.hidden = true;
+      } catch (e) {
+        txt.textContent = e.text || "";
+        if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(e.code)) { ask.hidden = true; if (!e.text) box.hidden = true; }
+        else if (e.code !== "cancelled") { ask.disabled = false; ask.hidden = false; ask.innerHTML = `${ic("sparkle")}${e.code === "rate_limited" ? "Busy right now. Try again in a bit" : "Couldn't get that. Try again"}`; if (!e.text) box.hidden = true; }
+      } finally { txt.classList.remove("typing"); }
+    };
+  });
+  const obs = new MutationObserver(() => { if (!sh.el.isConnected) { obs.disconnect(); if (ctl) ctl.abort(); } }); obs.observe(document.body, { childList: true });
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-more]"); if (!b) return; e.preventDefault(); const m = b.dataset.more, c = m.indexOf(":"); openMore(m.slice(0, c), m.slice(c + 1)); });
 
 /* ---------- daily puzzles ---------- */
 /* ---------- finish ---------- */

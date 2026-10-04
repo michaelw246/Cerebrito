@@ -25,7 +25,7 @@ const AWARDS = [
   { id: "puzzles100", g: "Puzzles", name: "Puzzle master", desc: "Solve 100 puzzles", icon: "medal", col: "#2559A8", p: () => [pzSolvedTotal(), 100] },
   { id: "wordle2", g: "Puzzles", name: "Wordsmith", desc: "Solve Wordle or Palabra in 2", icon: "word", col: "#15B486", p: () => [Math.min(state.rec.pz_wordle || 9, state.rec.pz_palabra || 9) <= 2 ? 1 : 0, 1] },
   { id: "globle3", g: "Puzzles", name: "Cartographer", desc: "Find a Globle country in 3 guesses or fewer", icon: "globe", col: "#3F7FD8", p: () => [(state.rec.pz_pais || 99) <= 3 ? 1 : 0, 1] },
-  { id: "worldle1", g: "Puzzles", name: "Shape shifter", desc: "Name a Worldle country first try", icon: "target", col: "#E9A92E", p: () => [(state.rec.pz_worldle || 99) === 1 ? 1 : 0, 1] },
+  { id: "worldle1", g: "Puzzles", name: "Shape shifter", desc: "Name a Silhouette country first try", icon: "target", col: "#E9A92E", p: () => [(state.rec.pz_worldle || 99) === 1 ? 1 : 0, 1] },
   { id: "maptap400", g: "Puzzles", name: "Human GPS", desc: "Score 400+ in MapTap", icon: "pin", col: "#FD6A49", p: () => [state.rec.maptap || 0, 400] },
   { id: "pangram", g: "Puzzles", name: "Pangram!", desc: "Find a Spelling Bee pangram", icon: "sparkle", col: "#E9A92E", p: () => [state.rec.pangrams || 0, 1] },
   { id: "hunt25", g: "Puzzles", name: "Eagle eye", desc: "Clear Number Hunt in under 25 seconds", icon: "eye", col: "#6D4AF0", p: () => [state.rec.hunt && state.rec.hunt < 25 ? 1 : 0, 1] },
@@ -84,7 +84,7 @@ function heatmap(weeks = 15) {
 }
 function weekStrip() {
   const t = today(), d0 = parseKey(t), dow = (d0.getDay() + 6) % 7, mon = addDays(t, -dow), names = ["M", "T", "W", "T", "F", "S", "S"];
-  return `<div class="wstrip">${names.map((n, i) => { const k = addDays(mon, i), L = state.log[k] || {}, st = L.s ? "done" : L.f ? "frz" : k === t ? "today" : k < t ? "miss" : ""; return `<div class="${st}"><small>${n}</small><i>${L.s ? ic("check") : L.f ? ic("snow") : ""}</i></div>`; }).join("")}</div>`;
+  return `<div class="wstrip">${names.map((n, i) => { const k = addDays(mon, i), L = state.log[k] || {}, st = L.s ? "done" : L.f ? "frz" : k === t ? "today" : k < t ? "miss" : ""; return `<div class="${st}" style="--d:${i}"><small>${n}</small><i>${L.s ? ic("check") : L.f ? ic("snow") : ""}</i></div>`; }).join("")}</div>`;
 }
 function viewStats() {
   const days = activeDays(), srsAll = [...Object.values(state.srs.es), ...Object.values(state.srs.tr)];

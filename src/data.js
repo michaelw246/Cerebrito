@@ -150,6 +150,7 @@ const IC = {
   flame: '<path d="M12 3c1 3 4 4.5 4 9a4 4 0 01-8 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 0-8z"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   snow: '<path d="M12 2v20M4 7l16 10M20 7L4 17M9 4l3 2 3-2M9 20l3-2 3 2"/>',
+  book: '<path d="M4 5a2 2 0 012-2h13v15H6a2 2 0 00-2 2zM4 20a2 2 0 002 2h13v-4"/><path d="M9 7h6"/>',
   compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
   dumbbell: '<path d="M6.5 6.5l11 11M4 10l6-6M14 20l6-6M3 13l-1 1M21 11l1-1M7 17l-1.5 1.5M17 7l1.5-1.5"/><path d="M5 11l-2 2 8 8 2-2M19 13l2-2-8-8-2 2"/>',
   passport: '<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M9 17h6"/>',
@@ -192,10 +193,10 @@ const IC = {
   eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'
 };
 const ic = (n, cls = "") => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
-const IMG = { logo: "__IMG_logo__", mark: "__IMG_mark__", avatar: "__IMG_avatar__", hero: "__IMG_hero__", t_memory: "__IMG_t_memory__", t_speed: "__IMG_t_speed__", t_flex: "__IMG_t_flex__", t_numbers: "__IMG_t_numbers__", t_focus: "__IMG_t_focus__", t_logic: "__IMG_t_logic__", t_spatial: "__IMG_t_spatial__", t_spanish: "__IMG_t_spanish__", t_travel: "__IMG_t_travel__" };
+const IMG = { earth: "__IMG_earth__", logo: "__IMG_logo__", mark: "__IMG_mark__", avatar: "__IMG_avatar__", hero: "__IMG_hero__", t_memory: "__IMG_t_memory__", t_speed: "__IMG_t_speed__", t_flex: "__IMG_t_flex__", t_numbers: "__IMG_t_numbers__", t_focus: "__IMG_t_focus__", t_logic: "__IMG_t_logic__", t_spatial: "__IMG_t_spatial__", t_spanish: "__IMG_t_spanish__", t_travel: "__IMG_t_travel__" };
 
 const CATS = [
-  { id: "Countries", icon: "globe", col: "#16A57A", sub: "Capitals, food, beers, places you went" },
+  { id: "Countries", icon: "globe", col: "#16A57A", sub: "Food, culture and stories from places you went" },
   { id: "History", icon: "trophy", col: "#B0643A", sub: "Egypt, Rome, Incas, Aztecs, the wars" },
   { id: "Notable people", icon: "star", col: "#6D4AF0", sub: "Alexander, Napoleon, Turing, Nimsdai, Musk" },
   { id: "Mind & memory", icon: "brain", col: "#9B7BF0", sub: "How learning, memory, sleep and focus work" },

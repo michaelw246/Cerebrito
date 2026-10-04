@@ -9,8 +9,9 @@ Ships as **one self-contained `index.html`** (no framework, no server).
     python build.py              # writes ./index.html  (or: python build.py out.html)
     python tools/tests/smoke.py  # loads the build in Chromium and walks every screen, game and puzzle; fails on any JS error
 
-To publish: upload `index.html` as an artifact (it syncs progress via the artifact runtime's `db`; outside that runtime it
-falls back to `localStorage`).
+To publish: upload `index.html` as an artifact with capabilities `{db: {}, user: {}, sample: {}}`. `db` syncs progress
+(outside the artifact runtime it falls back to `localStorage`); `sample` powers "Tell me the full story" on a card's
+More sheet (hidden when unavailable).
 
 ## Layout
     build.py                 src/* + assets/* + content/travel.json + backup/spanish-wordbank.json -> index.html
@@ -20,7 +21,7 @@ falls back to `localStorage`).
       geo.js                 geography kit: 176-country table, border distances, MapView (pan/pinch/zoom), guess bar, sheets
       app.js                 views: Home, Mind (+ skill pages), Long-term memory, Journey, Country, You, Shop; navigation
       session.js             session flow: intros, brain games, knowledge cards (recall + self-grading), results, celebrations
-      puzzles.js             Puzzles tab + Palabra, Wordle, Globle, Worldle, Travle, MapTap, Spelling Bee, Rapid recall,
+      puzzles.js             Puzzles tab + Palabra, Wordle, Globle, Silhouette, Travle, MapTap, Spelling Bee, Rapid recall,
                              Number Hunt, Parejas
       awards.js              awards, Stats page (activity heatmap, trends), week streak strip
       onboard.js             animated first-run walkthrough (also replayable from Settings)
@@ -35,6 +36,7 @@ falls back to `localStorage`).
       facts/facts1-7.py      the knowledge bank (question, answer, 3 wrong options[, why]), chained imports
       facts/revise.py        quality pass keyed by question text: fairer options, explanations, standalone rewordings
       facts/explain.py       an explanation for every other card, keyed by card id (compile fails on stale keys)
+      facts/retire.py        cards taken out: too well known, brand trivia, duplicates (compile checks each exists)
       compile_bank.py        facts + revisions -> travel.json (interleaves the categories, stamps a version)
       travel.json            compiled bank (bundled into the build and synced to the artifact db at content/travel)
     tools/
@@ -50,7 +52,11 @@ falls back to `localStorage`).
 - **Brain games** adapt every trial (difficulty 1–25). Calibration measures each skill over three days; daily sessions
   lean towards your weakest skills. Memory includes N-back.
 - **Recall** uses an SM-2 style scheduler (per-card ease + interval). New cards start as multiple choice; established ones
-  switch to free recall with Forgot / Hard / Got it / Easy self-grading. Missed cards return at the end of the round.
+  switch to free recall with Forgot / Hard / Got it / Easy self-grading. A round never repeats a card or pairs two
+  that give each other away; misses are explained, listed at the end and due tomorrow.
+- **Curriculum**: new cards arrive as lessons (a knowledge topic or a Spanish word group) in the bank's order. A goal of
+  6, 9 or 12 months (Long-term memory page) sets how many new cards each day brings; each subject shows its lesson
+  under way and accuracy over the last 14 days with its trend. Every card has a More sheet with the full context.
 - **Puzzles** have a seeded daily version plus unlimited free play, with stats, distributions and share text.
 - **Streaks** reset on a missed day unless a freeze covers it; missing a day never costs XP or levels.
 

@@ -17,6 +17,8 @@ def uri(path, size, crop=None, q=80):
 imgs = {
     "avatar": uri(IMG + "avatar-source.png", 220, (290, 170, 770, 650)),   # face crop
     "hero": rect(IMG + "hero-mountaineer.png", 640),
+    # NASA Blue Marble (public domain), cropped to the map's 84°N–58°S equirectangular frame
+    "earth": webp(Image.open(f"{ROOT}/assets/images/earth/blue-marble-84N-58S.jpg").convert("RGB"), 66),
     "logo": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((160, 160), Image.LANCZOS), 90),
     "mark": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((560, 560), Image.LANCZOS), 86),
 }
@@ -45,7 +47,7 @@ html=f'''<!doctype html>
 <html lang="en" data-skin="andean">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>Cerebrito</title>
 <meta name="theme-color" content="#FBF8FF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#11122A" media="(prefers-color-scheme: dark)">
