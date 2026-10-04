@@ -1326,3 +1326,10 @@ body.ob-open{overflow:hidden}
 .fbbar{animation:fbin .35s cubic-bezier(.3,1.5,.5,1)}
 @keyframes fbin{from{transform:translateY(10px) scale(.96);opacity:0}}
 @media (prefers-reduced-motion:reduce){.part .pimg img,.parthero img,.hero .heroimg img,.ltm .pimg img,.pod.fl .ic,.btn.green[data-s]::after,.hero .btn::after,.wstrip div i,.kcard,.fbbar,.coinfly{animation:none}}
+/* puzzle intros: the same satellite map as the games, filling the frame and drifting slowly */
+.art.satart{display:block;background:#0B1A3A;overflow:hidden}
+.art.satart .wmap{width:100%;height:100%;border-radius:0;background:none;animation:satdrift 22s ease-in-out infinite alternate;transform-origin:50% 50%}
+.wmap.sat .land{fill:transparent;stroke:rgba(255,255,255,.45);stroke-width:.6px}
+.wmap.sat .hl{fill-opacity:.82;stroke:rgba(255,255,255,.9);stroke-width:1px;vector-effect:non-scaling-stroke}
+@keyframes satdrift{from{transform:scale(1.02)}to{transform:scale(1.12) translate(-2%,1%)}}
+@media (prefers-reduced-motion:reduce){.art.satart .wmap{animation:none}}

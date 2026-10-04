@@ -1344,6 +1344,13 @@ body.ob-open{overflow:hidden}
 .fbbar{animation:fbin .35s cubic-bezier(.3,1.5,.5,1)}
 @keyframes fbin{from{transform:translateY(10px) scale(.96);opacity:0}}
 @media (prefers-reduced-motion:reduce){.part .pimg img,.parthero img,.hero .heroimg img,.ltm .pimg img,.pod.fl .ic,.btn.green[data-s]::after,.hero .btn::after,.wstrip div i,.kcard,.fbbar,.coinfly{animation:none}}
+/* puzzle intros: the same satellite map as the games, filling the frame and drifting slowly */
+.art.satart{display:block;background:#0B1A3A;overflow:hidden}
+.art.satart .wmap{width:100%;height:100%;border-radius:0;background:none;animation:satdrift 22s ease-in-out infinite alternate;transform-origin:50% 50%}
+.wmap.sat .land{fill:transparent;stroke:rgba(255,255,255,.45);stroke-width:.6px}
+.wmap.sat .hl{fill-opacity:.82;stroke:rgba(255,255,255,.9);stroke-width:1px;vector-effect:non-scaling-stroke}
+@keyframes satdrift{from{transform:scale(1.02)}to{transform:scale(1.12) translate(-2%,1%)}}
+@media (prefers-reduced-motion:reduce){.art.satart .wmap{animation:none}}
 
 </style>
 </head>
@@ -3267,7 +3274,9 @@ function stepIntro() {
   const pzArt = () => s.kind === "hunt" ? `<div class="art huntart">${shuffle([...Array(16).keys()].map(n => n + 1)).map(n => `<span class="${n <= 3 ? "hit" : ""}">${n}</span>`).join("")}</div>`
     : s.kind === "pairs" ? `<div class="art pairart">${[["hola", "es"], ["hello", "en"], ["?"], ["?"], ["gracias", "es"], ["?"]].map(([w, c]) => `<span class="${c || ""}">${w === "?" ? ic("sparkle") : w}</span>`).join("")}</div>`
     : s.kind === "bee" ? `<div class="art beeart"><div class="hive mini">${[..."ENTRAIL"].map((c, i) => `<span class="hex ${i ? "" : "mid"}" style="--i:${i}">${c}</span>`).join("")}</div></div>`
-    : (s.kind === "palabra" || s.kind === "wordle") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art">${worldSVG({ fills: s.kind === "pais" ? { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" } : {} })}</div>`;
+    : (s.kind === "palabra" || s.kind === "wordle") ? `<div class="art" style="background:linear-gradient(160deg,var(--pl),var(--tl))"><div style="display:grid;grid-template-columns:repeat(5,44px);gap:6px">${[...(s.kind === "palabra" ? "PLAZA" : "WORLD")].map((c, i) => `<span class="tile ${["g", "y", "x", "g", "g"][i]}" style="width:44px;font-size:20px">${c}</span>`).join("")}</div></div>` : `<div class="art satart">${worldSVG(s.kind === "pais" ? { fills: { Brazil: "#F39B2E", Peru: "#E4412B", Canada: "#3D8FE0" }, vb: "95 30 330 330" }
+      : s.kind === "travle" ? { fills: { France: "#6D4AF0", Germany: "#15B486", Poland: "#15B486", Belarus: "#6D4AF0" }, vb: "455 35 170 170" }
+      : s.kind === "worldle" ? { fills: { Italy: "#E9A92E" }, vb: "468 52 130 130" } : { vb: "330 30 330 330" })}</div>`;
   const top = himg ? `<div class="heroimg"><img src="${himg}" alt=""><span class="tl">${ic(icon)}${s.t === "game" ? esc(PILLARS[s.eng].es) : s.kind === "es" ? "Vocabulario" : s.kind === "rush" ? "Rápido" : "Recuerdos"}</span></div>`
     : `<div class="heroimg">${pzArt()}<span class="tl">${ic(icon)}${s.free ? "Free play" : "Daily puzzle"}</span></div>`;
   app.innerHTML = `<div class="play">${shead()}${stepsBar()}
@@ -3858,11 +3867,11 @@ function geo(a, b) {
   const y = Math.sin(dn) * Math.cos(toR(b.lat)), x = Math.cos(toR(a.lat)) * Math.sin(toR(b.lat)) - Math.sin(toR(a.lat)) * Math.cos(toR(b.lat)) * Math.cos(dn);
   return { d: Math.round(d), brg: (Math.atan2(y, x) * 180 / Math.PI + 360) % 360 };
 }
-/* static world map (Home, intros, journey). Interactive maps use MapView. */
+/* static satellite map (puzzle intros), cropped to fill its frame. Interactive maps use MapView. */
 function worldSVG({ fills = {}, extra = "", vb = "0 8 1000 380", cls = "" } = {}) {
   let land = "", hi = "";
   for (const [n, d] of Object.entries(WORLD.c)) { if (fills[n]) hi += `<path d="${d}" style="fill:${fills[n]}" class="hl"/>`; else land += d; }
-  return `<svg class="wmap ${cls}" viewBox="${vb}" role="img" aria-label="World map"><path d="${land}" class="land"/>${hi}${extra}</svg>`;
+  return `<svg class="wmap sat ${cls}" viewBox="${vb}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="World map"><image href="${IMG.earth}" x="0" y="0" width="1000" height="${WORLD.H}" preserveAspectRatio="none"/><path d="${land}" class="land"/>${hi}${extra}</svg>`;
 }
 const fitW = (v, minW) => { if (v[2] >= minW) return v; const cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2, k = minW / v[2]; return [cx - v[2] * k / 2, cy - v[3] * k / 2, v[2] * k, v[3] * k]; };
 const ctryRow = (c, right, cls = "") => `<div class="grow2 ${cls}" data-fly="${c.i}"><span class="f">${ctryFlag(c)}</span><b>${esc(c.n)}</b>${right}</div>`;
