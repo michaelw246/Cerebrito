@@ -226,11 +226,11 @@ function geo(a, b) {
   const y = Math.sin(dn) * Math.cos(toR(b.lat)), x = Math.cos(toR(a.lat)) * Math.sin(toR(b.lat)) - Math.sin(toR(a.lat)) * Math.cos(toR(b.lat)) * Math.cos(dn);
   return { d: Math.round(d), brg: (Math.atan2(y, x) * 180 / Math.PI + 360) % 360 };
 }
-/* static world map (Home, intros, journey). Interactive maps use MapView. */
+/* static satellite map (puzzle intros), cropped to fill its frame. Interactive maps use MapView. */
 function worldSVG({ fills = {}, extra = "", vb = "0 8 1000 380", cls = "" } = {}) {
   let land = "", hi = "";
   for (const [n, d] of Object.entries(WORLD.c)) { if (fills[n]) hi += `<path d="${d}" style="fill:${fills[n]}" class="hl"/>`; else land += d; }
-  return `<svg class="wmap ${cls}" viewBox="${vb}" role="img" aria-label="World map"><path d="${land}" class="land"/>${hi}${extra}</svg>`;
+  return `<svg class="wmap sat ${cls}" viewBox="${vb}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="World map"><image href="${IMG.earth}" x="0" y="0" width="1000" height="${WORLD.H}" preserveAspectRatio="none"/><path d="${land}" class="land"/>${hi}${extra}</svg>`;
 }
 const fitW = (v, minW) => { if (v[2] >= minW) return v; const cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2, k = minW / v[2]; return [cx - v[2] * k / 2, cy - v[3] * k / 2, v[2] * k, v[3] * k]; };
 const ctryRow = (c, right, cls = "") => `<div class="grow2 ${cls}" data-fly="${c.i}"><span class="f">${ctryFlag(c)}</span><b>${esc(c.n)}</b>${right}</div>`;
