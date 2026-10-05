@@ -17,8 +17,8 @@ def uri(path, size, crop=None, q=80):
 imgs = {
     "avatar": uri(IMG + "avatar-source.png", 220, (290, 170, 770, 650)),   # face crop
     "hero": rect(IMG + "hero-mountaineer.png", 640),
-    # NASA Blue Marble (public domain), cropped to the map's 84°N–58°S equirectangular frame
-    "earth": webp(Image.open(f"{ROOT}/assets/images/earth/blue-marble-84N-58S.jpg").convert("RGB"), 66),
+    # whole-map satellite image (tools/make_earth.py: NASA Blue Marble + Natural Earth relief), 84°N–58°S equirectangular
+    "earth": webp(Image.open(f"{ROOT}/assets/images/earth/base.jpg").convert("RGB"), 72),
     "logo": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((160, 160), Image.LANCZOS), 90),
     "mark": webp(Image.open(f"{ROOT}/assets/brand/cerebrito-icon-rounded-1024.png").convert("RGBA").resize((560, 560), Image.LANCZOS), 86),
 }
@@ -39,6 +39,11 @@ _e = json.load(open(DATA + "enwords.json"))
 data = (data.replace("__GEO__", open(DATA + "geo.json").read()).replace("__BEE__", " ".join(_e["bee"])).replace("__BP__", json.dumps(_e["bp"]))
             .replace("__ANS5__", "".join(_e["ans5"])).replace("__V5__", "".join(_e["v5"])))
 for k, v in imgs.items(): data = data.replace(f"__IMG_{k}__", v)
+# 10,800 px detail tiles for zooming in (already WebP; land tiles only)
+_td = f"{ROOT}/assets/images/earth/tiles"; _ti = json.load(open(f"{_td}/index.json"))
+_ti["t"] = {f[:-5]: "data:image/webp;base64," + base64.b64encode(open(f"{_td}/{f}", "rb").read()).decode() for f in sorted(os.listdir(_td)) if f.endswith(".webp")}
+data = data.replace("__BORDERS50__", open(DATA + "borders50.txt").read())   # tools/make_borders.py
+data = data.replace("__EARTH_TILES__", json.dumps(_ti, separators=(",", ":")))
 eng = open(SRC + "engine.js").read().replace('"use strict";', "", 1).replace("__BANK_ES__", BANK_ES).replace("__BANK_TR__", BANK_TR)
 geo = open(SRC + "geo.js").read().replace("__COUNTRIES__", open(DATA + "countries.json").read())
 js = ('"use strict";\n' + data + "\n" + eng + "\n" + geo + "\n" + open(SRC + "app.js").read() + "\n" + open(SRC + "session.js").read() + "\n" + open(SRC + "puzzles.js").read() + "\n" + open(SRC + "awards.js").read() + "\n" + open(SRC + "onboard.js").read()

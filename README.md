@@ -30,6 +30,8 @@ More sheet (hidden when unavailable).
       brand/                 the logo: the Memory bonsai-brain painting with its pot label removed, as square + rounded icons,
                              favicon and apple-touch-icon (regenerate with tools/make_brand.py)
       images/                the nine bonsai-brain trees, mountaineer avatar + hero (source PNGs)
+      images/earth/          map imagery (tools/make_earth.py): base.jpg for the whole map + 10,800 px land tiles for zooming in,
+                             NASA Blue Marble colour fused with Natural Earth relief (both public domain, via PyPI basemap-data)
       data/                  valid.txt (Spanish guesses), geo.json (borders/centroids/Travle pairs), countries.json
                              (names, flags, regions, aliases), enwords.json (Wordle + Bee), worldpaths.json; source/ = Natural Earth 110m
     content/
@@ -42,6 +44,7 @@ More sheet (hidden when unavailable).
     tools/
       make_brand.py          regenerate assets/brand from assets/images/tree-memory.png
       make_world.py make_geo.py make_words.py make_countries.py    regenerate assets/data/*
+      make_earth.py          regenerate the satellite imagery;  make_borders.py  1:50m borders (npm world-atlas) for zoomed-in maps
       tests/smoke.py         full-app smoke test
       dev-tests/             older Playwright scratch scripts (hard-coded /tmp paths)
     backup/

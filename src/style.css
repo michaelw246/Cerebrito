@@ -1333,3 +1333,19 @@ body.ob-open{overflow:hidden}
 .wmap.sat .hl{fill-opacity:.82;stroke:rgba(255,255,255,.9);stroke-width:1px;vector-effect:non-scaling-stroke}
 @keyframes satdrift{from{transform:scale(1.02)}to{transform:scale(1.12) translate(-2%,1%)}}
 @media (prefers-reduced-motion:reduce){.art.satart .wmap{animation:none}}
+/* Give up / Show me sit with the guess counter; the learn card after geography puzzles */
+.pzcard .pzbtns .eyebrow{margin:0}
+.gbar .giveup{flex:none;padding:0 12px;height:44px;align-self:center}
+.card.clearn p{margin:6px 0 0;color:var(--ink2);font-size:14.5px;line-height:1.5}
+.card.clearn .tchips{margin-top:10px}
+.card.clearn .missrow{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:12px 0;border-top:1px solid var(--line)}
+.card.clearn .missrow span{display:flex;flex-direction:column;gap:2px}
+.card.clearn .missrow small{color:var(--ink3);font-size:12.5px} .card.clearn .missrow b{font-size:14.5px}
+.card.clearn .missrow>.ic{width:16px;height:16px;flex:none;color:var(--ink3)}
+.card.clearn .eyebrow{display:flex;gap:6px;align-items:center} .card.clearn .eyebrow .ic{width:14px;height:14px}
+.mapv .hires image{animation:tilein .35s ease-out}@keyframes tilein{from{opacity:0}}
+/* zoomed in: detailed borders replace the coarse outlines (the imagery shows the coastline) */
+.mapv .b50{display:none;fill:none;stroke:rgba(255,255,255,.7);stroke-width:1px;stroke-dasharray:4 2;vector-effect:non-scaling-stroke;pointer-events:none}
+.mapv svg.zin .b50{display:inline}
+.mapv svg.zin .lands path:not(.hl){stroke:transparent}
+.gbar .gfield.static span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

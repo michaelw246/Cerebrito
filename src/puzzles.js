@@ -121,6 +121,24 @@ document.addEventListener("click", e => {
   if (e.target.closest('[data-s="again"]')) { const k = P.steps[0].kind; const label = P.label; exitSession(); openPractice({ t: "puzzle", kind: k, free: true }, label); }
   else if (e.target.closest('[data-s="share"]')) shareResult(pzShareText);
 });
+/* Give up: every puzzle with a hidden answer has one, so you're never stuck without learning what it was.
+   Two taps (the first arms it for 3 seconds) so a stray tap can't end a game. */
+const giveUpBtn = (label = "Give up") => `<button class="giveup" id="giveup">${label}</button>`;
+function armGiveUp(onGiveUp, label = "Give up") {
+  const b = $("#giveup"); if (!b) return; let armed = false;
+  b.onclick = () => {
+    if (!armed) { armed = true; b.textContent = "Sure?"; b.classList.add("armed"); setTimeout(() => { if (armed && b.isConnected) { armed = false; b.textContent = label; b.classList.remove("armed"); } }, 3000); return; }
+    onGiveUp();
+  };
+}
+/* after a geography puzzle: a little about the country, and anything in your knowledge bank about it */
+function ctryLearn(T) {
+  const nb = (GEO.adj[T.i] || []).map(i => CTRY[i]), facts = content.tr.filter(x => x.country === T.n || x.place === T.n).slice(0, 4);
+  return `<section class="card clearn"><div class="eyebrow m">${ic("globe")}Get to know ${esc(T.n)}</div>
+    <p>${ctryFlag(T)} In ${esc(REGIONS[T.r].replace(/^The /, "the "))}. ${nb.length ? `Borders ${nb.length} countr${nb.length === 1 ? "y" : "ies"}:` : "An island nation with no land borders."}</p>
+    ${nb.length ? `<div class="tchips">${nb.map(c => `<span class="tchip">${ctryFlag(c)} ${esc(c.n)}</span>`).join("")}</div>` : ""}
+    ${facts.length ? `<div class="eyebrow m" style="margin-top:14px">${ic("cards")}From your knowledge bank</div>${facts.map(x => `<button class="missrow" data-more="tr:${x.id}"><span><small>${esc(x.q)}</small><b>${esc(x.a)}</b></span>${ic("arrow")}</button>`).join("")}` : ""}</section>`;
+}
 const pzTag = (kind, step, cls = "v") => `<span class="chip ${cls}">${ic(PZK[kind].icon)}${PZK[kind].name}<small>${step.free ? "Free" : "Daily"}</small></span>`;
 /* a fixed action bar docked at the bottom of the screen, for whatever the main action is right now */
 function dockBar(cls = "") {
@@ -142,7 +160,7 @@ function runWordle(step) {
   const kind = step.kind, es = kind === "palabra", S = pzState(kind, step);
   const A = es ? PALABRAS[S.a] : [EN.ans5[S.a].toUpperCase(), EN.ans5[S.a], ""], ans = A[0];
   if (S.done) { P.idx++; save(); return stepIntro(); }
-  let cur = "", busy = false, giveArmed = false, msgT = 0;
+  let cur = "", busy = false, msgT = 0;
   const rank = { x: 1, y: 2, g: 3 };
   const keyState = () => { const k = {}; S.g.forEach(g => scoreGuess(g, ans).forEach((r, i) => { const c = g[i]; if (!k[c] || rank[r] > rank[k[c]]) k[c] = r; })); return k; };
   const K = es ? ["QWERTYUIOP", "ASDFGHJKLÑ", "ZXCVBNM"] : ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
@@ -192,11 +210,7 @@ function runWordle(step) {
   };
   document.addEventListener("keydown", onKey);
   pzCleanup(() => document.removeEventListener("keydown", onKey), () => kb.destroy(), () => clearTimeout(msgT));
-  $("#giveup").onclick = () => {
-    const b = $("#giveup");
-    if (!giveArmed) { giveArmed = true; b.textContent = "Sure?"; b.classList.add("armed"); setTimeout(() => { if (giveArmed && b.isConnected) { giveArmed = false; b.textContent = "Give up"; b.classList.remove("armed"); } }, 3000); return; }
-    end(false, true);
-  };
+  armGiveUp(() => end(false, true));
   $("#hint").onclick = () => {
     if (S.rev.length >= HINTS) return;
     const known = new Set(); S.g.forEach(g => scoreGuess(g, ans).forEach((r, i) => r === "g" && known.add(i)));
@@ -239,7 +253,7 @@ const ctryRow = (c, right, cls = "") => `<div class="grow2 ${cls}" data-fly="${c
 function runPais(step) {
   const S = pzState("pais", step), T = CTRY[S.a], MAX = 12;
   if (S.done) { P.idx++; save(); return stepIntro(); }
-  app.innerHTML = `<div class="play gplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("pais", step, "o")}<span class="eyebrow" id="gcount"></span></div><h2>Find the mystery country</h2><div class="ghints" id="ghints"></div></section>
+  app.innerHTML = `<div class="play gplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("pais", step, "o")}<span class="pzbtns"><span class="eyebrow" id="gcount"></span>${giveUpBtn()}</span></div><h2>Find the mystery country</h2><div class="ghints" id="ghints"></div></section>
     <section class="card mapcard live"><div id="gmap"></div><div class="heatkey"><span>Touching</span><i></i><span>Far</span></div></section>
     <div id="glist" class="glist"></div></div>`;
   const used = () => new Set(S.g);
@@ -259,7 +273,7 @@ function runPais(step) {
     const G = S.g.map(i => ({ c: CTRY[i], d: borderKm(i, T.i) })), fills = {};
     G.forEach(g => fills[g.c.i] = heatCol(g.d));
     map.fills(fills); map.overlay("");
-    $("#gcount").textContent = `${S.g.length} of ${MAX} guesses`;
+    $("#gcount").textContent = `${S.g.length}/${MAX} guesses`;
     const hints = []; if (S.g.length >= 4) hints.push(`${ic("globe")}In ${REGIONS[T.r]}`); if (S.g.length >= 7) hints.push(`${ic("word")}Starts with ${T.n[0]}`); if (S.g.length >= 10) hints.push(`${ic("compass")}${GEO.adj[T.i].length ? `Borders ${GEO.adj[T.i].length} countr${GEO.adj[T.i].length === 1 ? "y" : "ies"}` : "An island nation"}`);
     $("#ghints").innerHTML = hints.length ? hints.map(h => `<span class="chip">${h}</span>`).join("") : `<p class="muted">Hints unlock after 4, 7 and 10 guesses.</p>`;
     const last = G[G.length - 1], sorted = G.slice().sort((a, b) => a.d - b.d);
@@ -274,16 +288,17 @@ function runPais(step) {
     draw(); flyNear([i]);
     toast(`${CTRY[i].n}: ${d ? `${fmt(d)} km, ${heatWord(d).toLowerCase()}` : "touching it! 🔥"}`);
   };
-  const end = won => {
+  const end = (won, gaveUp) => {
     pzEnd(); const rw = puzzleDone("pais", S, won, S.g.length, MAX);
     const emo = S.g.map(i => { const d = borderKm(i, T.i); return i === T.i ? "🟩" : d === 0 ? "🟥" : d < 1500 ? "🟧" : d < 4000 ? "🟨" : "⬜"; }).join("");
-    app.innerHTML = pzResult("pais", won, T.n, `<span class="bigflag">${ctryFlag(T)}</span>`, won ? `Found in ${S.g.length} ${S.g.length === 1 ? "guess" : "guesses"}` : "Out of guesses. Here's where it was", `<section class="card mapcard"><div id="rmap"></div></section>`, rw,
+    app.innerHTML = pzResult("pais", won, T.n, `<span class="bigflag">${ctryFlag(T)}</span>`, won ? `Found in ${S.g.length} ${S.g.length === 1 ? "guess" : "guesses"}` : gaveUp ? "You gave up, but now you know where it is" : "Out of guesses. Here's where it was", `<section class="card mapcard"><div id="rmap"></div></section>${ctryLearn(T)}`, rw,
       { hl: won ? S.g.length : 0, share: `Cerebrito Globle ${step.free ? "" : today() + " "}${won ? S.g.length : "X"}/${MAX}\n${emo}` });
     const fills = {}; S.g.forEach(i => fills[i] = heatCol(borderKm(i, T.i))); fills[T.i] = "var(--good)";
     const m = MapView($("#rmap"), { label: "Answer map" }); m.fills(fills); setTimeout(() => m.flyTo(fitW(bboxOf([T.i], 40), 300), 900), 250);
     pzCleanup(() => m.destroy());
     if (won) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);
   };
+  armGiveUp(() => end(false, true));
   draw(); if (S.g.length) flyNear([S.g[S.g.length - 1]]);
 }
 
@@ -291,7 +306,7 @@ function runPais(step) {
 function runWorldle(step) {
   const S = pzState("worldle", step), T = CTRY[S.a], MAX = 6;
   if (S.done) { P.idx++; save(); return stepIntro(); }
-  app.innerHTML = `<div class="play gplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("worldle", step, "y")}<span class="eyebrow" id="wcount"></span></div><h2>Which country is this?</h2><div class="ghints" id="whints"></div></section>
+  app.innerHTML = `<div class="play gplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("worldle", step, "y")}<span class="pzbtns"><span class="eyebrow" id="wcount"></span>${giveUpBtn()}</span></div><h2>Which country is this?</h2><div class="ghints" id="whints"></div></section>
     <section class="card silcard"><svg id="sil" viewBox="0 0 1000 400" role="img" aria-label="Country outline"><defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--p2)"/><stop offset="1" stop-color="var(--s)"/></linearGradient></defs><path d="${WORLD.c[T.key]}" fill="url(#sg)"/></svg></section>
     <div class="wrows" id="wrows"></div></div>`;
   const sil = $("#sil");
@@ -312,10 +327,11 @@ function runWorldle(step) {
     if (won || S.g.length >= MAX) return end(won);
     draw();
   };
-  const end = won => {
+  armGiveUp(() => end(false, true));
+  const end = (won, gaveUp) => {
     pzEnd(); const rw = puzzleDone("worldle", S, won, S.g.length, MAX);
     const emo = S.g.map(i => i === T.i ? "🎉" : ARROWS[dir8(geo(CTRY[i], T).brg)]).join("");
-    app.innerHTML = pzResult("worldle", won, T.n, `<span class="bigflag">${ctryFlag(T)}</span>`, won ? `Got it in ${S.g.length}` : "Now you'll know its shape", `<section class="card mapcard"><div id="rmap"></div></section>`, rw,
+    app.innerHTML = pzResult("worldle", won, T.n, `<span class="bigflag">${ctryFlag(T)}</span>`, won ? `Got it in ${S.g.length}` : gaveUp ? "You gave up, but now you'll know its shape" : "Now you'll know its shape", `<section class="card silcard"><svg class="on" viewBox="${$("#sil") ? $("#sil").getAttribute("viewBox") : "0 0 1000 400"}" role="img" aria-label="${esc(T.n)} outline"><path d="${WORLD.c[T.key]}" fill="var(--s)"/></svg></section><section class="card mapcard"><div id="rmap"></div></section>${ctryLearn(T)}`, rw,
       { hl: won ? S.g.length : 0, share: `Cerebrito Silhouette ${step.free ? "" : today() + " "}${won ? S.g.length : "X"}/${MAX}\n${emo}` });
     const m = MapView($("#rmap"), { label: "Answer map" }); m.fills({ [T.i]: "var(--s)" }); setTimeout(() => m.flyTo(fitW(bboxOf([T.i], 60), 320), 900), 250);
     pzCleanup(() => m.destroy());
@@ -334,7 +350,7 @@ function runTravle(step) {
   const connected = () => { const set = new Set(S.g.concat([B])), seen = new Set([A]), q = [A]; while (q.length) { const u = q.shift(); if (u === B) return true; for (const v of ADJ[u]) if (set.has(v) && !seen.has(v)) { seen.add(v); q.push(v); } } return false; };
   const shortest = () => { const path = [A]; let u = A; while (u !== B) { u = ADJ[u].find(v => dB[v] === dB[u] - 1); path.push(u); } return path; };
   const colors = { on: "#22B07D", near: "#F0A928", off: "#F0607A" };
-  app.innerHTML = `<div class="play gplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("travle", step)}<span class="eyebrow" id="tcount"></span></div>
+  app.innerHTML = `<div class="play gplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("travle", step)}<span class="pzbtns"><span class="eyebrow" id="tcount"></span>${giveUpBtn()}</span></div>
     <h2 class="trv"><span>${ctryFlag(CTRY[A])} ${esc(CTRY[A].n)}</span>${ic("arrow")}<span>${ctryFlag(CTRY[B])} ${esc(CTRY[B].n)}</span></h2><p class="muted">The shortest land route crosses <b>${D - 1}</b> countr${D - 1 === 1 ? "y" : "ies"} in between.</p></section>
     <section class="card mapcard live"><div id="tmap"></div></section><div class="tchips" id="tchips"></div>
     <div class="trow"><div class="legend3"><span><i style="background:${colors.on}"></i>On route</span><span><i style="background:${colors.near}"></i>Close</span><span><i style="background:${colors.off}"></i>Off track</span></div><button class="hintbtn" id="thint">${ic("bulb")}Hint <span id="thn"></span></button></div></div>`;
@@ -350,7 +366,7 @@ function runTravle(step) {
     const fills = { [A]: "var(--p)", [B]: "var(--p)" }; S.g.forEach(i => fills[i] = colors[status(i)]);
     S.hint.forEach(i => { if (!S.g.includes(i)) fills[i] = "color-mix(in srgb,var(--p) 30%,transparent)"; });
     map.fills(fills); map.overlay("");
-    $("#tcount").textContent = `${S.g.length} of ${MAX} guesses`;
+    $("#tcount").textContent = `${S.g.length}/${MAX} guesses`;
     $("#tchips").innerHTML = S.g.map(i => `<span class="tchip" style="--hc:${colors[status(i)]}">${ctryFlag(CTRY[i])} ${esc(CTRY[i].n)}</span>`).join("") || `<p class="muted">Name a country that borders ${esc(CTRY[A].n)} and heads towards ${esc(CTRY[B].n)}.</p>`;
     $("#thn").textContent = `(${HINTS - S.hint.length} left)`; $("#thint").disabled = S.hint.length >= HINTS || S.done;
   };
@@ -366,16 +382,17 @@ function runTravle(step) {
     if (won || S.g.length >= MAX) return end(won);
     draw(); toast(st === "on" ? `${CTRY[i].n} is on a shortest route` : st === "near" ? `${CTRY[i].n} is close, one detour` : `${CTRY[i].n} is off track`);
   };
-  const end = won => {
+  const end = (won, gaveUp) => {
     pzEnd(); const rw = puzzleDone("travle", S, won, S.g.length, MAX), path = shortest();
     const emo = S.g.map(i => ({ on: "🟩", near: "🟧", off: "🟥" })[status(i)]).join("");
-    app.innerHTML = pzResult("travle", won, `${CTRY[A].n} → ${CTRY[B].n}`, `<span class="bigflag">🧭</span>`, won ? `Linked in ${S.g.length} guesses (perfect is ${D - 1})` : "Out of guesses. Here's one shortest route",
+    app.innerHTML = pzResult("travle", won, `${CTRY[A].n} → ${CTRY[B].n}`, `<span class="bigflag">🧭</span>`, won ? `Linked in ${S.g.length} guesses (perfect is ${D - 1})` : gaveUp ? "You gave up. Here's one shortest route" : "Out of guesses. Here's one shortest route",
       `<section class="card"><div class="eyebrow m">A shortest route</div><div class="tchips">${path.map(i => `<span class="tchip" style="--hc:${i === A || i === B ? "var(--p)" : colors.on}">${ctryFlag(CTRY[i])} ${esc(CTRY[i].n)}</span>`).join(ic("arrow"))}</div><div id="rmap" style="margin-top:12px"></div></section>`, rw,
       { share: `Cerebrito Travle ${step.free ? "" : today() + " "}${CTRY[A].n} → ${CTRY[B].n}: ${won ? S.g.length + " guesses" : "X"} (par ${D - 1})\n${emo}` });
     const m = MapView($("#rmap"), { vb: home, label: "Route map" }), f = {}; path.forEach(i => f[i] = colors.on); f[A] = f[B] = "var(--p)"; m.fills(f);
     pzCleanup(() => m.destroy());
     if (won) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);
   };
+  armGiveUp(() => end(false, true));
   draw();
 }
 
@@ -394,21 +411,21 @@ function runMaptap(step) {
   const drawPin = () => {
     const u = map.unit(); let h = "";
     if (pin) { const [x, y] = proj(pin.lat, pin.lon); h += pinSVG(x, y, "mine"); }
-    if (revealed) { const r = S.res[S.res.length - 1], pl = place(), [px, py] = proj(pl.lat, pl.lon), [tx, ty] = proj(r.lat, r.lon); h = `<line x1="${tx}" y1="${ty}" x2="${px}" y2="${py}" class="tline"/>` + pinSVG(tx, ty, "mine") + pinSVG(px, py, "truth"); }
+    if (revealed) { const r = S.res[S.res.length - 1], pl = place(), [px, py] = proj(pl.lat, pl.lon), [tx, ty] = proj(r.lat, r.lon); h = r.skip ? pinSVG(px, py, "truth") : `<line x1="${tx}" y1="${ty}" x2="${px}" y2="${py}" class="tline"/>` + pinSVG(tx, ty, "mine") + pinSVG(px, py, "truth"); }
     map.overlay(h);
   };
   const pinSVG = (x, y, cls) => `<g class="pinm ${cls}" style="transform:translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(var(--u))"><circle r="15" class="halo"/><circle r="7"/></g>`;
   const drawHead = () => {
     const pl = place(), i = S.res.length - (revealed ? 1 : 0), total = S.res.reduce((a, r) => a + r.p, 0);
     $("#mround").textContent = `Place ${i + 1} of 5 · ${total} pts`; $("#mq").textContent = `Where is ${pl.n}?`; $("#msub").textContent = pl.c === pl.n ? "" : `In ${pl.c}`;
-    $("#mdots").innerHTML = S.places.map((_, j) => { const r = S.res[j]; return `<i class="${r ? (r.p >= 70 ? "g" : r.p >= 30 ? "y" : "r") : j === i ? "c" : ""}">${r ? r.p : ""}</i>`; }).join("");
+    $("#mdots").innerHTML = S.places.map((_, j) => { const r = S.res[j]; return `<i class="${r ? (r.p >= 70 ? "g" : r.p >= 30 ? "y" : "r") : j === i ? "c" : ""}">${r ? (r.skip ? "–" : r.p) : ""}</i>`; }).join("");
   };
   const drawDock = () => {
     if (revealed) {
       const r = S.res[S.res.length - 1], last = S.res.length >= 5;
-      dock.set(`<div class="mres"><div><b>${r.d < 25 ? "Bullseye!" : fmt(r.d) + " km away"}</b><small>+${r.p} points${r.p >= 90 ? " 🎯" : ""}</small></div><button class="gsubmit" id="mnext">${last ? "See results" : "Next place"}${ic("arrow")}</button></div>`);
+      dock.set(`<div class="mres"><div><b>${r.skip ? `Here's ${esc(place().n)}` : r.d < 25 ? "Bullseye!" : fmt(r.d) + " km away"}</b><small>${r.skip ? "No points, but now you know" : `+${r.p} points${r.p >= 90 ? " 🎯" : ""}`}</small></div><button class="gsubmit" id="mnext">${last ? "See results" : "Next place"}${ic("arrow")}</button></div>`);
       $("#mnext").onclick = () => { if (last) return end(); revealed = false; pin = null; drawHead(); drawPin(); drawDock(); map.flyTo([90, 20, 820, 340], 700); };
-    } else dock.set(`<div class="grow"><div class="gfield static">${ic("pin")}<span>${pin ? "Pin dropped · tap to move it" : "Tap the map to drop a pin"}</span></div><button class="gsubmit" id="mlock" ${pin ? "" : "disabled"}>Lock in</button></div>`), $("#mlock").onclick = lock;
+    } else { dock.set(`<div class="grow"><div class="gfield static">${ic("pin")}<span>${pin ? "Pin dropped" : "Tap the map"}</span></div>${giveUpBtn("Show me")}<button class="gsubmit" id="mlock" ${pin ? "" : "disabled"}>Lock in</button></div>`); $("#mlock").onclick = lock; armGiveUp(skip, "Show me"); }
   };
   const lock = () => {
     if (!pin || revealed) return;
@@ -419,15 +436,21 @@ function runMaptap(step) {
     const [a, b] = [proj(pin.lat, pin.lon), proj(pl.lat, pl.lon)]; map.flyTo(fitW(bboxPts([a, b], 40), 90), 800);
     if (p >= 90) { const r = map.svg.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 20); }
   };
+  // "Show me": reveal where the place is for no points, so a stumper still teaches you something
+  const skip = () => {
+    if (revealed) return; const pl = place();
+    S.res.push({ d: 0, p: 0, lat: pl.lat, lon: pl.lon, skip: true }); save(); revealed = true; pin = null;
+    drawHead(); drawPin(); drawDock(); map.flyTo(fitW(bboxPts([proj(pl.lat, pl.lon)], 60), 140), 800);
+  };
   const end = () => {
     pzEnd(); const total = S.res.reduce((a, r) => a + r.p, 0), won = total >= 250; rec("maptap", total);
     const rw = puzzleDone("maptap", S, won, won ? 1 : 3, 3);
-    const rows = S.places.map((pi, j) => `<div class="wrow"><span class="pn">${j + 1}</span><b>${esc(PLACES[pi].n)}</b><span class="km">${fmt(S.res[j].d)} km</span><span class="pr" style="--p:${S.res[j].p}%">${S.res[j].p}</span></div>`).join("");
+    const rows = S.places.map((pi, j) => `<div class="wrow"><span class="pn">${j + 1}</span><b>${esc(PLACES[pi].n)}</b><span class="km">${S.res[j].skip ? "shown" : fmt(S.res[j].d) + " km"}</span><span class="pr" style="--p:${S.res[j].p}%">${S.res[j].p}</span></div>`).join("");
     app.innerHTML = pzResult("maptap", won, `${total} / 500`, `<span class="bigflag">📍</span>`, total >= 400 ? "Human GPS" : won ? "Sharp sense of place" : "Keep tapping, it gets easier",
       `<section class="card mapcard"><div id="rmap"></div></section><div class="wrows">${rows}</div>`, rw,
       { share: `Cerebrito MapTap ${step.free ? "" : today() + " "}${total}/500\n${S.res.map(r => r.p >= 70 ? "🟩" : r.p >= 30 ? "🟨" : "🟥").join("")}` });
     const m = MapView($("#rmap"), { label: "Your pins" }), pts = [];
-    m.overlay(S.places.map((pi, j) => { const pl = PLACES[pi], r = S.res[j], [px, py] = proj(pl.lat, pl.lon), [tx, ty] = proj(r.lat, r.lon); pts.push([px, py], [tx, ty]); return `<line x1="${tx}" y1="${ty}" x2="${px}" y2="${py}" class="tline"/>${pinSVG(tx, ty, "mine")}${pinSVG(px, py, "truth")}`; }).join(""));
+    m.overlay(S.places.map((pi, j) => { const pl = PLACES[pi], r = S.res[j], [px, py] = proj(pl.lat, pl.lon), [tx, ty] = proj(r.lat, r.lon); pts.push([px, py], [tx, ty]); return r.skip ? pinSVG(px, py, "truth") : `<line x1="${tx}" y1="${ty}" x2="${px}" y2="${py}" class="tline"/>${pinSVG(tx, ty, "mine")}${pinSVG(px, py, "truth")}`; }).join(""));
     setTimeout(() => m.flyTo(fitW(bboxPts(pts, 30), 200), 900), 250);
     pzCleanup(() => m.destroy());
     if (won) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);

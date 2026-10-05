@@ -54,6 +54,12 @@ async def main():
         await ev("more sheet", "document.querySelector('.missrow').click()", 300)
         await chk("More sheet opens", "!!$('.moresheet') && !$('#mask').offsetParent"); await ev("close", "$('.moresheet [data-close]').click();exitSession()", 300)
         await chk("queue has no give-away pairs", "(()=>{const q=queueFor('tr',8,40).map(id=>content.tr.find(x=>x.id===id));return q.every((a,i)=>q.every((b,j)=>i===j||!clash('tr',a,b)))})()")
+        # every puzzle with a hidden answer can be given up (two taps), landing on the answer
+        for k in ["palabra", "wordle", "pais", "worldle", "travle"]:
+            await ev(f"give up {k}", f"openPractice({{t:'puzzle',kind:'{k}',free:true}},'t');beginStep();$('#giveup').click();$('#giveup').click()", 300)
+            await chk(f"{k} gave up to the answer", "!!$('.pzres')"); await ev("exit", "exitSession()")
+        await ev("maptap show me", "openPractice({t:'puzzle',kind:'maptap',free:true},'t');beginStep();$('#giveup').click();$('#giveup').click()", 300)
+        await chk("maptap revealed the place", "!!$('#mnext')"); await ev("exit", "exitSession()")
         await ev("pace", "view='recall';render();document.querySelector('[data-a=pace][data-m=\"6\"]').click()", 200)
         await chk("pace set to 6 months", "state.pace.months === 6 && paceInfo().perDay >= 3")
         await b.close()
