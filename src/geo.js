@@ -79,8 +79,8 @@ const unproj = (x, y) => ({ lat: WORLD.LAT0 - y * 360 / 1000, lon: x * 360 / 100
 function MapView(host, o = {}) {
   const minW = o.minW || 36, ease = t => t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
   host.innerHTML = `<div class="mapv ${o.cls || ""}"><svg class="wmap" role="img" aria-label="${esc(o.label || "World map")}" preserveAspectRatio="xMidYMid meet">
-    <image href="${IMG.earth}" x="0" y="0" width="1000" height="${MAP_H}" preserveAspectRatio="none" class="earth"/>
-    <g class="lands">${CTRY.map(c => `<path data-k="${c.i}" d="${WORLD.c[c.key]}"/>`).join("")}</g><g class="ov"></g></svg>
+    <image href="${IMG.earth}" x="0" y="0" width="1000" height="${MAP_H}" preserveAspectRatio="none" class="earth"/><g class="hires"></g>
+    <g class="lands">${CTRY.map(c => `<path data-k="${c.i}" d="${WORLD.c[c.key]}"/>`).join("")}</g><path class="b50" d="${BORDERS50}"/><g class="ov"></g></svg>
     <div class="mapctl"><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="out" aria-label="Zoom out">−</button><button type="button" data-z="fit" aria-label="Reset view">${ic("globe")}</button></div>
     ${o.hint ? `<div class="maphint">${esc(o.hint)}</div>` : ""}</div>`;
   const wrap = host.firstElementChild, svg = $("svg", wrap), ov = $(".ov", svg), paths = $$("path[data-k]", svg);
@@ -98,8 +98,25 @@ function MapView(host, o = {}) {
     if (w > maxW) { w = maxW; h = w / a; } if (w < minW) { w = minW; h = w / a; }
     return [clamp(cx - w / 2, 0, 1000 - w), clamp(cy - h / 2, 0, MAP_H - h), w, h];   // resize about the centre
   };
+  /* Sharp imagery: once you zoom in past what the whole-map image can show at this screen's pixel density, the
+     10,800 px tiles under the view fade in on top. Tiles well outside the view are dropped again. */
+  const hires = $(".hires", svg), tiles = new Map(), TU = EARTH.tile / EARTH.w * 1000, baseRes = 4096 / 1000;
+  const updateTiles = () => {
+    const r = svg.getBoundingClientRect(); if (!r.width) return;
+    if (r.width * (window.devicePixelRatio || 1) / vb[2] < baseRes * 1.1) { if (tiles.size) { hires.textContent = ""; tiles.clear(); } return; }
+    const c0 = Math.floor(vb[0] / TU), c1 = Math.floor((vb[0] + vb[2]) / TU), r0 = Math.floor(vb[1] / TU), r1 = Math.floor((vb[1] + vb[3]) / TU);
+    for (let rr = r0; rr <= r1; rr++) for (let cc = c0; cc <= c1; cc++) {
+      const k = `r${rr}c${cc}`; if (tiles.has(k) || !EARTH.t[k]) continue;
+      const h = Math.min(EARTH.tile, EARTH.h - rr * EARTH.tile) / EARTH.w * 1000, im = document.createElementNS("http://www.w3.org/2000/svg", "image");
+      // a hair of overlap hides seams between neighbouring tiles
+      im.setAttribute("href", EARTH.t[k]); im.setAttribute("x", cc * TU - .02); im.setAttribute("y", rr * TU - .02); im.setAttribute("width", TU + .04); im.setAttribute("height", h + .04); im.setAttribute("preserveAspectRatio", "none");
+      hires.appendChild(im); tiles.set(k, { im, rr, cc });
+    }
+    tiles.forEach((t, k) => { if (t.rr < r0 - 1 || t.rr > r1 + 1 || t.cc < c0 - 1 || t.cc > c1 + 1) { t.im.remove(); tiles.delete(k); } });
+  };
   const apply = () => {
-    svg.setAttribute("viewBox", vb.map(v => v.toFixed(2)).join(" "));
+    svg.setAttribute("viewBox", vb.map(v => v.toFixed(2)).join(" ")); updateTiles();
+    svg.classList.toggle("zin", vb[2] < 130);   // zoomed in: the coarse outlines give way to the imagery's coastline and 1:50m borders
     const r = svg.getBoundingClientRect(); if (r.width) svg.style.setProperty("--u", Math.max(vb[2] / r.width, vb[3] / r.height).toFixed(4)); // map units per screen px, so pins keep a constant size
     if (o.onView) o.onView(vb);
   };

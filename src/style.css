@@ -1343,3 +1343,9 @@ body.ob-open{overflow:hidden}
 .card.clearn .missrow small{color:var(--ink3);font-size:12.5px} .card.clearn .missrow b{font-size:14.5px}
 .card.clearn .missrow>.ic{width:16px;height:16px;flex:none;color:var(--ink3)}
 .card.clearn .eyebrow{display:flex;gap:6px;align-items:center} .card.clearn .eyebrow .ic{width:14px;height:14px}
+.mapv .hires image{animation:tilein .35s ease-out}@keyframes tilein{from{opacity:0}}
+/* zoomed in: detailed borders replace the coarse outlines (the imagery shows the coastline) */
+.mapv .b50{display:none;fill:none;stroke:rgba(255,255,255,.7);stroke-width:1px;stroke-dasharray:4 2;vector-effect:non-scaling-stroke;pointer-events:none}
+.mapv svg.zin .b50{display:inline}
+.mapv svg.zin .lands path:not(.hl){stroke:transparent}
+.gbar .gfield.static span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

@@ -425,7 +425,7 @@ function runMaptap(step) {
       const r = S.res[S.res.length - 1], last = S.res.length >= 5;
       dock.set(`<div class="mres"><div><b>${r.skip ? `Here's ${esc(place().n)}` : r.d < 25 ? "Bullseye!" : fmt(r.d) + " km away"}</b><small>${r.skip ? "No points, but now you know" : `+${r.p} points${r.p >= 90 ? " 🎯" : ""}`}</small></div><button class="gsubmit" id="mnext">${last ? "See results" : "Next place"}${ic("arrow")}</button></div>`);
       $("#mnext").onclick = () => { if (last) return end(); revealed = false; pin = null; drawHead(); drawPin(); drawDock(); map.flyTo([90, 20, 820, 340], 700); };
-    } else { dock.set(`<div class="grow"><div class="gfield static">${ic("pin")}<span>${pin ? "Pin dropped · tap to move it" : "Tap the map to drop a pin"}</span></div>${giveUpBtn("Show me")}<button class="gsubmit" id="mlock" ${pin ? "" : "disabled"}>Lock in</button></div>`); $("#mlock").onclick = lock; armGiveUp(skip, "Show me"); }
+    } else { dock.set(`<div class="grow"><div class="gfield static">${ic("pin")}<span>${pin ? "Pin dropped" : "Tap the map"}</span></div>${giveUpBtn("Show me")}<button class="gsubmit" id="mlock" ${pin ? "" : "disabled"}>Lock in</button></div>`); $("#mlock").onclick = lock; armGiveUp(skip, "Show me"); }
   };
   const lock = () => {
     if (!pin || revealed) return;
