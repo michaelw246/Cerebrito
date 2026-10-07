@@ -103,10 +103,12 @@ function pzStats(kind, hl) {
   const bars = PZK[kind].max ? `<div class="dist">${Array.from({ length: PZK[kind].max }, (_, i) => `<div><span>${i + 1}</span><i style="--w:${Math.max(6, Math.round((dist[i] || 0) / mx * 100))}%" class="${hl === i + 1 ? "hl" : ""}"><b>${dist[i] || 0}</b></i></div>`).join("")}</div>` : "";
   return `<section class="card pzstats"><div class="eyebrow m">Your ${esc(PZK[kind].name)} stats</div><div class="st4"><div><b data-count="${s.played}">${s.played}</b><small>Played</small></div><div><b data-count="${Math.round(s.won / s.played * 100)}" data-fmt="pct">${Math.round(s.won / s.played * 100)}%</b><small>Won</small></div><div><b>${s.streak}</b><small>Streak</small></div><div><b>${s.best || s.streak}</b><small>Best</small></div></div>${bars}</section>`;
 }
+// shared results carry the site link, so the message shows the Cerebrito preview card (logo, name)
+const SITE = /^https?:/.test(location.protocol) ? location.origin + location.pathname.replace(/index\.html$/, "") : "https://cerebritotraining.netlify.app/";
 function shareResult(text) {
   const done = () => toast("Result copied. Paste it anywhere");
-  if (navigator.share && matchMedia("(pointer:coarse)").matches) { navigator.share({ text }).catch(() => {}); return; }
-  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => toast("Couldn't copy"));
+  if (navigator.share && matchMedia("(pointer:coarse)").matches) { navigator.share({ text, url: SITE }).catch(() => {}); return; }
+  if (navigator.clipboard) navigator.clipboard.writeText(`${text}\n${SITE}`).then(done, () => toast("Couldn't copy"));
 }
 let pzShareText = "";
 function pzResult(kind, won, title, big, sub, extra, rw, opts = {}) {

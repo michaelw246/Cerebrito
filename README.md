@@ -9,7 +9,12 @@ Ships as **one self-contained `index.html`** (no framework, no server).
     python build.py              # writes ./index.html  (or: python build.py out.html)
     python tools/tests/smoke.py  # loads the build in Chromium and walks every screen, game and puzzle; fails on any JS error
 
-To publish: upload `index.html` as an artifact with capabilities `{db: {}, user: {}, sample: {}}`. `db` syncs progress
+The build also writes the site icons beside `index.html`: `favicon.ico`, `apple-touch-icon.png`, `site.webmanifest` and
+`icons/` (home-screen icons and `og-image.jpg`, the link-preview card). Browsers and other apps fetch these by URL, so they
+must be deployed with the page: on Netlify (cerebritotraining.netlify.app) publish the folder, not just `index.html`.
+The site URL used for link previews is `SITE_URL` in `build.py`.
+
+Or publish as an artifact: upload `index.html` with capabilities `{db: {}, user: {}, sample: {}}`. `db` syncs progress
 (outside the artifact runtime it falls back to `localStorage`); `sample` powers "Tell me the full story" on a card's
 More sheet (hidden when unavailable).
 
@@ -27,6 +32,7 @@ More sheet (hidden when unavailable).
       onboard.js             animated first-run walkthrough (also replayable from Settings)
       style.css              "light glass" design system (themes via data-skin, dark mode via prefers-color-scheme)
     assets/
+      fonts/                 Outfit (OFL) for the link-preview card
       brand/                 the logo: the Memory bonsai-brain painting with its pot label removed, as square + rounded icons,
                              favicon and apple-touch-icon (regenerate with tools/make_brand.py)
       images/                the nine bonsai-brain trees, mountaineer avatar + hero (source PNGs)

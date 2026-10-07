@@ -4,3 +4,4 @@ english-words
 playwright
 pycountry
 pycountry-convert
+numpy
