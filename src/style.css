@@ -1278,6 +1278,13 @@ body.ob-open{overflow:hidden}
 .card.misses .missrow span{display:flex;flex-direction:column;gap:2px}
 .card.misses .missrow small{color:var(--ink3);font-size:12.5px} .card.misses .missrow b{font-size:14.5px}
 .card.misses .missrow>svg{width:16px;height:16px;flex:none;color:var(--ink3)}
+.card.misses .missrow .rmark{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal}
+.card.misses .missrow .rmark svg{width:13px;height:13px}
+.card.misses .missrow.ok .rmark{background:color-mix(in srgb,#2E9E5B 16%,transparent);color:#2E9E5B}
+.card.misses .missrow.no .rmark{background:color-mix(in srgb,#D62839 14%,transparent);color:#D62839}
+.card.misses .missrow>span{flex:1;min-width:0}
+.card.misses .missrow em{font-style:normal;font-size:12.5px;color:#C2410C}
+.card.misses.flat{background:none;box-shadow:none;border:0;padding:0;margin-top:6px}
 .card.lessons .lrow{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:center;margin-top:10px;font-size:13.5px}
 .card.lessons .lrow span{display:flex;gap:6px;align-items:center} .card.lessons .lrow svg{width:15px;height:15px;color:var(--pd)}
 @keyframes mpop{from{transform:scale(.94);opacity:0}}

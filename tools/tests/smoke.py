@@ -51,6 +51,12 @@ async def main():
               const r=$('#krv');if(r){r.click();document.querySelector('[data-q="1"]').click();return}const c=$('#kcont');if(c)c.click()})()""", 250)
             await ev("cont", "const c=$('#kcont');if(c)c.click()", 250)
         await chk("round ended without repeats", "!!$('.scorebig') && !!$('.misses')")
+        # the end screen lists every question to look back over, misses marked with what you said
+        await chk("review lists every question", "document.querySelectorAll('.review .missrow').length === state.rounds[0].log.length && state.rounds[0].log.length === 4")
+        await chk("misses show what you said", "[...document.querySelectorAll('.review .missrow.no')].every(r => r.querySelector('em'))")
+        # the end screen lists every question to look back over, misses marked with what you said
+        await chk("review lists every question", "document.querySelectorAll('.review .missrow').length === state.rounds[0].log.length && state.rounds[0].log.length === 4")
+        await chk("misses show what you said", "[...document.querySelectorAll('.review .missrow.no')].every(r => r.querySelector('em'))")
         await ev("more sheet", "document.querySelector('.missrow').click()", 300)
         await chk("More sheet opens", "!!$('.moresheet') && !$('#mask').offsetParent"); await ev("close", "$('.moresheet [data-close]').click();exitSession()", 300)
         await chk("queue has no give-away pairs", "(()=>{const q=queueFor('tr',8,40).map(id=>content.tr.find(x=>x.id===id));return q.every((a,i)=>q.every((b,j)=>i===j||!clash('tr',a,b)))})()")
@@ -80,6 +86,10 @@ async def main():
         await chk("maptap never repeats a place until all are used", "(()=>{state.seen={};const a=[];for(let i=0;i<Math.floor(PLACES.length/5);i++)a.push(...newPz('maptap','m'+i).places);return new Set(a).size===a.length})()")
         await chk("pais never repeats until the pool is used", "(()=>{state.seen={};const n=CTRY.filter(c=>c.pool).length,a=[];for(let i=0;i<n;i++)a.push(newPz('pais','p'+i).a);return new Set(a).size===n})()")
         await chk("after a full pool, the last third is held back", "(()=>{state.seen={};const a=PALABRAS.map((_,i)=>newPz('palabra','s'+i).a),last=new Set(a.slice(-Math.floor(a.length/3)));const b=Array.from({length:20},(_,i)=>newPz('palabra','t'+i).a);state.seen={};return b.every(x=>!last.has(x))})()")
+        await ev("recall rounds", "view='recall';render();document.querySelector('[data-a=round]').click()", 300)
+        await chk("a past round opens for review", "document.querySelectorAll('.sheet .review .missrow').length === state.rounds[0].log.length"); await ev("close", "document.querySelector('.sheet [data-close]').click()", 300)
+        await ev("recall rounds", "view='recall';render();document.querySelector('[data-a=round]').click()", 300)
+        await chk("a past round opens for review", "document.querySelectorAll('.sheet .review .missrow').length === state.rounds[0].log.length"); await ev("close", "document.querySelector('.sheet [data-close]').click()", 300)
         await ev("pace", "view='recall';render();document.querySelector('[data-a=pace][data-m=\"6\"]').click()", 200)
         await chk("pace set to 6 months", "state.pace.months === 6 && paceInfo().perDay >= 3")
         await b.close()
