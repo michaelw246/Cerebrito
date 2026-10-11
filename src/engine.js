@@ -45,7 +45,7 @@ function freshState() {
     skin: "andean", sound: true, haptics: true, notice: null,
     log: {}, awards: {}, rec: {},
     pace: { months: 9, start: null }, kst: {},
-    coins: 150, owned: ["andean"], joined: null, pz: {}, pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
+    coins: 150, owned: ["andean"], joined: null, pz: {}, seen: {}, rounds: [], pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
   };
 }
 let state = freshState();
@@ -64,6 +64,8 @@ function migrate() {
   if (!state.kst || typeof state.kst !== "object") state.kst = {};
   if (!state.awards) state.awards = {};
   if (!state.rec) state.rec = {};
+  if (!state.seen || typeof state.seen !== "object") state.seen = {};
+  if (!Array.isArray(state.rounds)) state.rounds = [];
   if (!Object.keys(state.log).length) {   // backfill the activity log from what older saves recorded
     Object.values(state.skills).forEach(k => k.hist.forEach(h => { const L = state.log[h.d] || (state.log[h.d] = {}); L.g = (L.g || 0) + 1; }));
     if (state.lastDone) { const L = state.log[state.lastDone] || (state.log[state.lastDone] = {}); L.s = 1; }
@@ -225,7 +227,7 @@ function choice(stage, { top = "", options, correct, limit, render, cls = "" }, 
     const bs = $$(".opt", stage);
     if (bs[correct]) bs[correct].classList.add("right");
     if (i >= 0 && i !== correct && bs[i]) bs[i].classList.add("wrong");
-    done(i === correct);
+    done(i === correct, i);
   }
   return () => { over = true; clearTimeout(t); stage.removeEventListener("pointerdown", h); };
 }

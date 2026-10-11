@@ -206,7 +206,7 @@ function cardMode(kind, it, r) {
 }
 function runKnow(step) {
   const kind = step.kind, items = Object.fromEntries(content[kind].map(it => [it.id, it]));
-  const queue = step.ids.filter(id => items[id]).map(id => ({ id })), total = queue.length, missed = [], lessonsMet = new Set();
+  const queue = step.ids.filter(id => items[id]).map(id => ({ id })), total = queue.length, missed = [], lessonsMet = new Set(), log = [];
   let i = 0, firstTry = 0, done = 0, keyH = null, autoT = 0;
   const dock = dockBar("kdock"); dock.el.hidden = true;
   const cleanup = () => { clearTimeout(autoT); if (keyH) document.removeEventListener("keydown", keyH); dock.destroy(); try { speechSynthesis.cancel(); } catch (e) {} };
@@ -242,7 +242,9 @@ function runKnow(step) {
       <div class="prompt ${prompt.length > 60 ? "mid small" : prompt.length > 16 ? "mid" : ""}">${esc(prompt)}</div>${prLine ? `<p class="sub">[${esc(prLine)}]</p>` : ""}${spk}
       ${tfShown !== null ? `<div class="tfans"><small>Answer</small><b>${esc(tfShown)}</b></div>` : ""}<div class="kreveal" id="krev"></div></div></div>`;
     const why = `${it.why ? `<p class="why">${ic("bulb")}<span>${esc(it.why)}</span></p>` : ""}<button class="morebtn" data-more="${kind}:${it.id}">${ic("book")}More on this</button>`;
-    const finishCard = (q, ok) => {
+    // p: what you answered, for the review at the end ("Forgot", the option you picked, or "True"/"False" to a statement)
+    const finishCard = (q, ok, p) => {
+      log.push({ id: it.id, ok, p: p == null ? null : String(p), tf: tfShown == null ? undefined : String(tfShown) });
       grade(kind, it.id, q); if (ok) firstTry++; else missed.push(it.id);
       trackAnswer(kind, it, ok); if (isNew) { logDay({ n: 1 }); if (les) lessonsMet.add(les.name); }
       done++; save();
@@ -259,7 +261,7 @@ function runKnow(step) {
         if (answerSide === "es") { const b = $("#spk2"); if (b) b.onclick = () => speakEs(it.es); speakEs(it.es); }
         const rec = state.srs[kind][it.id], opts = [[1, "Forgot", "again"], [2, "Hard", "hard"], [3, "Got it", "good"], [4, "Easy", "easy"]];
         dock.set(`<div class="grades">${opts.map(([q, l, c]) => `<button class="gbtn ${c}" data-q="${q}"><b>${l}</b><small>${q === 1 ? "Today" : ivLabel(sched(rec, q, today()).iv)}</small></button>`).join("")}</div>`);
-        const pickQ = q => { const ok = q >= 2; tone(ok); buzz(ok); finishCard(q, ok); next(); };
+        const pickQ = q => { const ok = q >= 2; tone(ok); buzz(ok); finishCard(q, ok, opts[q - 1][1]); next(); };
         dock.el.querySelectorAll("[data-q]").forEach(b => b.onclick = () => pickQ(+b.dataset.q));
         onKeys(e => { if (/^[1-4]$/.test(e.key)) pickQ(+e.key); });
       };
@@ -272,9 +274,9 @@ function runKnow(step) {
     stage.innerHTML = "";
     dock.el.hidden = true;
     const L = "ABCD";
-    const cleanupChoice = choice(stage, { top: card + `<div class="kq"><b>${esc(sub)}</b></div>`, options, correct, cls: tf ? "tf" : "one letters", render: o => tf ? esc(o) : `<span class="L">${L[options.indexOf(o)]}</span><span>${esc(o)}</span>` }, ok => {
+    const cleanupChoice = choice(stage, { top: card + `<div class="kq"><b>${esc(sub)}</b></div>`, options, correct, cls: tf ? "tf" : "one letters", render: o => tf ? esc(o) : `<span class="L">${L[options.indexOf(o)]}</span><span>${esc(o)}</span>` }, (ok, pi) => {
       onKeys(() => {});
-      finishCard(ok ? 3 : 1, ok);
+      finishCard(ok ? 3 : 1, ok, pi >= 0 ? options[pi] : null);
       tone(ok); buzz(ok);
       const fb = ok ? `<div class="fbbar ok">${ic("check")}<span>${pick(["Excelente!", "Genial!", "Buenísimo!", "Qué bueno!", "Dale!"])}</span></div>` : `<div class="fbbar no">${ic("bulb")}<span>It's <b>${esc(tf ? `${correctTF === 0 ? "true" : "false"}: ${it.a}` : ans)}</b>. It comes back tomorrow.</span></div>`;
       if (speakTxt || answerSide === "es") speakEs(it.es);
@@ -296,14 +298,14 @@ function runKnow(step) {
     addCoins(coins);
     P.results.push({ t: "know", kind, right: firstTry, total, xp: P.kind === "practice" ? 0 : xp, coins }); P.idx++; if (P.kind === "practice") bumpMax();
     const lessonLine = [...lessonsMet].map(n => { const l = lessonsOf(kind).find(x => x.name === n), p = lessonProgress(l, kind); return `<div class="lrow"><span>${ic("book")}<b>${esc(n)}</b></span><div class="gauge thin"><i style="width:${Math.round(p.seen / p.total * 100)}%"></i></div><small>${p.seen}/${p.total}</small></div>`; }).join("");
-    const missList = missed.map(id => items[id]).map(it => `<button class="missrow" data-more="${kind}:${it.id}"><span><small>${esc(kind === "es" ? it.es : it.q)}</small><b>${esc(kind === "es" ? it.en : it.a)}</b></span>${ic("arrow")}</button>`).join("");
+    if (log.length) { state.rounds.unshift({ d: today(), kind, log }); state.rounds = state.rounds.slice(0, 8); }
     logDay({ c: total }); checkAwards();
     save();
     const st = knowStats(kind), acc = total ? firstTry / total : 0, stars = acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : acc >= 0.4 ? 1 : 0, missedN = total - firstTry;
     app.innerHTML = `<div class="play">${shead()}
     <section class="card scorebig" style="margin-top:14px"><div class="eyebrow m">${kind === "es" ? "Palabras" : "Knowledge"}</div><b><span data-count="${firstTry}">${firstTry}</span><small> / ${total}</small></b><div class="near">${ic(missed ? "bulb" : "trophy")}${missedN ? `${missedN} to revisit. They're back tomorrow, when a second try counts most.` : "Clean sweep. Those just got pushed further out."}</div></section>
     ${lessonLine ? `<section class="card lessons"><div class="eyebrow m">${ic("sparkle")}Lesson progress</div>${lessonLine}</section>` : ""}
-    ${missList ? `<section class="card misses"><div class="eyebrow m">${ic("bulb")}Worth a second look</div><p class="muted">Tap one to read the full story.</p>${missList}</section>` : ""}
+    ${log.length ? `<section class="card misses review"><div class="eyebrow m">${ic("cards")}Look back over the round</div><p class="muted">${missedN ? `${firstTry} of ${total} right. The ones to revisit are marked. ` : ""}Tap any question for the full story.</p>${reviewRows(kind, log)}</section>` : ""}
     <section class="card tint acc"><span class="coin">${ic("check")}</span><div><div class="eyebrow m">Locked in (2+ weeks)</div><b>${st.mastered} of ${content[kind].length}</b></div><span class="stars">${[0, 1, 2].map(k => ic("star", k < stars ? "on" : "")).join("")}</span></section>
     <div class="two2"><div class="card tint"><div class="eyebrow">${ic("clock")}Learning</div><b class="o">${st.learning}</b><small>In rotation</small></div><div class="card tint"><div class="eyebrow">${ic("sparkle")}Not seen</div><b>${fmt(st.fresh)}</b><small>A few new each day</small></div></div>
     <div class="pills2"><span class="chip o">${ic("zap")}+${xp} XP</span><span class="chip y">${ic("sun")}+${coins} coins</span></div>
@@ -312,6 +314,25 @@ function runKnow(step) {
   };
   if (!queue.length) return end();
   show();
+}
+
+/* ---------- Looking back over a round ----------
+   Every question in the order you met it: the answer, and for a miss what you said instead. Tap one for More. */
+function reviewRows(kind, log) {
+  const L = Object.fromEntries(content[kind].map(it => [it.id, it]));
+  return log.filter(e => L[e.id]).map(e => {
+    const it = L[e.id], q = kind === "es" ? it.es : it.q, a = kind === "es" ? it.en : it.a;
+    const said = e.ok || e.p == null ? "" : e.tf != null ? `You said ${e.p.toLowerCase()} to "${e.tf}"` : ["Forgot", "Hard"].includes(e.p) ? `You marked it ${e.p}` : `You said ${e.p}`;
+    return `<button class="missrow ${e.ok ? "ok" : "no"}" data-more="${kind}:${it.id}"><i class="rmark">${ic(e.ok ? "check" : "x")}</i><span><small>${esc(q)}</small><b>${esc(a)}</b>${said ? `<em>${esc(said)}</em>` : ""}</span>${ic("arrow")}</button>`;
+  }).join("");
+}
+const roundWhen = d => d === today() ? "Today" : d === addDays(today(), -1) ? "Yesterday" : dShort(d);
+function openRound(i) {
+  const r = state.rounds[i]; if (!r) return;
+  const right = r.log.filter(e => e.ok).length, when = roundWhen(r.d);
+  const sh = bottomSheet(`<div class="more"><div class="mtop"><span class="chip m">${ic("cards")}${esc(when)} · ${r.kind === "es" ? "Palabras" : "Knowledge"}</span><button class="iconbtn" data-close aria-label="Close">${ic("x")}</button></div>
+    <p class="muted">${right} of ${r.log.length} right. Tap any question for the full story.</p><div class="card misses review flat">${reviewRows(r.kind, r.log)}</div></div>`);
+  sh.el.querySelectorAll("[data-more]").forEach(b => b.addEventListener("click", () => sh.close()));
 }
 
 /* ---------- "More": the full story behind a card ----------

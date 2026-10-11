@@ -208,6 +208,7 @@ function viewRecall() {
   ${dueCount("es") + dueCount("tr") ? `<button class="btn green" data-a="review">${ic("cards")}Review ${dueCount("es") + dueCount("tr")} due card${dueCount("es") + dueCount("tr") === 1 ? "" : "s"}</button>` : ""}
   ${path}
   <button class="card rushcard" data-a="rush"><span class="rz">${ic("zap")}</span><span><b>Rapid recall</b><small>60 seconds of rapid-fire questions on things you've learned${state.rushBest ? ` · best ${fmt(state.rushBest)}` : ""}</small></span>${ic("play")}</button>
+  ${state.rounds.length ? `<section class="card misses rounds"><div class="eyebrow m">${ic("cards")}Look back over a round</div><p class="muted">Your last ${state.rounds.length === 1 ? "round" : `${state.rounds.length} rounds`}, every question with its answer.</p>${state.rounds.map((r, i) => `<button class="missrow" data-a="round" data-i="${i}"><span><small>${esc(roundWhen(r.d))} · ${r.kind === "es" ? "Palabras" : "Knowledge"}</small><b>${r.log.filter(e => e.ok).length} of ${r.log.length} right</b></span>${ic("arrow")}</button>`).join("")}</section>` : ""}
   <div class="secrow"><div><h2 class="sec">${ic("cards")}Your subjects</h2><p>Your daily session already pulls from all of these. Tap Next lesson to go further in one.</p></div></div>
   <div class="decks">${decks}</div>
 `;
@@ -470,6 +471,7 @@ document.addEventListener("click", e => {
   else if (a === "learn") { const k = b.dataset.k, c = b.dataset.c; const ids = nextNew(k, 5, c); if (ids.length) openPractice({ t: "know", kind: k, ids }, k === "es" ? "Spanish" : c || "Knowledge"); }
   else if (a === "pace") { state.pace.months = +b.dataset.m; save(); const y = scrollY; render(); scrollTo(0, y); toast(`Goal: everything in ${b.dataset.m} months. That's ${paceInfo().perDay} new cards a day.`); }
   else if (a === "pzd") openPractice({ t: "puzzle", kind: b.dataset.k }, PZK[b.dataset.k].name);
+  else if (a === "round") openRound(+b.dataset.i);
   else if (a === "pzf") openPractice({ t: "puzzle", kind: b.dataset.k, free: true }, PZK[b.dataset.k].name);
   else if (a === "rush") openPractice({ t: "puzzle", kind: "rush", cat: b.dataset.c || null }, b.dataset.c ? `${b.dataset.c} rush` : "Rapid recall");
   else if (a === "puzzle") openPractice({ t: "puzzle", kind: b.dataset.k }, "Bonus puzzle");
