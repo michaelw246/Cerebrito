@@ -67,6 +67,9 @@ More sheet (hidden when unavailable).
   6, 9 or 12 months (Long-term memory page) sets how many new cards each day brings; each subject shows its lesson
   under way and accuracy over the last 14 days with its trend. Every card has a More sheet with the full context.
 - **Puzzles** have a seeded daily version plus unlimited free play, with stats, distributions and share text.
+- **No repeats**: each puzzle remembers the answers it has given (`state.seen`, shared by the daily and free play) and
+  only repeats once its whole pool is used, even then holding back the most recent third. MapTap has 227 places and
+  Palabra 251 words; the smoke test checks every MapTap place sits inside its country on the map.
 - **Streaks** reset on a missed day unless a freeze covers it; missing a day never costs XP or levels.
 
 ## Data model notes

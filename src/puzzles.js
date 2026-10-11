@@ -52,20 +52,43 @@ function travlePairs() {
   const ok = (a, b) => CTRY[a].r === CTRY[b].r || (["eu", "as"].includes(CTRY[a].r) && ["eu", "as"].includes(CTRY[b].r));
   return (_travlePairs = GEO.pairs.filter(([a, b]) => { if (!ok(a, b) || !CTRY[a].pool || !CTRY[b].pool) return false; const d = bfsGeo(a)[b]; return d >= 3 && d <= 6; }));
 }
+/* No repeats: each puzzle remembers the answers it has given you (state.seen[kind], shared by the daily and
+   free play) and picks from the ones you haven't had. Once the whole pool is used it starts over, still
+   holding back the most recent third so a word or place never comes straight back. Keys are names, not
+   indexes, so adding to a list never scrambles the memory. */
+function freshPick(kind, keys, rng, n = 1) {
+  const inPool = new Set(keys), out = [];
+  let seen = state.seen[kind] || [];
+  for (let j = 0; j < Math.min(n, keys.length); j++) {
+    let pool = keys.filter(k => !out.includes(k) && !seen.includes(k));
+    if (!pool.length) {   // all used: start this pool over, holding back its most recent third
+      const mine = seen.filter(k => inPool.has(k));
+      seen = seen.filter(k => !inPool.has(k)).concat(mine.slice(-Math.floor(keys.length / 3)));
+      pool = keys.filter(k => !out.includes(k) && !seen.includes(k));
+      if (!pool.length) pool = keys.filter(k => !out.includes(k));
+    }
+    const k = pool[Math.floor(rng() * pool.length)]; out.push(k); seen.push(k);
+  }
+  state.seen[kind] = seen.slice(-3000);
+  return out;
+}
+const pick1 = (kind, keys, rng) => freshPick(kind, keys, rng)[0];
 function newPz(kind, seed) {
   const rng = seeded(seed), ri = n => Math.floor(rng() * n);
-  if (kind === "palabra") return { a: ri(PALABRAS.length), g: [], rev: [] };
-  if (kind === "wordle") return { a: ri(EN.ans5.length), g: [], rev: [] };
-  if (kind === "pais") { const all = CTRY.filter(c => c.pool), pool = rng() < 0.35 ? all.filter(c => c.r === "sa" || c.r === "na") : all; return { a: pool[ri(pool.length)].i, g: [], v: 2 }; }
-  if (kind === "worldle") { const pool = WORLDLE_POOL(); return { a: pool[ri(pool.length)].i, g: [], v: 2 }; }
-  if (kind === "travle") { const P = travlePairs(); const [a, b] = P[ri(P.length)]; return { A: a, B: b, g: [], v: 2 }; }
-  if (kind === "maptap") { const idx = new Set(); while (idx.size < 5) idx.add(ri(PLACES.length)); return { places: [...idx], res: [] }; }
-  if (kind === "bee") return { a: ri(EN.bp.length), found: [] };
+  if (kind === "palabra") { const w = pick1(kind, PALABRAS.map(p => p[0]), rng); return { a: PALABRAS.findIndex(p => p[0] === w), g: [], rev: [] }; }
+  if (kind === "wordle") { const w = pick1(kind, EN.ans5, rng); return { a: EN.ans5.indexOf(w), g: [], rev: [] }; }
+  if (kind === "pais") {
+    // a lean towards the Americas, but only while there are American countries you haven't had
+    const all = CTRY.filter(c => c.pool), am = all.filter(c => (c.r === "sa" || c.r === "na") && !(state.seen.pais || []).includes(c.key)), pool = rng() < 0.35 && am.length ? am : all; const k = pick1(kind, pool.map(c => c.key), rng); return { a: CTRY_KEY[k].i, g: [], v: 2 }; }
+  if (kind === "worldle") { const k = pick1(kind, WORLDLE_POOL().map(c => c.key), rng); return { a: CTRY_KEY[k].i, g: [], v: 2 }; }
+  if (kind === "travle") { const P = travlePairs(), key = ([a, b]) => CTRY[a].key + ">" + CTRY[b].key; const k = pick1(kind, P.map(key), rng); const [a, b] = P.find(p => key(p) === k); return { A: a, B: b, g: [], v: 2 }; }
+  if (kind === "maptap") { const names = freshPick(kind, PLACES.map(p => p.n), rng, 5); return { places: names.map(n => PLACES.findIndex(p => p.n === n)), res: [] }; }
+  if (kind === "bee") { const k = pick1(kind, EN.bp.map(b => b.join("")), rng); return { a: EN.bp.findIndex(b => b.join("") === k), found: [] }; }
   if (kind === "hunt") { const n = [...Array(25).keys()].map(x => x + 1); for (let i = n.length - 1; i > 0; i--) { const j = ri(i + 1); [n[i], n[j]] = [n[j], n[i]]; } return { grid: n }; }
   if (kind === "pairs") {
     const ok = content.es.filter(x => x.es.length <= 14 && x.en.length <= 16 && !/[/(]/.test(x.en)), seen = ok.filter(x => state.srs.es[x.id]);
     const pool = seen.length >= 4 ? seen : ok, pickN = (arr, n) => { const a = arr.slice(), out = []; while (out.length < n && a.length) out.push(a.splice(ri(a.length), 1)[0]); return out; };
-    const chosen = pickN(pool, Math.min(4, pool.length)); chosen.push(...pickN(ok.filter(x => !chosen.includes(x)), 6 - chosen.length));
+    const byId = Object.fromEntries(pool.map(x => [x.id, x])), chosen = freshPick(kind, pool.map(x => x.id), rng, Math.min(4, pool.length)).map(id => byId[id]); chosen.push(...pickN(ok.filter(x => !chosen.includes(x)), 6 - chosen.length));
     const deck = chosen.flatMap(x => [{ id: x.id, s: "es" }, { id: x.id, s: "en" }]); for (let i = deck.length - 1; i > 0; i--) { const j = ri(i + 1); [deck[i], deck[j]] = [deck[j], deck[i]]; }
     return { deck };
   }
@@ -399,6 +422,7 @@ function runTravle(step) {
 }
 
 /* ---------- MapTap ---------- */
+const MAPTAP_VB = [90, 20, 820, 340];
 function runMaptap(step) {
   const S = pzState("maptap", step);
   if (S.done) { P.idx++; save(); return stepIntro(); }
@@ -407,16 +431,17 @@ function runMaptap(step) {
   app.innerHTML = `<div class="play gplay">${shead()}<section class="pzcard tight"><div class="row2">${pzTag("maptap", step, "o")}<span class="eyebrow" id="mround"></span></div><h2 id="mq"></h2><p class="muted" id="msub"></p></section>
     <section class="card mapcard live tall"><div id="mmap"></div></section><div class="mdots" id="mdots"></div></div>`;
   const dock = dockBar();
-  const map = MapView($("#mmap"), { cls: "tap", minW: 18, vb: [90, 20, 820, 340], hint: "Drag and pinch to explore. Tap to drop your pin", label: "Map, tap to place your pin", onTap: pt => { if (revealed) return; pin = pt; drawPin(); drawDock(); buzz(true); } });
+  const map = MapView($("#mmap"), { cls: "tap", minW: 18, vb: MAPTAP_VB, hint: "Drag and pinch to explore. Tap to drop your pin", label: "Map, tap to place your pin", onTap: pt => { if (revealed) return; pin = pt; drawPin(); drawDock(); buzz(true); } });
   pzCleanup(() => dock.destroy(), () => map.destroy());
   const place = () => PLACES[S.places[S.res.length - (revealed ? 1 : 0)]];
   const drawPin = () => {
     const u = map.unit(); let h = "";
     if (pin) { const [x, y] = proj(pin.lat, pin.lon); h += pinSVG(x, y, "mine"); }
-    if (revealed) { const r = S.res[S.res.length - 1], pl = place(), [px, py] = proj(pl.lat, pl.lon), [tx, ty] = proj(r.lat, r.lon); h = r.skip ? pinSVG(px, py, "truth") : `<line x1="${tx}" y1="${ty}" x2="${px}" y2="${py}" class="tline"/>` + pinSVG(tx, ty, "mine") + pinSVG(px, py, "truth"); }
+    if (revealed) { const r = S.res[S.res.length - 1], pl = place(), [px, py] = proj(pl.lat, pl.lon), [tx, ty] = proj(r.lat, r.lon); h = r.skip ? pinSVG(px, py, "truth", pl.n) : `<line x1="${tx}" y1="${ty}" x2="${px}" y2="${py}" class="tline"/>` + pinSVG(tx, ty, "mine", "You", ty > py) + pinSVG(px, py, "truth", pl.n, ty <= py); }
     map.overlay(h);
   };
-  const pinSVG = (x, y, cls) => `<g class="pinm ${cls}" style="transform:translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(var(--u))"><circle r="15" class="halo"/><circle r="7"/></g>`;
+  // label: the answer shows the place's name, your pin says "You"; below: put it under the pin (the lower of the two)
+  const pinSVG = (x, y, cls, label, below) => `<g class="pinm ${cls}" style="transform:translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(var(--u))"><circle r="15" class="halo"/><circle r="7"/>${label ? `<text class="pinlab" y="${below ? 30 : -19}">${esc(label)}</text>` : ""}</g>`;
   const drawHead = () => {
     const pl = place(), i = S.res.length - (revealed ? 1 : 0), total = S.res.reduce((a, r) => a + r.p, 0);
     $("#mround").textContent = `Place ${i + 1} of 5 · ${total} pts`; $("#mq").textContent = `Where is ${pl.n}?`; $("#msub").textContent = pl.c === pl.n ? "" : `In ${pl.c}`;
@@ -426,7 +451,7 @@ function runMaptap(step) {
     if (revealed) {
       const r = S.res[S.res.length - 1], last = S.res.length >= 5;
       dock.set(`<div class="mres"><div><b>${r.skip ? `Here's ${esc(place().n)}` : r.d < 25 ? "Bullseye!" : fmt(r.d) + " km away"}</b><small>${r.skip ? "No points, but now you know" : `+${r.p} points${r.p >= 90 ? " 🎯" : ""}`}</small></div><button class="gsubmit" id="mnext">${last ? "See results" : "Next place"}${ic("arrow")}</button></div>`);
-      $("#mnext").onclick = () => { if (last) return end(); revealed = false; pin = null; drawHead(); drawPin(); drawDock(); map.flyTo([90, 20, 820, 340], 700); };
+      $("#mnext").onclick = () => { if (last) return end(); revealed = false; pin = null; drawHead(); drawPin(); drawDock(); map.flyTo(MAPTAP_VB, 700); };
     } else { dock.set(`<div class="grow"><div class="gfield static">${ic("pin")}<span>${pin ? "Pin dropped" : "Tap the map"}</span></div>${giveUpBtn("Show me")}<button class="gsubmit" id="mlock" ${pin ? "" : "disabled"}>Lock in</button></div>`); $("#mlock").onclick = lock; armGiveUp(skip, "Show me"); }
   };
   const lock = () => {
@@ -452,7 +477,7 @@ function runMaptap(step) {
       `<section class="card mapcard"><div id="rmap"></div></section><div class="wrows">${rows}</div>`, rw,
       { share: `Cerebrito MapTap ${step.free ? "" : today() + " "}${total}/500\n${S.res.map(r => r.p >= 70 ? "🟩" : r.p >= 30 ? "🟨" : "🟥").join("")}` });
     const m = MapView($("#rmap"), { label: "Your pins" }), pts = [];
-    m.overlay(S.places.map((pi, j) => { const pl = PLACES[pi], r = S.res[j], [px, py] = proj(pl.lat, pl.lon), [tx, ty] = proj(r.lat, r.lon); pts.push([px, py], [tx, ty]); return r.skip ? pinSVG(px, py, "truth") : `<line x1="${tx}" y1="${ty}" x2="${px}" y2="${py}" class="tline"/>${pinSVG(tx, ty, "mine")}${pinSVG(px, py, "truth")}`; }).join(""));
+    m.overlay(S.places.map((pi, j) => { const pl = PLACES[pi], r = S.res[j], [px, py] = proj(pl.lat, pl.lon), [tx, ty] = proj(r.lat, r.lon); pts.push([px, py], [tx, ty]); return r.skip ? pinSVG(px, py, "truth", pl.n) : `<line x1="${tx}" y1="${ty}" x2="${px}" y2="${py}" class="tline"/>${pinSVG(tx, ty, "mine")}${pinSVG(px, py, "truth", pl.n, ty <= py)}`; }).join(""));
     setTimeout(() => m.flyTo(fitW(bboxPts(pts, 30), 200), 900), 250);
     pzCleanup(() => m.destroy());
     if (won) setTimeout(() => burst(innerWidth / 2, 180, 28), 100);

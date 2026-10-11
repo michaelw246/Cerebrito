@@ -45,7 +45,7 @@ function freshState() {
     skin: "andean", sound: true, haptics: true, notice: null,
     log: {}, awards: {}, rec: {},
     pace: { months: 9, start: null }, kst: {},
-    coins: 150, owned: ["andean"], joined: null, pz: {}, pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
+    coins: 150, owned: ["andean"], joined: null, pz: {}, seen: {}, pzs: { palabra: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0] }, pais: { played: 0, won: 0, streak: 0, dist: [0, 0, 0, 0, 0, 0, 0, 0, 0] } }
   };
 }
 let state = freshState();
@@ -64,6 +64,7 @@ function migrate() {
   if (!state.kst || typeof state.kst !== "object") state.kst = {};
   if (!state.awards) state.awards = {};
   if (!state.rec) state.rec = {};
+  if (!state.seen || typeof state.seen !== "object") state.seen = {};
   if (!Object.keys(state.log).length) {   // backfill the activity log from what older saves recorded
     Object.values(state.skills).forEach(k => k.hist.forEach(h => { const L = state.log[h.d] || (state.log[h.d] = {}); L.g = (L.g || 0) + 1; }));
     if (state.lastDone) { const L = state.log[state.lastDone] || (state.log[state.lastDone] = {}); L.s = 1; }
